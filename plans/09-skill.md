@@ -131,16 +131,19 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut (needs you: try it)
 
-- [ ] `skills/penpot-mcp/SKILL.md` lands with frontmatter checked against
+- [x] `skills/penpot-mcp/SKILL.md` lands with frontmatter checked against
   the official Claude Code skills docs (saved to
   `docs/external/claude-code-skills.md`), install, env vars, the route rule
   and the drawing loop for the tools of `plans/01-first-version.md`, and
   `make install-skill` symlinks it into `~/.claude/skills/`.
-- [ ] `skills/penpot-mcp/references/chrome.md` lands with the token hand-off,
+- [x] `skills/penpot-mcp/references/chrome.md` lands with the token hand-off,
   opening a file and screenshotting a board, and
   `skills/penpot-mcp/references/traps.md` with the API traps, pinned by
   `TestChromeDocStopsBeforeSecrets` and `TestSkillNoSecretFiles`.
-- [ ] Check: `make check` passes, and `/skills` in a new Claude Code session
+  Landed 2026-10-19: the token flow stops before *Create access token*:
+  the user clicks it and copies the token, so it is never on screen for
+  the agent. Tests live in `skills/skill_test.go`.
+- [x] Check: `make check` passes, and `/skills` in a new Claude Code session
   lists `penpot-mcp`.
 - [ ] You try it: in a fresh session say "set up penpot-mcp and draw a board
   in my test file", let it walk you through the token in Chrome, and say
