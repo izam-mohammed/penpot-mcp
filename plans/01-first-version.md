@@ -250,7 +250,7 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: prove the integrations (needs you: set PENPOT_ACCESS_TOKEN)
 
-- [ ] `scripts/prove/penpot-api.sh` calls `get-profile` with
+- [x] `scripts/prove/penpot-api.sh` calls `get-profile` with
   `Authorization: Token $PENPOT_ACCESS_TOKEN` per
   `docs/external/penpot-backend-api.md` § Authentication and prints `PASS`
   when the returned id is not the zero UUID, with `PENPOT_BASE_URL` and
@@ -259,7 +259,7 @@ repository instructions for recording useful development findings.
   temp dir against go-sdk v1.8.0 per `docs/external/go-mcp-sdk.md` § Server,
   pipes `initialize` and `tools/list` over stdio, and prints `PASS` when the
   tool is listed.
-- [ ] Check: `sh scripts/prove/penpot-api.sh` and
+- [x] Check: `sh scripts/prove/penpot-api.sh` and
   `sh scripts/prove/go-mcp-sdk.sh` both exit 0 and print `PASS`.
 
 ### Phase 2: the rough cut (needs you: try it)
