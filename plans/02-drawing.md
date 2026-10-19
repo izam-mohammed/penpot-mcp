@@ -146,13 +146,27 @@ repository instructions for recording useful development findings.
 
 ### Phase 2: the rest of the shapes, and edits
 
-- [ ] `create_path`, `create_image`, `create_group`, `create_bool`,
+- [x] `create_path`, `create_image`, `create_group`, `create_bool`,
   `set_layout` and rotation land, pinned by `TestPathRejectsGarbage`,
   `TestImageRejectsNonImage` and `TestRotatedGeometry`.
-- [ ] `update_shape`, `move_shape`, `reparent_shape`, `delete_shapes` and
+- [x] `update_shape`, `move_shape`, `reparent_shape`, `delete_shapes` and
   `apply_changes` land (expected in `internal/tools/edit.go`), pinned by
   `TestDeleteRefusesRoot` and `TestApplyChangesValidates`; check:
   `make check` passes.
+
+Landed 2026-10-19: the transit encoder is `internal/transit/` (encode only,
+for `mov-objects` and `reg-objects`); the SVG path parser is
+`internal/penpot/path.go` (every SVG command; arcs and quadratics become
+cubics); layout and image code went to `internal/tools/layout.go` and
+`media.go`, raw page edits to `raw.go`. Layouts are placed by us, because a
+live check showed Penpot does not reflow when a file opens; Penpot's own
+reflow, triggered in the editor, gave the same order (top layer first).
+`move_shape` moves by dx, dy with `mod-obj` on every descendant;
+`reparent_shape` does moves between parents and reorders. `create_group`
+and `create_bool` take two writes (JSON add, transit move) and delete the
+empty group if the second fails. `reg-objects` computes a bool's content,
+so bools need no geometry of ours. `make live` (`TestLiveShapes`) drew every
+type and ran every edit tool; the result was checked by eye in Penpot.
 
 ### Phase 3: open the PR
 
