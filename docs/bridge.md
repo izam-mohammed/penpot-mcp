@@ -119,16 +119,17 @@ The official MCP cannot do any of these; the skill used Chrome automation for th
 | `create_ellipse` | API | **API** | `add-obj` type `circle` |
 | `create_path` | API | **API** | `add-obj` type `path`, content from SVG `d` |
 | `create_image` | API | **API** | upload media, then `rect` with a `fillImage` fill |
-| `create_group`, `create_bool` | API | **API** | `add-obj` group/bool, then `reg-objects` |
+| `create_group`, `create_bool` | API | **API** | `add-obj` group/bool (JSON), then transit `mov-objects` of the shapes into it and `reg-objects`, which also computes a bool's content |
 | `create_text` | API + MCP | **HYBRID** | API: `add-obj` text with estimated width and height. MCP (if tab connected): `waitForLayoutUpdate`, read the real size, write it back with `mod-obj`. |
 | `import_svg` (Plugin `createShapeFromSvg`) | API + MCP | **HYBRID** | API: parse SVG ourselves into paths (or one `svg-raw` shape). MCP: forward to `createShapeFromSvg` when the tab is connected and the user wants the browser parser. Both drop gradients in some cases. |
 | `update_shape` | API | **API** | `mod-obj` with `assign`; geometry recomputed by us on move or resize |
-| `move_shape`, `reparent_shape`, `reorder` | API | **API** | `del-obj` + `add-obj` with the same id (JSON `mov-objects` is unreliable); transit `mov-objects` once tested |
+| `move_shape` | API | **API** | `mod-obj` `assign` of the shifted geometry for the shape and every descendant (path content shifted too), then `reg-objects` on groups around it |
+| `reparent_shape` (also reorders, with `index`) | API | **API** | `mov-objects` sent as transit; JSON `mov-objects` answers 200 and moves nothing (checked 2026-10-19) |
 | `delete_shapes` | API | **API** | `del-obj` |
 | `draw` (declarative tree, replaces `builder.js` / `screens.js`) | API + MCP | **HYBRID** | API: whole tree in one `update-file` batch. MCP: optional reflow and text measuring pass at the end. |
 | `apply_changes` (raw `changes[]`) | API | **API** | `update-file` as-is, the API-side escape hatch |
 | `reflow` (skill `pd.reflow`, `waitForLayoutUpdate`) | MCP | **MCP** | forward `await penpot.waitForLayoutUpdate()` on the open file; without a tab, layout reflows when the file is next opened |
-| `set_layout` (flex / grid) | API + MCP | **HYBRID** | API stores the layout attributes. Child positions update only after reflow (MCP or on open). |
+| `set_layout` (flex / grid) | API | **API** | API stores the layout attributes and we place the children ourselves (fixed sizes, top layer first, as Penpot does); opening the file does not reflow. MCP reflow only for fill or auto sizing. |
 
 ## 8. Library and tokens
 

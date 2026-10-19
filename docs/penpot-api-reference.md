@@ -314,7 +314,7 @@ Pages, shapes, colors, typographies, components, guides, flows and tokens are al
 5. The backend does **not** recompute geometry, layout or text layout:
    - It stores exactly what you send.
    - When you move or resize a shape, send consistent `x`, `y`, `width`, `height`, `selrect` and `points` together.
-   - Flex and grid layouts are reflowed by the frontend when the file is opened. [UNCERTAIN] Until then, the children of an auto-layout board stay where you put them.
+   - Flex and grid layouts are **not** reflowed when the file is opened [VERIFIED 2026-10-19]: the children stay where you put them until someone edits the layout in the editor. Place them yourself. Penpot lays out the **top** layer (last in `shapes`) first.
    - For shapes created by the API, run `reg-objects` on the parent group or bool ids so that their selrect is recalculated. Boards do not need this.
 
 ### 5.4 Operations (inside `mod-obj.operations`)
@@ -332,7 +332,7 @@ The JSON decoder only converts values whose schema type is known. These fields a
 
 - **`mod-obj` → `{type:"set", val}`:** UUIDs stay strings and enum values stay strings, so they are not keywords. Shape validation then fails, for example on `"constraintsH":"scale"` or a gradient `type`, with **500 `assertion` / `data-validation`**.
   - **Fix: always use `assign`** from JSON. Plain numbers, booleans and hex color strings are fine in `set`.
-- **`mov-objects.shapes`, `mov-objects.afterShape` and `reorder-children.shapes`:** these are `any`. UUID strings are not converted, so they match no objects, and the move probably does nothing silently. [UNCERTAIN]
+- **`mov-objects.shapes`, `mov-objects.afterShape` and `reorder-children.shapes`:** these are `any`. UUID strings are not converted, so they match no objects, and the move does nothing: JSON `mov-objects` answers 200 and leaves the shape where it was [VERIFIED 2026-10-19, `scripts/prove/penpot-move.sh`]. The transit form below works.
   - **Workaround:** send these change types with `Content-Type: application/transit+json`, encoding the ids as `"~u<uuid>"`.
   - **Alternatively,** avoid moves: `del-obj` the shape and `add-obj` it again under the new parent at the index you want. This changes nothing about the shape, since it keeps the same id.
 - **`add-page.page`:** typed `any`. Use the `{id, name}` form instead, which builds an empty page on the server.
@@ -556,6 +556,8 @@ Send either an array of segments or an SVG path string. The backend converts bot
 
 - The first segment must be `move-to`.
 - You can also send an SVG path string such as `"M0,0 L100,0 Z"`. [UNCERTAIN] The string form is parsed by `path/from-string`; check which SVG commands it accepts.
+- The segment array is accepted from JSON in `add-obj` [VERIFIED 2026-10-19]. `get-page` returns `content` as an absolute SVG string such as `"M1620.0,120.0L1720.0,20.0C...Z"`.
+- `reg-objects` on a `bool` computes its `content` from the children, so a new bool can be sent with `content: []` [VERIFIED 2026-10-19].
 - For paths, set `selrect` and `points` to the bounding box of the content. `x`, `y`, `width` and `height` can be null or match the box.
 - `get-file` may return `content` in an encoded form (binary/base64 or string) when the file has `fdata/path-data`. [UNCERTAIN]
 
