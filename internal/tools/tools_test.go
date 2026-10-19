@@ -28,6 +28,8 @@ type backend struct {
 	mu      sync.Mutex
 	calls   []string
 	updates []map[string]any
+	raw     []string // update-file bodies as sent
+	ctypes  []string // their content types
 }
 
 func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
@@ -39,6 +41,8 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 		var body map[string]any
 		_ = json.Unmarshal(data, &body)
 		b.updates = append(b.updates, body)
+		b.raw = append(b.raw, string(data))
+		b.ctypes = append(b.ctypes, r.Header.Get("Content-Type"))
 	}
 	b.mu.Unlock()
 
@@ -51,10 +55,12 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 	case "get-page":
 		_, _ = w.Write([]byte(`{"id":"` + pageID + `","name":"Page 1","objects":{
 			"00000000-0000-0000-0000-000000000000":{"id":"00000000-0000-0000-0000-000000000000","name":"Root Frame","type":"frame","shapes":["` + boardID + `"]},
-			"` + boardID + `":{"id":"` + boardID + `","name":"Login","type":"frame","x":0,"y":0,"width":400,"height":300,"shapes":["` + rectID + `"]},
-			"` + rectID + `":{"id":"` + rectID + `","name":"Button","type":"rect","x":50,"y":50,"width":100,"height":40}}}`))
+			"` + boardID + `":{"id":"` + boardID + `","name":"Login","type":"frame","parentId":"00000000-0000-0000-0000-000000000000","frameId":"00000000-0000-0000-0000-000000000000","x":0,"y":0,"width":400,"height":300,"shapes":["` + rectID + `"]},
+			"` + rectID + `":{"id":"` + rectID + `","name":"Button","type":"rect","parentId":"` + boardID + `","frameId":"` + boardID + `","x":50,"y":50,"width":100,"height":40}}}`))
 	case "update-file":
 		_, _ = w.Write([]byte(`{"revn":3,"lagged":[]}`))
+	case "upload-file-media-object":
+		_, _ = w.Write([]byte(`{"id":"d0000000-0000-4000-8000-000000000001","name":"swatch","width":120,"height":80,"mtype":"image/png"}`))
 	case "get-all-projects":
 		_, _ = w.Write([]byte(`[{"id":"p1","name":"Drafts","teamId":"t1"}]`))
 	default:
@@ -138,7 +144,9 @@ func TestListsTools(t *testing.T) {
 	for _, tool := range res.Tools {
 		names = append(names, tool.Name)
 	}
-	want := "create_board create_ellipse create_rect create_text draw get_page_tree list_files list_pages list_projects list_teams whoami"
+	want := "apply_changes create_board create_bool create_ellipse create_group create_image create_path create_rect create_text " +
+		"delete_shapes draw get_page_tree list_files list_pages list_projects list_teams move_shape reparent_shape " +
+		"set_layout update_shape whoami"
 	if got := strings.Join(sortStrings(names), " "); got != want {
 		t.Errorf("tools = %s\nwant    %s", got, want)
 	}

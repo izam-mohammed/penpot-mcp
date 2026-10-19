@@ -19,4 +19,6 @@ type Deps struct {
 func Register(s *mcp.Server, d Deps) {
 	registerRead(s, d)
 	registerDraw(s, d)
+	registerLayout(s, d)
+	registerEdit(s, d)
 }
