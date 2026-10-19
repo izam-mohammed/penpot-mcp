@@ -295,10 +295,13 @@ repository instructions for recording useful development findings.
 - [x] Check: `make check` passes, and `make live` (needs the env vars)
   lists the user's teams and draws a 400 x 300 board with a 100 x 100 rect
   in a file named `penpot-mcp test`.
-- [ ] You try it: add the binary to Claude Code, ask it to list your
+- [x] You try it: add the binary to Claude Code, ask it to list your
   projects and draw a board with a red rectangle in a test file, then open
   that file in Penpot and say whether the shapes look right. What you want
   changed goes into the later plans in `PLAN.md`.
+  Landed 2026-10-19: added as `penpot-api`; the user confirmed it works,
+  and a board with a red rect drawn through Claude Code rendered right in
+  Penpot. No changes asked for.
 
 ### Phase 3: open the PR
 
