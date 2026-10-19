@@ -5,6 +5,8 @@ import (
 	"crypto/rand"
 	"fmt"
 	"sync"
+
+	"github.com/izam-mohammed/penpot-mcp/internal/transit"
 )
 
 // fileState is the cached revision of a file, refreshed on conflicts.
@@ -102,6 +104,40 @@ func (w *Writer) state(ctx context.Context, fileID string, refresh bool) (*fileS
 // Apply sends changes to a file in one update-file call. On a revn or vern
 // conflict it re-reads the file once and retries.
 func (w *Writer) Apply(ctx context.Context, fileID string, changes []map[string]any) error {
+	return w.apply(ctx, fileID, func(st *fileState, res *UpdateResult) error {
+		return w.c.Call(ctx, "update-file", map[string]any{
+			"id":        fileID,
+			"sessionId": w.sessionID,
+			"revn":      st.revn,
+			"vern":      st.vern,
+			"changes":   changes,
+		}, res)
+	})
+}
+
+// ApplyTransit is Apply for changes Penpot decodes only from transit, such as
+// mov-objects.
+func (w *Writer) ApplyTransit(ctx context.Context, fileID string, changes []transit.Map) error {
+	items := make([]any, len(changes))
+	for i, c := range changes {
+		items[i] = c
+	}
+	return w.apply(ctx, fileID, func(st *fileState, res *UpdateResult) error {
+		body, err := transit.Marshal(transit.Map{
+			{K: "id", V: transit.UUID(fileID)},
+			{K: "session-id", V: transit.UUID(w.sessionID)},
+			{K: "revn", V: st.revn},
+			{K: "vern", V: st.vern},
+			{K: "changes", V: items},
+		})
+		if err != nil {
+			return err
+		}
+		return w.c.CallTransit(ctx, "update-file", body, res)
+	})
+}
+
+func (w *Writer) apply(ctx context.Context, fileID string, send func(*fileState, *UpdateResult) error) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	st, err := w.state(ctx, fileID, false)
@@ -113,13 +149,7 @@ func (w *Writer) Apply(ctx context.Context, fileID string, changes []map[string]
 	}
 	for attempt := 0; ; attempt++ {
 		var res UpdateResult
-		err := w.c.Call(ctx, "update-file", map[string]any{
-			"id":        fileID,
-			"sessionId": w.sessionID,
-			"revn":      st.revn,
-			"vern":      st.vern,
-			"changes":   changes,
-		}, &res)
+		err := send(st, &res)
 		if err == nil {
 			st.revn = res.Revn + 1
 			return nil
