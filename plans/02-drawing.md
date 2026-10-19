@@ -46,14 +46,20 @@ decoding; the API reference § 5.5.
 | Criterion | Weight | Delete and re-add, same id | `mov-objects` in transit |
 | --- | ---: | ---: | ---: |
 | Performance efficiency | 40 | 4 | 5 |
-| Reliability | 40 | 4 | ? |
+| Reliability | 40 | 4 | 5 |
 | Fit to the ask | 20 | 4 | 5 |
-| **Weighted total** | **100** | **4.00** | **?** |
+| **Weighted total** | **100** | **4.00** | **5.00** |
 
-- Transit reliability `?`: untested; settled by Phase 1's first item.
+- Transit reliability 5: `scripts/prove/penpot-move.sh` on 2026-10-19 sent
+  `mov-objects` both ways to design.penpot.app (2.18): JSON answered 200 and
+  moved nothing; transit answered 200 and moved the rect into the new board.
+- Delete and re-add efficiency 4: two changes per move and the shape's
+  children have to be re-added too.
 
-**Chosen: delete and re-add with the same id**, switching to transit
-`mov-objects` if Phase 1 shows it works. Revisit after that test.
+**Chosen: `mov-objects` in transit** for moves and reorders, with a
+minimal transit encoder for those changes only (expected in
+`internal/transit/`); JSON for everything else. Revisit if Penpot decodes
+`mov-objects` from JSON.
 
 ## The decision
 
@@ -106,6 +112,8 @@ image bytes. Checklist: OWASP Top 10 for LLM Applications 2025 (LLM06).
 
 - Fixed text ratio: lost on fit to the ask (3.60 against 4.20); kept only as
   the fallback.
+- Delete and re-add for moves: lower on efficiency and reliability once the
+  transit check passed (4.00 against 5.00).
 
 ## What the tests hold
 
@@ -124,14 +132,14 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut (needs you: try it)
 
-- [ ] A throwaway check in `scripts/prove/penpot-move.sh` sends one
+- [x] A throwaway check in `scripts/prove/penpot-move.sh` sends one
   `mov-objects` in transit and one over JSON to a test file and prints which
   moved the shape; the result is written into decision 2.
-- [ ] `create_text`, `create_ellipse` and the `draw` tree tool land
+- [x] `create_text`, `create_ellipse` and the `draw` tree tool land
   (expected in `internal/penpot/shapes.go`, `text.go`,
   `internal/tools/draw.go`), pinned by `TestTextMeasure`, `TestDrawOneBatch`
   and `TestDrawCaps`.
-- [ ] Check: `make check` passes, and `make live` draws a login screen
+- [x] Check: `make check` passes, and `make live` draws a login screen
   (board, title text, two input rects, a button) in one call.
 - [ ] You try it: ask Claude to draw a simple login screen in your test
   file, open it in Penpot, and say whether the text sits where it should.
