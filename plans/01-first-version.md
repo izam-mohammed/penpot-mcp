@@ -256,7 +256,7 @@ repository instructions for recording useful development findings.
   `docs/external/penpot-backend-api.md` § Authentication and prints `PASS`
   when the returned id is not the zero UUID, with `PENPOT_BASE_URL` and
   `PENPOT_ACCESS_TOKEN` listed in `.env.example`.
-- [ ] `scripts/prove/go-mcp-sdk.sh` builds a throwaway one-tool server in a
+- [x] `scripts/prove/go-mcp-sdk.sh` builds a throwaway one-tool server in a
   temp dir against go-sdk v1.8.0 per `docs/external/go-mcp-sdk.md` § Server,
   pipes `initialize` and `tools/list` over stdio, and prints `PASS` when the
   tool is listed.
