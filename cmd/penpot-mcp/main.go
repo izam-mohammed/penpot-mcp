@@ -9,11 +9,13 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
+	"github.com/izam-mohammed/penpot-mcp/internal/fonts"
 	"github.com/izam-mohammed/penpot-mcp/internal/penpot"
 	"github.com/izam-mohammed/penpot-mcp/internal/tools"
 )
@@ -57,6 +59,18 @@ func run() error {
 
 	server := mcp.NewServer(&mcp.Implementation{Name: "penpot-mcp", Version: version},
 		&mcp.ServerOptions{Instructions: instructions})
-	tools.Register(server, tools.Deps{Client: client, Writer: penpot.NewWriter(client)})
+	base := os.Getenv("PENPOT_BASE_URL")
+	if base == "" {
+		base = penpot.DefaultBaseURL
+	}
+	cache := ""
+	if dir, err := os.UserCacheDir(); err == nil {
+		cache = filepath.Join(dir, "penpot-mcp", "fonts")
+	}
+	tools.Register(server, tools.Deps{
+		Client: client,
+		Writer: penpot.NewWriter(client),
+		Fonts:  fonts.NewMeasurer(base, cache, logger),
+	})
 	return server.Run(ctx, &mcp.StdioTransport{})
 }

@@ -19,8 +19,14 @@ Status: first version. See `PLAN.md` for what comes next and
 | `get_page_tree` | a page's shapes, flat, top-most first: id, parent, depth, name, type, box |
 | `create_board` | a board at the page root or inside another board |
 | `create_rect` | a rectangle at the root or inside a board |
+| `create_ellipse` | an ellipse filling a box |
+| `create_text` | a text box, sized with the real font metrics; wraps when given a width |
+| `draw` | many boards, rects, ellipses and texts in one write: a whole screen per call |
 
 Coordinates are absolute page pixels, also for shapes inside a board.
+Text is measured with the font's own metrics: Google fonts are fetched as
+TTF from fonts.googleapis.com and Source Sans Pro from the Penpot instance,
+then cached under the user cache directory (`penpot-mcp/fonts`).
 
 ## Build
 
@@ -42,7 +48,7 @@ make build        # writes bin/penpot-mcp
      -- /absolute/path/to/bin/penpot-mcp
    ```
 
-3. Restart Claude Code and run `/mcp`: `penpot-api` lists eight tools.
+3. Restart Claude Code and run `/mcp`: `penpot-api` lists its tools.
 
 | Env var | Needed | Meaning |
 | --- | --- | --- |

@@ -10,12 +10,83 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
+	"github.com/izam-mohammed/penpot-mcp/internal/fonts"
 	"github.com/izam-mohammed/penpot-mcp/internal/penpot"
 )
 
 // liveFile is the file the live run draws into. Create it in any project
 // first; `make live` never creates or deletes files.
 const liveFile = "penpot-mcp test"
+
+func liveSession(t *testing.T) *mcp.ClientSession {
+	t.Helper()
+	c, err := penpot.NewClient(os.Getenv("PENPOT_BASE_URL"), os.Getenv("PENPOT_ACCESS_TOKEN"), "live", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := mcp.NewServer(&mcp.Implementation{Name: "live", Version: "0"}, nil)
+	Register(s, Deps{Client: c, Writer: penpot.NewWriter(c), Fonts: fonts.NewMeasurer(penpot.DefaultBaseURL, t.TempDir(), nil)})
+	ctx := context.Background()
+	st, ct := mcp.NewInMemoryTransports()
+	ss, err := s.Connect(ctx, st, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = ss.Close() })
+	cs, err := mcp.NewClient(&mcp.Implementation{Name: "live", Version: "0"}, nil).Connect(ctx, ct, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = cs.Close() })
+	return cs
+}
+
+func liveFileID(t *testing.T, cs *mcp.ClientSession) string {
+	t.Helper()
+	var projects projectsOut
+	mustCall(t, cs, "list_projects", nil, &projects)
+	for _, p := range projects.Projects {
+		var files filesOut
+		mustCall(t, cs, "list_files", map[string]any{"project_id": p.ID}, &files)
+		for _, f := range files.Files {
+			if f.Name == liveFile {
+				return f.ID
+			}
+		}
+	}
+	t.Fatalf("no file named %q; create it in Penpot first", liveFile)
+	return ""
+}
+
+// TestLiveDraw draws a login screen in one draw call, with measured text.
+func TestLiveDraw(t *testing.T) {
+	cs := liveSession(t)
+	fileID := liveFileID(t, cs)
+	var out drawOut
+	mustCall(t, cs, "draw", map[string]any{
+		"file_id": fileID,
+		"shapes": []map[string]any{
+			{"ref": "s", "type": "board", "name": "live login", "x": 1000, "y": 0, "width": 393, "height": 600, "radius": 16},
+			{"parent": "s", "type": "text", "text": "Sign in", "x": 1024, "y": 48, "font_family": "Inter", "font_size": 32, "font_weight": 700, "color": "#111111"},
+			{"parent": "s", "type": "text", "text": "Welcome back. Enter your email and password to continue.", "x": 1024, "y": 100, "width": 345, "font_family": "Inter", "font_size": 15, "color": "#555555"},
+			{"parent": "s", "type": "rect", "name": "email field", "x": 1024, "y": 180, "width": 345, "height": 48, "radius": 8, "fill": "#F2F2F2"},
+			{"parent": "s", "type": "text", "text": "Email", "x": 1040, "y": 194, "font_family": "Inter", "font_size": 15, "color": "#888888"},
+			{"parent": "s", "type": "rect", "name": "password field", "x": 1024, "y": 244, "width": 345, "height": 48, "radius": 8, "fill": "#F2F2F2"},
+			{"parent": "s", "type": "text", "text": "Password", "x": 1040, "y": 258, "font_family": "Inter", "font_size": 15, "color": "#888888"},
+			{"ref": "btn", "parent": "s", "type": "rect", "name": "sign in button", "x": 1024, "y": 324, "width": 345, "height": 52, "radius": 26, "fill": "#2E6BE6"},
+			{"parent": "s", "type": "text", "text": "Continue", "x": 1158, "y": 340, "font_family": "Inter", "font_size": 16, "font_weight": 600, "color": "#FFFFFF"},
+			{"parent": "s", "type": "ellipse", "name": "logo", "x": 1323, "y": 40, "width": 46, "height": 46, "fill": "#2E6BE6"},
+		},
+	}, &out)
+	for _, s := range out.Shapes {
+		if s.Type == "text" {
+			t.Logf("text %q: %.0f x %.0f measured=%v", s.Name, s.Width, s.Height, *s.Measured)
+			if !*s.Measured {
+				t.Errorf("text %q was estimated, not measured", s.Name)
+			}
+		}
+	}
+}
 
 // TestLive drives the real tools against the account in PENPOT_ACCESS_TOKEN:
 // lists teams, finds the live file and draws a 400 x 300 board holding a
