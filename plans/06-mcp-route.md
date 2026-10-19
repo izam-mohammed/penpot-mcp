@@ -1,0 +1,155 @@
+# when a penpot tab is connected, the agent also gets everything only the browser can do: run plugin code, reflow layouts, measure text, generate css
+
+## The ask
+
+Every tool in the official MCP is available in this one, through the API
+where it can be, and through the official MCP route where it cannot. `docs/bridge.md` § 1
+to § 3 and every MCP and HYBRID row.
+
+## Alternatives
+
+### Decision 1: how does the server reach the plugin? (one-way door)
+
+Searched 2026-10-19: the official MCP source (`penpot/penpot` `mcp/`), go-sdk
+`StreamableClientTransport` docs, the plugin's WebSocket bridge (port 4402).
+
+| Must | Be an MCP client of the official server | Run our own plugin and WebSocket bridge |
+| --- | --- | --- |
+| Works with hosted design.penpot.app as-is | yes | no (needs a plugin published or loaded by hand) |
+| **Survives** | **yes** | no |
+
+| Criterion | Weight | MCP client of the official server |
+| --- | ---: | ---: |
+| Performance efficiency | 40 | 3 |
+| Reliability | 35 | 3 |
+| Compatibility | 25 | 5 |
+| **Weighted total** | **100** | **3.50** |
+
+- Efficiency 3: an extra hop (our server, Penpot's MCP, the tab) per call.
+- Reliability 3: tab sleep and heartbeat loss stay
+  (`docs/external/penpot-official-mcp.md` § Limits).
+
+Sensitivity: the only survivor; nothing flips it.
+Risk: Penpot changes its MCP tool names; limited by a start-up
+`tools/list` check that hides MCP-route tools when the names are missing.
+
+**Chosen: MCP client of the official server** with go-sdk's
+`StreamableClientTransport`. Revisit if Penpot publishes the plugin
+WebSocket protocol as stable.
+
+## The decision
+
+With `PENPOT_MCP_URL` set, the server connects to the official MCP at start
+and adds: `execute_code` (forwarded, with the file guard), `current_file`,
+`get_selection`, `reflow`, `generate_markup`, `generate_style`,
+`generate_font_faces`, `detach`, `swap_component`, `reset_overrides`,
+`switch_variant`, `combine_as_variants`, `active_users`, `viewport`. HYBRID
+tools gain their MCP step: `create_text` and `draw` read the real text size
+after `waitForLayoutUpdate`, `set_layout` reflows, `import_svg` can use
+`createShapeFromSvg`, `api_info` answers `source: "plugin"`. The routing
+rules are `docs/bridge.md` § 2: file guard, one lock shared with the API
+writer, re-fetch `revn` after MCP writes, no blind retry after a timeout.
+
+New secret: `PENPOT_MCP_URL`. Network host: `PENPOT_BASE_URL`'s `/mcp`.
+Dependencies: none new (go-sdk already has the client).
+
+Standards: `docs/standards.md` (`make check`).
+
+## Integrations
+
+| Integration | Local docs | Proof script | Env vars |
+| --- | --- | --- | --- |
+| Official Penpot MCP | `docs/external/penpot-official-mcp.md` | `scripts/prove/penpot-mcp.sh` | `PENPOT_MCP_URL` |
+
+## Where it lands
+
+| Path | New or edit | Phase | What changes | Firm? |
+| --- | --- | --- | --- | --- |
+| `scripts/prove/penpot-mcp.sh` | new | 1 | `initialize` and `tools/list` against the official MCP | fixed |
+| `internal/mcproute/` | new | 2 | client, file guard, error text mapping | expected |
+| `internal/tools/plugin.go` | new | 2 | the MCP-only tools | expected |
+| `internal/tools/draw.go`, `internal/penpot/text.go` | edit | 3 | hybrid steps | expected |
+
+*Reused, not rewritten:*
+
+- `~/.claude/skills/penpot/scripts/penpot_mcp.py`: its `User-Agent`,
+  session re-init on 400/404 and heartbeat error handling are ported.
+- `internal/penpot/writer.go` (plan 01): its per-profile lock is shared, not
+  duplicated.
+
+## Security
+
+`execute_code` runs model-written JavaScript in the user's Penpot tab with
+full edit rights.
+
+| Threat | Here | Handled by | Proved by |
+| --- | --- | --- | --- |
+| Elevation of privilege | injected text makes the model run code that edits another file | file guard: `penpot.currentFile.id` must equal the named `fileId`, else refuse | `TestFileGuardRefuses` |
+| Information disclosure | the MCP URL (with its key) leaks in logs or errors | URL never formatted; errors carry only the official server's text | `TestMcpUrlNeverLogged` |
+| Tampering | a timed-out call is retried and duplicates shapes | no automatic retry after a timeout; the tool reports "may have applied, re-read" | `TestNoRetryAfterTimeout` |
+| Elevation of privilege | `execute_code` called when an API tool would do | tool description marks it last resort; `destructiveHint` set | reviewed in Phase 4 |
+
+Checklist: OWASP Top 10 for LLM Applications 2025 (LLM01, LLM05 improper
+output handling, LLM06).
+
+## Declined
+
+- Our own plugin and WebSocket bridge: fails the hosted must.
+
+## What the tests hold
+
+- Without `PENPOT_MCP_URL`, no MCP-route tool is listed and HYBRID tools
+  run API-only.
+- The file guard refuses a mismatched file before any code runs.
+
+## Repository knowledge
+
+Read root `KNOWLEDGE.md` when present before each phase. Follow the global and
+repository instructions for recording useful development findings.
+
+## Phases
+
+### Phase 1: prove the official MCP (needs you: set PENPOT_MCP_URL)
+
+- [ ] `scripts/prove/penpot-mcp.sh` sends `initialize` and `tools/list` with
+  a `User-Agent` per `docs/external/penpot-official-mcp.md` § What this
+  project calls and prints `PASS` when `execute_code` is listed;
+  `PENPOT_MCP_URL` listed in `.env.example`.
+- [ ] Check: `sh scripts/prove/penpot-mcp.sh` exits 0 and prints `PASS`.
+
+### Phase 2: the rough cut (needs you: try it)
+
+- [ ] The MCP-route client with the file guard and error mapping, and the
+  `execute_code`, `current_file` and `reflow` tools land (expected in
+  `internal/mcproute/`, `internal/tools/plugin.go`), pinned by
+  `TestFileGuardRefuses`, `TestMcpUrlNeverLogged` and
+  `TestNoRetryAfterTimeout`.
+- [ ] Check: `make check` passes, and with the test file open in a tab,
+  `make live-mcp` reads `current_file` and runs a `reflow`.
+- [ ] You try it: open the test file in Penpot with the MCP plugin
+  connected, ask Claude which file is open and to reflow a board, and say
+  whether it matched.
+
+### Phase 3: hybrid steps and the rest
+
+- [ ] Text measuring and reflow after `create_text`, `draw` and
+  `set_layout`, `import_svg` through `createShapeFromSvg`, `api_info`
+  plugin source, and the remaining MCP-only tools land (expected in
+  `internal/tools/draw.go`, `internal/tools/plugin.go`), pinned by
+  `TestHybridFallsBackWithoutTab`; check: `make check` passes.
+
+### Phase 4: review the agency
+
+- [ ] Every MCP-route tool's description and hints (expected in
+  `internal/tools/plugin.go`) are read against the threat table, findings
+  fixed and listed in `docs/research/06-mcp-route.md`, and
+  `execute_code`'s last-resort wording is confirmed with a live session;
+  check: `make check` passes.
+
+### Phase 5: open the PR
+
+- [ ] The branch pushed and its PR opened against `main` (or, if one is
+  already open for this branch, its body brought up to date) with a
+  Conventional Commit title for the whole change, a body naming this plan,
+  what changed and why, and the checks run with their result. The PR's URL
+  printed as the evidence. Opened, never merged.

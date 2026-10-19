@@ -221,6 +221,9 @@ prompt injection, LLM06 excessive agency) and OWASP API Security Top 10
 - Rust: scored higher (4.65 against 4.30) on raw memory and reliability;
   declined by the user, who chose Go since the server is I/O bound.
 - TypeScript (Node): lowest on efficiency and operability (2.60).
+- Using `ancrz/penpot-mcp-server` (Python, 68 tools, last push 2026-02-22)
+  instead of building: it reads Penpot's Postgres directly, so it fails the
+  must of working against hosted design.penpot.app with only a token.
 - mark3labs/mcp-go: lower on compatibility with new protocol revisions and
   lacks nothing we need over go-sdk (4.00 against 4.65).
 - Hand-written JSON-RPC: lowest fit and compatibility (3.20).

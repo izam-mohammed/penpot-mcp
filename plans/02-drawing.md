@@ -1,0 +1,155 @@
+# an agent draws whole screens (text, images, paths, groups, layouts) in one call, and edits or removes what it drew
+
+## The ask
+
+`docs/bridge.md` § 7 Drawing: every drawing tool on the API route. The rough
+cut in `plans/01-first-version.md` draws a board and a rect; this plan adds
+the rest of the shape set, edits, moves and deletes, and the declarative
+`draw` tool that builds a whole screen in one `update-file` batch.
+
+## Alternatives
+
+### Decision 1: how is text sized without a browser? (two-way door)
+
+The backend does not measure text (`docs/external/penpot-backend-api.md`
+§ Gotchas), so a text shape's width and height are ours to compute.
+
+Searched 2026-10-19: "golang.org/x/image/font/opentype measure text width
+go"; the x/image `font.Drawer.MeasureString` docs, go-opentype/opentype.
+
+| Criterion | Weight | Fixed ratio (0.55 em per char) | Real font metrics (x/image/opentype) |
+| --- | ---: | ---: | ---: |
+| Performance efficiency | 40 | 5 | 4 |
+| Fit to the ask | 40 | 2 | 5 |
+| Maintainability of the result | 20 | 4 | 3 |
+| **Weighted total** | **100** | **3.60** | **4.20** |
+
+- Metrics efficiency 4: parsing a font once per family at start, then
+  `MeasureString` per text, microseconds per call; a few hundred KB per
+  embedded font.
+- Fit: a fixed ratio is off by 20% or more for narrow and wide faces;
+  real advances match the browser to within kerning.
+
+**Chosen: real font metrics** with `golang.org/x/image/font/opentype`,
+fonts fetched from Penpot's font list on first use and cached on disk,
+falling back to the fixed ratio for a font that cannot be fetched. Revisit
+if exported text and Penpot's own layout differ by more than 5%.
+
+### Decision 2: how are shapes moved and reordered? (two-way door)
+
+`mov-objects` and `reorder-children` over JSON probably match nothing
+(`docs/penpot-api-reference.md` § 5.5).
+
+Searched 2026-10-19: Penpot source `changes.cljc` for `:mov-objects`
+decoding; the API reference § 5.5.
+
+| Criterion | Weight | Delete and re-add, same id | `mov-objects` in transit |
+| --- | ---: | ---: | ---: |
+| Performance efficiency | 40 | 4 | 5 |
+| Reliability | 40 | 4 | ? |
+| Fit to the ask | 20 | 4 | 5 |
+| **Weighted total** | **100** | **4.00** | **?** |
+
+- Transit reliability `?`: untested; settled by Phase 1's first item.
+
+**Chosen: delete and re-add with the same id**, switching to transit
+`mov-objects` if Phase 1 shows it works. Revisit after that test.
+
+## The decision
+
+All tools from `docs/bridge.md` § 7 on the API route: `create_ellipse`
+(type `circle`), `create_path` (from SVG `d`), `create_text` (decision 1),
+`create_image` (upload then a `fillImage` rect), `create_group`,
+`create_bool`, `update_shape` (`mod-obj` with `assign`), `move_shape`,
+`reparent_shape` (decision 2), `delete_shapes`, `draw` (a nested tree in
+one batch), `apply_changes` (raw `changes[]`, the escape hatch), and
+`set_layout` (flex and grid attributes). Geometry gains rotation.
+
+New dependency: `golang.org/x/image` (font parsing). Network host: the
+font file URLs Penpot's font list gives (Google Fonts CDN). No new secret.
+
+Standards: `docs/standards.md` (`make check`).
+
+## Where it lands
+
+| Path | New or edit | Phase | What changes | Firm? |
+| --- | --- | --- | --- | --- |
+| `internal/penpot/geometry.go` | edit | 2 | rotation, paths' bounds | expected |
+| `internal/penpot/shapes.go` | new | 1 | builders per shape type with defaults | expected |
+| `internal/penpot/text.go` | new | 1 | text content tree and measuring | expected |
+| `internal/tools/draw.go` | new | 1 | the `draw` tree tool | expected |
+| `internal/tools/edit.go` | new | 2 | update, move, delete | expected |
+
+*Reused, not rewritten:*
+
+- `internal/penpot/writer.go` (plan 01): every new tool writes through its
+  queue and revn cache.
+- `internal/penpot/geometry.go` (plan 01): extended with rotation, not
+  copied.
+
+## Security
+
+Adds outside input with more shape (SVG path strings, image files from
+local paths, a raw `changes[]` escape hatch) and destructive tools.
+
+| Threat | Here | Handled by | Proved by |
+| --- | --- | --- | --- |
+| Tampering | a malformed SVG `d` or a huge `draw` tree | path parser with a command cap; tree depth and node caps | `TestPathRejectsGarbage`, `TestDrawCaps` |
+| Information disclosure | `create_image` reads any local path the model names | only regular files with an image content type, size capped, path printed back | `TestImageRejectsNonImage` |
+| Elevation of privilege | an injected prompt deletes a board | `delete_shapes` returns the names it removed; refuses the root frame | `TestDeleteRefusesRoot` |
+| Tampering | `apply_changes` sends arbitrary changes | same file guard and validation as every write; marked last resort | `TestApplyChangesValidates` |
+
+Data and secrets: unchanged from plan 01. Logged: shape counts, never
+image bytes. Checklist: OWASP Top 10 for LLM Applications 2025 (LLM06).
+
+## Declined
+
+- Fixed text ratio: lost on fit to the ask (3.60 against 4.20); kept only as
+  the fallback.
+
+## What the tests hold
+
+- Each shape builder's output passes the shape schema from
+  `docs/penpot-api-reference.md` § 7, checked against recorded fixtures.
+- Measured text width for Inter 16 px matches a recorded browser width to
+  within 2 px.
+- A `draw` tree becomes one `update-file` call.
+
+## Repository knowledge
+
+Read root `KNOWLEDGE.md` when present before each phase. Follow the global and
+repository instructions for recording useful development findings.
+
+## Phases
+
+### Phase 1: the rough cut (needs you: try it)
+
+- [ ] A throwaway check in `scripts/prove/penpot-move.sh` sends one
+  `mov-objects` in transit and one over JSON to a test file and prints which
+  moved the shape; the result is written into decision 2.
+- [ ] `create_text`, `create_ellipse` and the `draw` tree tool land
+  (expected in `internal/penpot/shapes.go`, `text.go`,
+  `internal/tools/draw.go`), pinned by `TestTextMeasure`, `TestDrawOneBatch`
+  and `TestDrawCaps`.
+- [ ] Check: `make check` passes, and `make live` draws a login screen
+  (board, title text, two input rects, a button) in one call.
+- [ ] You try it: ask Claude to draw a simple login screen in your test
+  file, open it in Penpot, and say whether the text sits where it should.
+
+### Phase 2: the rest of the shapes, and edits
+
+- [ ] `create_path`, `create_image`, `create_group`, `create_bool`,
+  `set_layout` and rotation land, pinned by `TestPathRejectsGarbage`,
+  `TestImageRejectsNonImage` and `TestRotatedGeometry`.
+- [ ] `update_shape`, `move_shape`, `reparent_shape`, `delete_shapes` and
+  `apply_changes` land (expected in `internal/tools/edit.go`), pinned by
+  `TestDeleteRefusesRoot` and `TestApplyChangesValidates`; check:
+  `make check` passes.
+
+### Phase 3: open the PR
+
+- [ ] The branch pushed and its PR opened against `main` (or, if one is
+  already open for this branch, its body brought up to date) with a
+  Conventional Commit title for the whole change, a body naming this plan,
+  what changed and why, and the checks run with their result. The PR's URL
+  printed as the evidence. Opened, never merged.
