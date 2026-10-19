@@ -45,9 +45,9 @@ type Geometry struct {
 	TransformInverse Matrix  `json:"transformInverse"`
 }
 
-// Box returns the geometry of an unrotated box at absolute page coordinates.
+// BoxGeometry returns the geometry of an unrotated box at absolute page coordinates.
 // Points run top-left, top-right, bottom-right, bottom-left.
-func Box(x, y, w, h float64) Geometry {
+func BoxGeometry(x, y, w, h float64) Geometry {
 	return Geometry{
 		X: x, Y: y, Width: w, Height: h,
 		Selrect: Rect{X: x, Y: y, Width: w, Height: h, X1: x, Y1: y, X2: x + w, Y2: y + h},

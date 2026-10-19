@@ -12,6 +12,7 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
+	"github.com/izam-mohammed/penpot-mcp/internal/fonts"
 	"github.com/izam-mohammed/penpot-mcp/internal/penpot"
 )
 
@@ -84,7 +85,8 @@ func session(t *testing.T) (*mcp.ClientSession, *backend) {
 		t.Fatal(err)
 	}
 	s := mcp.NewServer(&mcp.Implementation{Name: "test", Version: "0"}, nil)
-	Register(s, Deps{Client: c, Writer: penpot.NewWriter(c)})
+	// No font server: text falls back to the estimate, which is enough here.
+	Register(s, Deps{Client: c, Writer: penpot.NewWriter(c), Fonts: fonts.NewMeasurer("http://127.0.0.1:1", "", nil)})
 
 	ctx := context.Background()
 	st, ct := mcp.NewInMemoryTransports()
@@ -126,7 +128,7 @@ func errText(res *mcp.CallToolResult) string {
 	return ""
 }
 
-func TestListsEightTools(t *testing.T) {
+func TestListsTools(t *testing.T) {
 	cs, _ := session(t)
 	res, err := cs.ListTools(context.Background(), nil)
 	if err != nil {
@@ -136,7 +138,7 @@ func TestListsEightTools(t *testing.T) {
 	for _, tool := range res.Tools {
 		names = append(names, tool.Name)
 	}
-	want := "create_board create_rect get_page_tree list_files list_pages list_projects list_teams whoami"
+	want := "create_board create_ellipse create_rect create_text draw get_page_tree list_files list_pages list_projects list_teams whoami"
 	if got := strings.Join(sortStrings(names), " "); got != want {
 		t.Errorf("tools = %s\nwant    %s", got, want)
 	}
@@ -175,7 +177,8 @@ func TestWriteEchoesTarget(t *testing.T) {
 	if res.IsError {
 		t.Fatal(errText(res))
 	}
-	if out.FileName != "test file" || out.PageName != "Page 1" || out.ParentID != boardID || out.ShapeID == "" {
+	if out.FileName != "test file" || out.PageName != "Page 1" || out.ParentID != boardID || out.ShapeID == "" ||
+		out.Width != 100 || out.Height != 100 {
 		t.Errorf("result = %+v", out)
 	}
 	if len(b.updates) != 1 {
@@ -268,4 +271,105 @@ func sortStrings(s []string) []string {
 		}
 	}
 	return s
+}
+
+func TestDrawOneBatch(t *testing.T) {
+	cs, b := session(t)
+	var out drawOut
+	res := call(t, cs, "draw", map[string]any{
+		"file_id": fileID,
+		"shapes": []map[string]any{
+			{"ref": "screen", "type": "board", "name": "Login", "x": 1000, "y": 0, "width": 393, "height": 852},
+			{
+				"ref": "title", "parent": "screen", "type": "text", "text": "Sign in", "x": 1024, "y": 80,
+				"font_family": "Inter", "font_size": 28, "font_weight": 700,
+			},
+			{"parent": "screen", "type": "rect", "name": "Email", "x": 1024, "y": 160, "width": 345, "height": 48, "radius": 8},
+			{"parent": "screen", "type": "ellipse", "name": "Avatar", "x": 1160, "y": 300, "width": 72, "height": 72},
+			{"parent": boardID, "type": "rect", "name": "Into existing", "x": 10, "y": 10, "width": 10, "height": 10},
+		},
+	}, &out)
+	if res.IsError {
+		t.Fatal(errText(res))
+	}
+	if n := b.count("update-file"); n != 1 {
+		t.Fatalf("update-file calls = %d, want one batch", n)
+	}
+	changes := b.updates[0]["changes"].([]any)
+	if len(changes) != 5 || len(out.Shapes) != 5 {
+		t.Fatalf("changes %d, shapes %d; want 5 and 5", len(changes), len(out.Shapes))
+	}
+	screen := out.Shapes[0].ShapeID
+	for i, want := range []string{penpot.ZeroID, screen, screen, screen, boardID} {
+		if out.Shapes[i].ParentID != want {
+			t.Errorf("shapes[%d] parent = %s, want %s", i, out.Shapes[i].ParentID, want)
+		}
+		ch := changes[i].(map[string]any)
+		if ch["parentId"] != want || ch["frameId"] != want {
+			t.Errorf("change %d parent/frame = %v/%v, want %s", i, ch["parentId"], ch["frameId"], want)
+		}
+	}
+	text := changes[1].(map[string]any)["obj"].(map[string]any)
+	if text["type"] != "text" || text["growType"] != "auto-width" || text["name"] != "Sign in" {
+		t.Errorf("text obj = %v", text)
+	}
+	para := text["content"].(map[string]any)["children"].([]any)[0].(map[string]any)["children"].([]any)[0].(map[string]any)
+	if para["fontId"] != "gfont-inter" || para["fontWeight"] != "700" || para["fontSize"] != "28" {
+		t.Errorf("paragraph style = %v", para)
+	}
+	if out.Shapes[1].Width <= 0 || out.Shapes[1].Height != 34 { // ceil(28 * 1.2)
+		t.Errorf("text box = %v x %v", out.Shapes[1].Width, out.Shapes[1].Height)
+	}
+	if ellipse := changes[3].(map[string]any)["obj"].(map[string]any); ellipse["type"] != "circle" {
+		t.Errorf("ellipse type = %v, want circle", ellipse["type"])
+	}
+}
+
+func TestDrawCaps(t *testing.T) {
+	big := make([]map[string]any, maxDrawSize+1)
+	for i := range big {
+		big[i] = map[string]any{"type": "rect", "name": "r", "x": 0, "y": 0, "width": 1, "height": 1}
+	}
+	cases := map[string][]map[string]any{
+		"empty":            {},
+		"too many":         big,
+		"unknown parent":   {{"parent": "nope", "type": "rect", "name": "r", "x": 0, "y": 0, "width": 1, "height": 1}},
+		"parent not board": {{"ref": "a", "type": "rect", "name": "r", "x": 0, "y": 0, "width": 1, "height": 1}, {"parent": "a", "type": "rect", "name": "r", "x": 0, "y": 0, "width": 1, "height": 1}},
+		"parent later":     {{"parent": "b", "type": "rect", "name": "r", "x": 0, "y": 0, "width": 1, "height": 1}, {"ref": "b", "type": "board", "name": "b", "x": 0, "y": 0, "width": 1, "height": 1}},
+		"duplicate ref":    {{"ref": "a", "type": "board", "name": "a", "x": 0, "y": 0, "width": 1, "height": 1}, {"ref": "a", "type": "board", "name": "a", "x": 0, "y": 0, "width": 1, "height": 1}},
+		"bad type":         {{"type": "star", "name": "s", "x": 0, "y": 0, "width": 1, "height": 1}},
+		"empty text":       {{"type": "text", "text": "", "x": 0, "y": 0}},
+		"tiny font":        {{"type": "text", "text": "a", "x": 0, "y": 0, "font_size": 1}},
+		"bad weight":       {{"type": "text", "text": "a", "x": 0, "y": 0, "font_weight": 450}},
+		"bad align":        {{"type": "text", "text": "a", "x": 0, "y": 0, "align": "middle"}},
+		"bad font family":  {{"type": "text", "text": "a", "x": 0, "y": 0, "font_family": "../../etc"}},
+	}
+	for name, shapes := range cases {
+		t.Run(name, func(t *testing.T) {
+			cs, b := session(t)
+			res := call(t, cs, "draw", map[string]any{"file_id": fileID, "shapes": shapes}, nil)
+			if !res.IsError {
+				t.Fatal("want a tool error")
+			}
+			if len(b.calls) != 0 {
+				t.Errorf("made %d HTTP calls before refusing", len(b.calls))
+			}
+		})
+	}
+}
+
+func TestCreateTextWraps(t *testing.T) {
+	cs, b := session(t)
+	var out shapeOut
+	res := call(t, cs, "create_text", map[string]any{
+		"file_id": fileID, "text": "one two three four five six seven eight", "x": 0, "y": 0,
+		"width": 80, "font_size": 10,
+	}, &out)
+	if res.IsError {
+		t.Fatal(errText(res))
+	}
+	obj := b.updates[0]["changes"].([]any)[0].(map[string]any)["obj"].(map[string]any)
+	if obj["growType"] != "auto-height" || out.Width != 80 || out.Height <= 12 {
+		t.Errorf("wrapped text: grow %v, box %v x %v; want auto-height, width 80, several lines", obj["growType"], out.Width, out.Height)
+	}
 }
