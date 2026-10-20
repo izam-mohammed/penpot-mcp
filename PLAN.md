@@ -4,7 +4,7 @@
 
 - [x] `plans/01-first-version.md` - a Go binary lists your Penpot files and
   draws a board with a rectangle, no browser open.
-- [ ] `plans/09-skill.md` phase 1 - a skill sets it up and drives it, with
+- [x] `plans/09-skill.md` phase 1 - a skill sets it up and drives it, with
   Claude in Chrome for the token hand-off and visual checks.
 
 ### Phase 2: draw for real
