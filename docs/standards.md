@@ -7,7 +7,7 @@ in CI.
 
 | What | Version | Pinned in |
 | --- | --- | --- |
-| Go | 1.26 | the `go` line in `go.mod` |
+| Go | 1.26 (toolchain go1.26.9) | the `go` and `toolchain` lines in `go.mod` |
 | Modules | Go modules | `go.sum`, committed |
 | golangci-lint | v2.14.x | `Makefile` (`GOLANGCI_LINT_VERSION`), installed with `go install` |
 | govulncheck | latest `golang.org/x/vuln` release | `Makefile` |

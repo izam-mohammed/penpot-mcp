@@ -251,54 +251,63 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: prove the integrations (needs you: set PENPOT_ACCESS_TOKEN)
 
-- [ ] `scripts/prove/penpot-api.sh` calls `get-profile` with
+- [x] `scripts/prove/penpot-api.sh` calls `get-profile` with
   `Authorization: Token $PENPOT_ACCESS_TOKEN` per
   `docs/external/penpot-backend-api.md` § Authentication and prints `PASS`
   when the returned id is not the zero UUID, with `PENPOT_BASE_URL` and
   `PENPOT_ACCESS_TOKEN` listed in `.env.example`.
-- [ ] `scripts/prove/go-mcp-sdk.sh` builds a throwaway one-tool server in a
+- [x] `scripts/prove/go-mcp-sdk.sh` builds a throwaway one-tool server in a
   temp dir against go-sdk v1.8.0 per `docs/external/go-mcp-sdk.md` § Server,
   pipes `initialize` and `tools/list` over stdio, and prints `PASS` when the
   tool is listed.
-- [ ] Check: `sh scripts/prove/penpot-api.sh` and
+- [x] Check: `sh scripts/prove/penpot-api.sh` and
   `sh scripts/prove/go-mcp-sdk.sh` both exit 0 and print `PASS`.
 
 ### Phase 2: the rough cut (needs you: try it)
 
-- [ ] The Go module, `Makefile`, `.golangci.yml` and the CI workflow land
+- [x] The Go module, `Makefile`, `.golangci.yml` and the CI workflow land
   with `make check` running format, lint, build, race tests, govulncheck
   and gitleaks per `docs/standards.md`.
-- [ ] The RPC client (expected in `internal/penpot/client.go`) posts to
+  Landed 2026-10-19: `go.mod` pins `toolchain go1.26.9`; go1.26.0's
+  standard library failed govulncheck with 25 reachable advisories.
+- [x] The RPC client (expected in `internal/penpot/client.go`) posts to
   `/api/main/methods/{command}` with the headers from
   `docs/external/penpot-backend-api.md` § What this project calls, maps the
   error body to a typed error and honours one `Retry-After`, pinned by
   `TestClientHeaders`, `TestErrorBody`, `TestRetryAfter`,
   `TestTokenNeverLogged` and `TestBaseURLMustBeHTTPS`.
-- [ ] The binary checks the token with `get-profile` at start and serves
+- [x] The binary checks the token with `get-profile` at start and serves
   `whoami`, `list_teams`, `list_projects`, `list_files`, `list_pages` and
   `get_page_tree` (a compact tree: id, name, type, x, y, width, height,
   children), pinned by `httptest` replays in `internal/tools`.
-- [ ] `create_board` and `create_rect` add a `frame` and a `rect` to a
+- [x] `create_board` and `create_rect` add a `frame` and a `rect` to a
   given file and page through `update-file` with computed `selrect`,
   `points` and `transform` (expected in `internal/penpot/geometry.go`) and
   a per-profile write queue with a `{revn, vern}` cache (expected in
   `internal/penpot/writer.go`), pinned by `TestBoxGeometry`,
   `TestWriterSerialises`, `TestCreateRectRejectsBadInput` and
   `TestWriteEchoesTarget`.
-- [ ] `README.md` says how to build the binary and add it to Claude Code
+  Landed 2026-10-19: `get_page_tree` returns a flat list with `parent_id`
+  and `depth`, since a nested node type gives a recursive output schema
+  that go-sdk rejects.
+- [x] `README.md` says how to build the binary and add it to Claude Code
   with `claude mcp add penpot-api -e PENPOT_ACCESS_TOKEN=... -- <path>`.
-- [ ] Check: `make check` passes, and `make live` (needs the env vars)
+- [x] Check: `make check` passes, and `make live` (needs the env vars)
   lists the user's teams and draws a 400 x 300 board with a 100 x 100 rect
   in a file named `penpot-mcp test`.
-- [ ] You try it: add the binary to Claude Code, ask it to list your
+- [x] You try it: add the binary to Claude Code, ask it to list your
   projects and draw a board with a red rectangle in a test file, then open
   that file in Penpot and say whether the shapes look right. What you want
   changed goes into the later plans in `PLAN.md`.
+  Landed 2026-10-19: added as `penpot-api`; the user confirmed it works,
+  and a board with a red rect drawn through Claude Code rendered right in
+  Penpot. No changes asked for.
 
 ### Phase 3: open the PR
 
-- [ ] The branch pushed and its PR opened against `main` (or, if one is
+- [x] The branch pushed and its PR opened against `main` (or, if one is
   already open for this branch, its body brought up to date) with a
   Conventional Commit title for the whole change, a body naming this plan,
   what changed and why, and the checks run with their result. The PR's URL
   printed as the evidence. Opened, never merged.
+  Landed 2026-10-19: https://github.com/izam-mohammed/penpot-mcp/pull/1
