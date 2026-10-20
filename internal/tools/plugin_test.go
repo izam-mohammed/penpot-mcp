@@ -19,6 +19,7 @@ type tab struct {
 	mu       sync.Mutex
 	openFile string
 	answer   string
+	export   string // base64 a shape.export call returns
 	codes    []string
 }
 
@@ -38,6 +39,8 @@ func (tb *tab) serve(t *testing.T) *mcproute.Route {
 			text = tb.answer
 		case strings.Contains(in.Code, "penpot.currentFile"):
 			text = `{"result":{"file_id":"` + tb.openFile + `","file_name":"open file","page_id":"` + pageID + `","page_name":"Page 1"}}`
+		case strings.Contains(in.Code, ".export("):
+			text = `{"result":"` + tb.export + `"}`
 		case strings.Contains(in.Code, "out[id]"):
 			text = `{"result":{"x":{"width":120,"height":19}}}`
 		}

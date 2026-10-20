@@ -2,6 +2,7 @@ package tools
 
 import (
 	"bytes"
+	"encoding/base64"
 	"image"
 	"image/color"
 	"image/png"
@@ -97,5 +98,40 @@ func TestSSEEnd(t *testing.T) {
 	}
 	if _, err := sseEnd([]byte("event: progress\ndata: 1\n")); err == nil {
 		t.Error("a stream without end should fail")
+	}
+}
+
+// TestExportThroughTab: with no exporter login, a connected tab renders the
+// shape with the Plugin API, guarded to the right file and page.
+func TestExportThroughTab(t *testing.T) {
+	tb := &tab{openFile: fileID, export: base64.StdEncoding.EncodeToString(pngOf(t, true))}
+	cs, _ := sessionWith(t, withRoute(tb.serve(t)))
+	var out exportOut
+	if res := call(t, cs, "export_shape", map[string]any{"file_id": fileID, "shape_id": boardID, "path": "out/board.png", "scale": 2}, &out); res.IsError {
+		t.Fatal(errText(res))
+	}
+	if len(out.Files) != 1 || out.Files[0].Width != 8 {
+		t.Errorf("export = %+v", out)
+	}
+	ran := strings.Join(tb.ran(), "\n")
+	if !strings.Contains(ran, `getShapeById("`+boardID+`")`) || !strings.Contains(ran, `type: "png", scale: 2`) || !strings.Contains(ran, pageID) {
+		t.Errorf("tab code = %s", ran)
+	}
+
+	res := call(t, cs, "export_shape", map[string]any{"file_id": fileID, "shape_id": boardID, "path": "out/board.webp", "format": "webp"}, nil)
+	if !res.IsError || !strings.Contains(errText(res), "webp needs") {
+		t.Errorf("webp through the tab: %q", errText(res))
+	}
+
+	tb.openFile = "a1000000-0000-4000-8000-000000000009"
+	res = call(t, cs, "export_shape", map[string]any{"file_id": fileID, "shape_id": boardID, "path": "out/other.png"}, nil)
+	if !res.IsError || !strings.Contains(errText(res), `not "test file"`) {
+		t.Errorf("wrong file in the tab: %q", errText(res))
+	}
+
+	tb.openFile, tb.export = fileID, "not base64!"
+	res = call(t, cs, "export_shape", map[string]any{"file_id": fileID, "shape_id": boardID, "path": "out/bad.png"}, nil)
+	if !res.IsError || !strings.Contains(errText(res), "not base64") {
+		t.Errorf("bad tab reply: %q", errText(res))
 	}
 }
