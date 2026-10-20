@@ -132,3 +132,26 @@ func TestListLibrary(t *testing.T) {
 		t.Errorf("deleted components should not be listed: %+v", out.Components)
 	}
 }
+
+// TestInstanceTabStep: with the file open in a tab, placing a copy lets the
+// tab reflow; without a tab the reply has no tab step.
+func TestInstanceTabStep(t *testing.T) {
+	lib := `,"components":{"` + componentID + `":{"id":"` + componentID + `","name":"Login","path":"","mainInstanceId":"` +
+		boardID + `","mainInstancePage":"` + pageID + `"}}`
+	args := map[string]any{"file_id": fileID, "component_id": componentID, "x": 500, "y": 100}
+	cs, b := session(t)
+	b.lib = lib
+	var out instanceOut
+	if res := call(t, cs, "instantiate_component", args, &out); res.IsError || out.Tab != nil {
+		t.Errorf("without a tab: %+v %q", out.Tab, errText(res))
+	}
+	tb := &tab{openFile: fileID, answer: `{"result":{}}`}
+	cs, b = sessionWith(t, withRoute(tb.serve(t)))
+	b.lib = lib
+	if res := call(t, cs, "instantiate_component", args, &out); res.IsError {
+		t.Fatal(errText(res))
+	}
+	if out.Tab == nil {
+		t.Fatal("with the file open in a tab the reply should have a tab step")
+	}
+}

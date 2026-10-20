@@ -47,6 +47,13 @@ type backend struct {
 }
 
 func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/api/main/doc/openapi.json" {
+		b.mu.Lock()
+		b.calls = append(b.calls, "openapi.json")
+		b.mu.Unlock()
+		_, _ = w.Write(openAPIFixture)
+		return
+	}
 	command := strings.TrimPrefix(r.URL.Path, "/api/main/methods/")
 	data, _ := io.ReadAll(r.Body)
 	b.mu.Lock()
@@ -275,7 +282,7 @@ func TestListsTools(t *testing.T) {
 	for _, tool := range res.Tools {
 		names = append(names, tool.Name)
 	}
-	want := "add_color add_comment add_page add_typography apply_changes apply_token create_board create_bool " +
+	want := "add_color add_comment add_page add_typography api_info apply_changes apply_token create_board create_bool " +
 		"create_component create_ellipse create_file create_group create_image create_path create_project " +
 		"create_rect create_share_link create_snapshot create_text create_webhook delete_color " +
 		"delete_component delete_file delete_page delete_project delete_shapes delete_share_link " +

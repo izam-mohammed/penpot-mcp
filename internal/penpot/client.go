@@ -18,6 +18,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -61,6 +62,9 @@ type Client struct {
 	log     *slog.Logger
 	version string
 	sleep   func(context.Context, time.Duration) error
+
+	docMu sync.Mutex
+	doc   []byte
 }
 
 // NewClient checks the base URL and returns a client. The URL must be https
@@ -285,5 +289,23 @@ func fetch(hc *http.Client, req *http.Request, limit int64) ([]byte, error) {
 	if int64(len(data)) > limit {
 		return nil, fmt.Errorf("download: larger than %d bytes", limit)
 	}
+	return data, nil
+}
+
+// maxDoc caps the backend's OpenAPI document (about 2 MB in 2026).
+const maxDoc = 16 << 20
+
+// APIDoc returns the backend's OpenAPI document, fetched once.
+func (c *Client) APIDoc(ctx context.Context) ([]byte, error) {
+	c.docMu.Lock()
+	defer c.docMu.Unlock()
+	if c.doc != nil {
+		return c.doc, nil
+	}
+	data, err := c.Download(ctx, c.base.JoinPath("api", "main", "doc", "openapi.json").String(), maxDoc)
+	if err != nil {
+		return nil, fmt.Errorf("reading Penpot's API documentation: %w", err)
+	}
+	c.doc = data
 	return data, nil
 }

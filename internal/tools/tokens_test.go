@@ -48,7 +48,8 @@ func TestSyncTokens(t *testing.T) {
 	if out.Tokens != 1 || len(out.Sets) != 1 || out.Sets[0] != "Light" {
 		t.Errorf("sync = %+v", out)
 	}
-	if !strings.Contains(b.raw[0], `"type":"set-tokens-lib"`) || !strings.Contains(b.raw[0], `"tokensLib":"{\"Light\":{\"color\"`) {
+	if !strings.Contains(b.raw[0], `"type":"set-tokens-lib"`) || !strings.Contains(b.raw[0], `\"Light\":{\"color\"`) ||
+		!strings.Contains(b.raw[0], `\"activeSets\":[\"Light\"]`) {
 		t.Errorf("want the DTCG lib with the set wrapped: %s", b.raw[0])
 	}
 	for _, bad := range []map[string]any{
@@ -106,5 +107,33 @@ func TestDeleteAssets(t *testing.T) {
 	}
 	if !strings.Contains(b.logs.String(), "Card") {
 		t.Error("the delete was not logged")
+	}
+}
+
+// TestApplyTokenAliasNeedsTab: a token that refers to another one is
+// refused without a tab, and applied by Penpot in the tab when one is open.
+func TestApplyTokenAliasNeedsTab(t *testing.T) {
+	alias := `,"tokensLib":{"Light":{"color":{"accent":{"$value":"{color.brand}","$type":"color"}}}}`
+	cs, b := session(t)
+	b.lib = alias
+	res := call(t, cs, "apply_token", map[string]any{"file_id": fileID, "shape_ids": []string{rectID}, "token": "color.accent", "attribute": "fill"}, nil)
+	if !res.IsError || !strings.Contains(errText(res), "connect a Penpot tab") {
+		t.Errorf("alias without a tab: %q", errText(res))
+	}
+
+	tb := &tab{openFile: fileID}
+	cs, b = sessionWith(t, withRoute(tb.serve(t)))
+	b.lib = alias
+	if res := call(t, cs, "apply_token", map[string]any{"file_id": fileID, "shape_ids": []string{rectID}, "token": "color.accent", "attribute": "fill"}, nil); res.IsError {
+		t.Fatal(errText(res))
+	}
+	ran := strings.Join(tb.ran(), "\n")
+	if !strings.Contains(ran, `x.name === "color.accent"`) || !strings.Contains(ran, `applyToShapes(shapes, ["fill"])`) {
+		t.Errorf("tab code = %s", ran)
+	}
+	for _, c := range b.calls {
+		if c == "update-file" {
+			t.Error("the alias went through the API too")
+		}
 	}
 }
