@@ -79,6 +79,8 @@ func run() error {
 		Fonts:  fonts.NewMeasurer(base, cache, logger),
 		Log:    logger,
 		Root:   root,
+		// The password is read once here and held only by the exporter.
+		Exporter: penpot.NewExporter(client, os.Getenv("PENPOT_EMAIL"), os.Getenv("PENPOT_PASSWORD")),
 	})
 	return server.Run(ctx, &mcp.StdioTransport{})
 }

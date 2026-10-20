@@ -1,6 +1,7 @@
 // Package transit writes the small subset of transit+json that Penpot needs
-// for changes it does not decode from plain JSON (mov-objects). It encodes
-// only; replies are read as JSON. See docs/penpot-api-reference.md § 1.4.
+// for changes it does not decode from plain JSON (mov-objects) and for the
+// exporter, and reads the exporter's transit replies. See
+// docs/penpot-api-reference.md § 1.4.
 package transit
 
 import (

@@ -38,6 +38,16 @@ var (
 // Open checks that path is a regular text file inside root (after
 // symlinks), at most MaxSize bytes, and returns its contents.
 func Open(root, path string) ([]byte, error) {
+	return open(root, path, MaxSize, true)
+}
+
+// OpenBinary is Open for a binary file of at most limit bytes, such as a
+// .penpot file.
+func OpenBinary(root, path string, limit int64) ([]byte, error) {
+	return open(root, path, limit, false)
+}
+
+func open(root, path string, limit int64, text bool) ([]byte, error) {
 	rootAbs, err := filepath.EvalSymlinks(root)
 	if err != nil {
 		return nil, err
@@ -65,14 +75,14 @@ func Open(root, path string) ([]byte, error) {
 	if !info.Mode().IsRegular() {
 		return nil, fmt.Errorf("%s is not a regular file", rel)
 	}
-	if info.Size() > MaxSize {
-		return nil, fmt.Errorf("%s is %d bytes; palette files are read up to %d", rel, info.Size(), MaxSize)
+	if info.Size() > limit {
+		return nil, fmt.Errorf("%s is %d bytes; files are read up to %d", rel, info.Size(), limit)
 	}
 	data, err := os.ReadFile(real) // #nosec G304 -- confined to root above
 	if err != nil {
 		return nil, err
 	}
-	if !utf8.Valid(data) {
+	if text && !utf8.Valid(data) {
 		return nil, fmt.Errorf("%s is not a text file", rel)
 	}
 	return data, nil
