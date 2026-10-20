@@ -86,8 +86,10 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut (needs you: try it)
 
-- [ ] `--http 127.0.0.1:8787` serves the same tools over streamable HTTP,
+- [x] `--http 127.0.0.1:8787` serves the same tools over streamable HTTP,
   pinned by `TestHttpNeedsTokenOffLoopback` and `TestHttpBodyCap`.
+  Landed 2026-10-20: in `internal/httpserve/`, stateless, 4 MB body cap,
+  bearer token compared in constant time, served at `/mcp`.
 - [ ] Check: `make check` passes, and `claude mcp add --transport http
   penpot-api http://127.0.0.1:8787/mcp` lists the tools.
 - [ ] You try it: run the server with `--http`, add it to Claude Code over
@@ -95,15 +97,25 @@ repository instructions for recording useful development findings.
 
 ### Phase 2: several accounts
 
-- [ ] Named profiles land (expected in `internal/config/profiles.go`) with
+- [x] Named profiles land (expected in `internal/config/profiles.go`) with
   a `profile` argument on every tool, pinned by `TestProfilesParallel`;
   check: `make check` passes.
+  Landed 2026-10-20: the `profile` argument is taken out of each call by
+  a server middleware (`internal/tools/profiles.go`), which also adds it
+  to every tool's schema in `tools/list`, so no tool's input changed.
+  Profiles can also name `email_env`, `password_env` and `mcp_url_env`;
+  without `PENPOT_ACCESS_TOKEN` the first profile is the default.
 
 ### Phase 3: releases
 
-- [ ] `.goreleaser.yaml` and a tag-triggered release workflow land, and
+- [x] `.goreleaser.yaml` and a tag-triggered release workflow land, and
   `README.md` gains the download and Homebrew steps; check: `make check` and
   `goreleaser check` pass.
+  Landed 2026-10-20: `goreleaser check` passes, and a local
+  `goreleaser release --snapshot --skip=publish,sbom` built all six
+  archives. The Homebrew cask needs an `izam-mohammed/homebrew-tap` repo
+  and a `HOMEBREW_TAP_TOKEN` secret; without them the release still goes
+  out and the cask is skipped.
 
 ### Phase 4: open the PR
 

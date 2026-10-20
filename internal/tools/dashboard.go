@@ -36,6 +36,7 @@ func registerDashboard(s *mcp.Server, d Deps) {
 		Name:        "create_project",
 		Description: "Create a project in a team. Returns the new project's id, made by Penpot.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in createProjectIn) (*mcp.CallToolResult, penpot.Project, error) {
+		d := d.pick(ctx)
 		p, err := createProject(ctx, d, in)
 		return nil, p, err
 	})
@@ -44,6 +45,7 @@ func registerDashboard(s *mcp.Server, d Deps) {
 		Name:        "create_file",
 		Description: "Create a file in a project. It starts with one page; returns the file's id and its pages.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in createFileIn) (*mcp.CallToolResult, fileOut, error) {
+		d := d.pick(ctx)
 		out, err := createFile(ctx, d, in)
 		return nil, out, err
 	})
@@ -53,6 +55,7 @@ func registerDashboard(s *mcp.Server, d Deps) {
 		Description: "Rename a file.",
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in renameFileIn) (*mcp.CallToolResult, fileOut, error) {
+		d := d.pick(ctx)
 		out, err := renameFile(ctx, d, in)
 		return nil, out, err
 	})
@@ -210,6 +213,7 @@ func registerDashboardRest(s *mcp.Server, d Deps) {
 		Description: "Rename a project.",
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in renameProjectIn) (*mcp.CallToolResult, projectOut, error) {
+		d := d.pick(ctx)
 		if err := checkID("project_id", in.ProjectID); err != nil {
 			return nil, projectOut{}, err
 		}
@@ -224,6 +228,7 @@ func registerDashboardRest(s *mcp.Server, d Deps) {
 		Name:        "move_project",
 		Description: "Move a project, with its files, to another team.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in moveProjectIn) (*mcp.CallToolResult, projectOut, error) {
+		d := d.pick(ctx)
 		if err := checkID("project_id", in.ProjectID); err != nil {
 			return nil, projectOut{}, err
 		}
@@ -239,6 +244,7 @@ func registerDashboardRest(s *mcp.Server, d Deps) {
 		Description: "Pin or unpin a project on the dashboard.",
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in pinProjectIn) (*mcp.CallToolResult, projectOut, error) {
+		d := d.pick(ctx)
 		p, err := findProject(ctx, d, in.ProjectID)
 		if err != nil {
 			return nil, projectOut{}, err
@@ -253,6 +259,7 @@ func registerDashboardRest(s *mcp.Server, d Deps) {
 			"Penpot keeps deleted files for a while; restore_file brings them back.",
 		Annotations: destructive,
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in deleteProjectIn) (*mcp.CallToolResult, projectOut, error) {
+		d := d.pick(ctx)
 		if err := checkID("project_id", in.ProjectID); err != nil {
 			return nil, projectOut{}, err
 		}
@@ -277,6 +284,7 @@ func registerDashboardRest(s *mcp.Server, d Deps) {
 		Name:        "duplicate_file",
 		Description: "Copy a file within its project. Returns the copy's id, made by Penpot.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in duplicateFileIn) (*mcp.CallToolResult, fileOut, error) {
+		d := d.pick(ctx)
 		if err := checkID("file_id", in.FileID); err != nil {
 			return nil, fileOut{}, err
 		}
@@ -298,6 +306,7 @@ func registerDashboardRest(s *mcp.Server, d Deps) {
 		Name:        "move_files",
 		Description: "Move files into another project of the same team.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in moveFilesIn) (*mcp.CallToolResult, filesChangedOut, error) {
+		d := d.pick(ctx)
 		if err := checkIDList("file_ids", in.FileIDs); err != nil {
 			return nil, filesChangedOut{}, err
 		}
@@ -320,6 +329,7 @@ func registerDashboardRest(s *mcp.Server, d Deps) {
 			"Penpot keeps deleted files for a while; restore_file brings it back.",
 		Annotations: destructive,
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in deleteFileIn) (*mcp.CallToolResult, fileOut, error) {
+		d := d.pick(ctx)
 		if err := checkID("file_id", in.FileID); err != nil {
 			return nil, fileOut{}, err
 		}
@@ -343,6 +353,7 @@ func registerDashboardRest(s *mcp.Server, d Deps) {
 		Description: "Bring back deleted files (and their projects) before Penpot purges them. " +
 			"Without file_ids, lists the team's deleted files.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in restoreFileIn) (*mcp.CallToolResult, restoreOut, error) {
+		d := d.pick(ctx)
 		team, err := teamOrDefault(ctx, d, in.TeamID)
 		if err != nil {
 			return nil, restoreOut{}, err
@@ -364,6 +375,7 @@ func registerDashboardRest(s *mcp.Server, d Deps) {
 		Description: "Publish a file as a shared library, or unpublish it.",
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in sharedIn) (*mcp.CallToolResult, penpot.FileSummary, error) {
+		d := d.pick(ctx)
 		if err := checkID("file_id", in.FileID); err != nil {
 			return nil, penpot.FileSummary{}, err
 		}
@@ -380,6 +392,7 @@ func registerDashboardRest(s *mcp.Server, d Deps) {
 			Description: l.desc,
 			Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 		}, func(ctx context.Context, _ *mcp.CallToolRequest, in libraryIn) (*mcp.CallToolResult, libraryIn, error) {
+			d := d.pick(ctx)
 			if err := checkID("file_id", in.FileID); err != nil {
 				return nil, libraryIn{}, err
 			}
@@ -399,6 +412,7 @@ func registerDashboardRest(s *mcp.Server, d Deps) {
 		Description: "Find files in a team by name.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in searchIn) (*mcp.CallToolResult, filesOut, error) {
+		d := d.pick(ctx)
 		if err := checkName(in.Query); err != nil {
 			return nil, filesOut{}, fmt.Errorf("query: %w", err)
 		}

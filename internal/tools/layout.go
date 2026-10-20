@@ -230,6 +230,7 @@ func registerLayout(s *mcp.Server, d Deps) {
 		Description: "Give a board a flex (row or column) or grid layout and place its children. " +
 			"Children go in layer order, top layer first, as Penpot lays them out. Child sizes are kept.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in setLayoutIn) (*mcp.CallToolResult, setLayoutOut, error) {
+		d := d.pick(ctx)
 		if err := checkID("file_id", in.FileID); err != nil {
 			return nil, setLayoutOut{}, err
 		}

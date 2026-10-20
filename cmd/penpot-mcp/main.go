@@ -1,10 +1,11 @@
 // Command penpot-mcp is an MCP server that drives Penpot through its backend
-// HTTP API. It speaks MCP over stdio.
+// HTTP API. It speaks MCP over stdio, or streamable HTTP with --http.
 package main
 
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"log/slog"
 	"os"
@@ -15,7 +16,9 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
+	"github.com/izam-mohammed/penpot-mcp/internal/config"
 	"github.com/izam-mohammed/penpot-mcp/internal/fonts"
+	"github.com/izam-mohammed/penpot-mcp/internal/httpserve"
 	"github.com/izam-mohammed/penpot-mcp/internal/mcproute"
 	"github.com/izam-mohammed/penpot-mcp/internal/penpot"
 	"github.com/izam-mohammed/penpot-mcp/internal/tools"
@@ -37,61 +40,112 @@ func main() {
 }
 
 func run() error {
+	httpAddr := flag.String("http", "", "serve MCP over streamable HTTP on host:port, such as 127.0.0.1:8787, instead of stdio")
+	showVersion := flag.Bool("version", false, "print the version and exit")
+	flag.Parse()
+	if *showVersion {
+		fmt.Println("penpot-mcp", version)
+		return nil
+	}
+
 	// stdout carries MCP; logs go to stderr.
 	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
-
-	client, err := penpot.NewClient(os.Getenv("PENPOT_BASE_URL"), os.Getenv("PENPOT_ACCESS_TOKEN"), version, logger)
-	if err != nil {
-		return err
-	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	checkCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
-	defer cancel()
-	var p penpot.Profile
-	if err := client.Call(checkCtx, "get-profile", struct{}{}, &p); err != nil {
-		return fmt.Errorf("checking the token: %w", err)
-	}
-	if p.ID == "" || p.ID == penpot.ZeroID {
-		return errors.New("PENPOT_ACCESS_TOKEN was not accepted")
-	}
-	logger.Info("connected", "profile", p.Fullname)
-
-	server := mcp.NewServer(&mcp.Implementation{Name: "penpot-mcp", Version: version},
-		&mcp.ServerOptions{Instructions: instructions})
-	base := os.Getenv("PENPOT_BASE_URL")
-	if base == "" {
-		base = penpot.DefaultBaseURL
-	}
 	cache := ""
 	if dir, err := os.UserCacheDir(); err == nil {
 		cache = filepath.Join(dir, "penpot-mcp", "fonts")
 	}
-	// Palette and token files are read only from the directory the server
-	// was started in, the user's project.
+	// Palette, token and export files are read and written only under the
+	// directory the server was started in, the user's project.
 	root, err := os.Getwd()
 	if err != nil {
 		return err
 	}
-	route, err := mcproute.New(os.Getenv("PENPOT_MCP_URL"), version, logger)
-	if err != nil {
-		return err
+	base := os.Getenv("PENPOT_BASE_URL")
+	if base == "" {
+		base = penpot.DefaultBaseURL
 	}
-	if route != nil {
-		defer route.Close()
-		logger.Info("mcp route on")
+	fontMeasurer := fonts.NewMeasurer(base, cache, logger)
+
+	// account connects one Penpot account. Secrets are read from the
+	// environment once, here, and held only by the client, exporter and
+	// route they belong to.
+	var closers []func()
+	defer func() {
+		for _, c := range closers {
+			c()
+		}
+	}()
+	account := func(label, baseURL, tokenEnv, emailEnv, passwordEnv, mcpURLEnv string) (tools.Deps, error) {
+		client, err := penpot.NewClient(baseURL, os.Getenv(tokenEnv), version, logger)
+		if err != nil {
+			return tools.Deps{}, fmt.Errorf("%s: %w", label, err)
+		}
+		checkCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
+		defer cancel()
+		var p penpot.Profile
+		if err := client.Call(checkCtx, "get-profile", struct{}{}, &p); err != nil {
+			return tools.Deps{}, fmt.Errorf("%s: checking the token: %w", label, err)
+		}
+		if p.ID == "" || p.ID == penpot.ZeroID {
+			return tools.Deps{}, fmt.Errorf("%s: %s was not accepted", label, tokenEnv)
+		}
+		route, err := mcproute.New(os.Getenv(mcpURLEnv), version, logger)
+		if err != nil {
+			return tools.Deps{}, fmt.Errorf("%s: %w", label, err)
+		}
+		if route != nil {
+			closers = append(closers, route.Close)
+		}
+		logger.Info("connected", "account", label, "profile", p.Fullname, "mcp_route", route != nil)
+		return tools.Deps{
+			Client:   client,
+			Writer:   penpot.NewWriter(client),
+			Fonts:    fontMeasurer,
+			Log:      logger,
+			Root:     root,
+			Exporter: penpot.NewExporter(client, os.Getenv(emailEnv), os.Getenv(passwordEnv)),
+			Route:    route,
+		}, nil
 	}
-	tools.Register(server, tools.Deps{
-		Client: client,
-		Writer: penpot.NewWriter(client),
-		Fonts:  fonts.NewMeasurer(base, cache, logger),
-		Log:    logger,
-		Root:   root,
-		// The password is read once here and held only by the exporter.
-		Exporter: penpot.NewExporter(client, os.Getenv("PENPOT_EMAIL"), os.Getenv("PENPOT_PASSWORD")),
-		Route:    route,
-	})
+
+	var def tools.Deps
+	haveDefault := os.Getenv("PENPOT_ACCESS_TOKEN") != ""
+	if haveDefault {
+		if def, err = account("default", os.Getenv("PENPOT_BASE_URL"),
+			"PENPOT_ACCESS_TOKEN", "PENPOT_EMAIL", "PENPOT_PASSWORD", "PENPOT_MCP_URL"); err != nil {
+			return err
+		}
+	}
+	if path := os.Getenv("PENPOT_PROFILES"); path != "" {
+		profiles, err := config.Load(path)
+		if err != nil {
+			return err
+		}
+		all := map[string]tools.Deps{}
+		for _, p := range profiles {
+			d, err := account("profile "+p.Name, p.BaseURL, p.TokenEnv, p.EmailEnv, p.PasswordEnv, p.MCPURLEnv)
+			if err != nil {
+				return err
+			}
+			all[p.Name] = d
+		}
+		if !haveDefault {
+			def = all[profiles[0].Name]
+		}
+		def.Profiles = all
+	} else if !haveDefault {
+		return errors.New("PENPOT_ACCESS_TOKEN is not set (or PENPOT_PROFILES for several accounts)")
+	}
+
+	server := mcp.NewServer(&mcp.Implementation{Name: "penpot-mcp", Version: version},
+		&mcp.ServerOptions{Instructions: instructions})
+	tools.Register(server, def)
+	if *httpAddr != "" {
+		return httpserve.Serve(ctx, *httpAddr, server, os.Getenv("PENPOT_MCP_HTTP_TOKEN"), logger)
+	}
 	return server.Run(ctx, &mcp.StdioTransport{})
 }
