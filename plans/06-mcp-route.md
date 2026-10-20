@@ -157,7 +157,7 @@ repository instructions for recording useful development findings.
 
 ### Phase 4: review the agency
 
-- [ ] Every MCP-route tool's description and hints (expected in
+- [x] Every MCP-route tool's description and hints (expected in
   `internal/tools/plugin.go`) are read against the threat table, findings
   fixed and listed in `docs/research/06-mcp-route.md`, and
   `execute_code`'s last-resort wording is confirmed with a live session;
@@ -165,6 +165,11 @@ repository instructions for recording useful development findings.
   Landed 2026-10-20: reviewed in `docs/research/06-mcp-route.md`; missing
   hints fixed and the server instructions now call file content data.
   Left open: the live-session check of `execute_code`'s wording.
+  Landed 2026-10-20: checked live. Three `claude -p` sessions with the
+  tab tools listed (`execute_code` blocked so any attempt would show)
+  never reached for it. One exported and unzipped the whole file to read
+  text, because `get_page_tree` gave no text; it now returns each text
+  shape's text, and the same question takes one `get_page_tree` call.
 
 ### Phase 5: open the PR
 
