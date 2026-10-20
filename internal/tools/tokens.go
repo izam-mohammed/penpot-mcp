@@ -90,6 +90,7 @@ func registerTokens(s *mcp.Server, d Deps) {
 			"Re-running updates the same colours instead of adding twins.",
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in importPaletteIn) (*mcp.CallToolResult, importOut, error) {
+		d := d.pick(ctx)
 		out, err := importPalette(ctx, d, in)
 		return nil, out, err
 	})
@@ -100,6 +101,7 @@ func registerTokens(s *mcp.Server, d Deps) {
 			"from the call or a .json file in the repository. Tokens not given are removed.",
 		Annotations: &mcp.ToolAnnotations{DestructiveHint: ptr(true), IdempotentHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in syncTokensIn) (*mcp.CallToolResult, syncOut, error) {
+		d := d.pick(ctx)
 		out, err := syncTokens(ctx, d, in)
 		return nil, out, err
 	})
@@ -109,6 +111,7 @@ func registerTokens(s *mcp.Server, d Deps) {
 		Description: "Apply a design token to shapes: their fill, stroke colour, corner radius or opacity takes the " +
 			"token's value and stays linked to the token.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in applyTokenIn) (*mcp.CallToolResult, changedOut, error) {
+		d := d.pick(ctx)
 		out, err := applyToken(ctx, d, in)
 		return nil, out, err
 	})
@@ -117,6 +120,7 @@ func registerTokens(s *mcp.Server, d Deps) {
 		Name:        "update_color",
 		Description: "Change a library colour's name, group, hex or opacity. Shapes using it keep their own copy until refreshed in Penpot.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in updateColorIn) (*mcp.CallToolResult, assetOut, error) {
+		d := d.pick(ctx)
 		out, err := updateColor(ctx, d, in)
 		return nil, out, err
 	})
@@ -125,6 +129,7 @@ func registerTokens(s *mcp.Server, d Deps) {
 		Name:        "update_typography",
 		Description: "Change a library type style: name, font, size, weight, line height or letter spacing.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in updateTypographyIn) (*mcp.CallToolResult, assetOut, error) {
+		d := d.pick(ctx)
 		out, err := updateTypography(ctx, d, in)
 		return nil, out, err
 	})
@@ -137,6 +142,7 @@ func registerTokens(s *mcp.Server, d Deps) {
 			Description: "Delete a library " + k.kind + ". Needs confirm: true, given only after the user asked.",
 			Annotations: destructive,
 		}, func(ctx context.Context, _ *mcp.CallToolRequest, in deleteAssetIn) (*mcp.CallToolResult, assetOut, error) {
+			d := d.pick(ctx)
 			out, err := deleteAsset(ctx, d, in, k.kind)
 			return nil, out, err
 		})

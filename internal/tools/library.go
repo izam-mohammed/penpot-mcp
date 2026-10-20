@@ -172,6 +172,7 @@ func registerLibrary(s *mcp.Server, d Deps) {
 			"not duplicated, so re-running is safe.",
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in colorIn) (*mcp.CallToolResult, assetOut, error) {
+		d := d.pick(ctx)
 		out, err := addColor(ctx, d, in)
 		return nil, out, err
 	})
@@ -182,6 +183,7 @@ func registerLibrary(s *mcp.Server, d Deps) {
 			"not duplicated.",
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in typographyIn) (*mcp.CallToolResult, assetOut, error) {
+		d := d.pick(ctx)
 		out, err := addTypography(ctx, d, in)
 		return nil, out, err
 	})
@@ -191,6 +193,7 @@ func registerLibrary(s *mcp.Server, d Deps) {
 		Description: "A file's library: colours, type styles and components, each with its id and group path.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in fileIn) (*mcp.CallToolResult, libraryOut, error) {
+		d := d.pick(ctx)
 		out, err := listLibrary(ctx, d, in.FileID)
 		return nil, out, err
 	})
@@ -200,6 +203,7 @@ func registerLibrary(s *mcp.Server, d Deps) {
 		Description: "Turn a board into a component: the board becomes its main instance. " +
 			"Draw the board first (draw or create_board), then place copies with instantiate_component.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in componentIn) (*mcp.CallToolResult, componentOut, error) {
+		d := d.pick(ctx)
 		out, err := createComponent(ctx, d, in)
 		return nil, out, err
 	})
@@ -209,6 +213,7 @@ func registerLibrary(s *mcp.Server, d Deps) {
 		Description: "Place a copy of a component at x, y. The copy stays linked to the main instance, " +
 			"so later changes to the main show in every copy.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in instanceIn) (*mcp.CallToolResult, instanceOut, error) {
+		d := d.pick(ctx)
 		out, err := instantiate(ctx, d, in)
 		return nil, out, err
 	})

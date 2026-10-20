@@ -53,6 +53,7 @@ func registerHistory(s *mcp.Server, d Deps) {
 		Description: "A file's saved versions, newest first.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in snapshotIn) (*mcp.CallToolResult, snapshotsOut, error) {
+		d := d.pick(ctx)
 		out, err := listSnapshots(ctx, d, in.FileID)
 		return nil, out, err
 	})
@@ -61,6 +62,7 @@ func registerHistory(s *mcp.Server, d Deps) {
 		Name:        "create_snapshot",
 		Description: "Save a named version of a file, to come back to before a big edit.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in snapshotIn) (*mcp.CallToolResult, snapshot, error) {
+		d := d.pick(ctx)
 		if err := checkID("file_id", in.FileID); err != nil {
 			return nil, snapshot{}, err
 		}
@@ -79,6 +81,7 @@ func registerHistory(s *mcp.Server, d Deps) {
 			"so the restore can be undone. Needs confirm: true.",
 		Annotations: destructive,
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in restoreIn) (*mcp.CallToolResult, snapshotsOut, error) {
+		d := d.pick(ctx)
 		out, err := restoreSnapshot(ctx, d, in)
 		return nil, out, err
 	})
@@ -88,6 +91,7 @@ func registerHistory(s *mcp.Server, d Deps) {
 		Description: "Read or write a small key-value note on a file or a shape, under a namespace, " +
 			"for tools that need to remember things in the design itself.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in pluginDataIn) (*mcp.CallToolResult, pluginDataOut, error) {
+		d := d.pick(ctx)
 		out, err := pluginData(ctx, d, in)
 		return nil, out, err
 	})

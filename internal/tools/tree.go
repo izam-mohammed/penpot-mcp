@@ -72,6 +72,7 @@ func registerDrawTree(s *mcp.Server, d Deps) {
 			"its children itself, first listed first. Coordinates are absolute page pixels. " +
 			"Returns every shape's id and box.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in drawIn) (*mcp.CallToolResult, drawOut, error) {
+		d := d.pick(ctx)
 		if err := in.validate(); err != nil {
 			return nil, drawOut{}, err
 		}
