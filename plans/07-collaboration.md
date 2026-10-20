@@ -72,8 +72,10 @@ repository instructions for recording useful development findings.
   by `httptest` replays.
   Landed 2026-10-20: pinned by `TestComments`. The live check is
   `TestLiveCollab`, not run yet.
-- [ ] Check: `make check` passes, and `make live` adds and resolves a
+- [x] Check: `make check` passes, and `make live` adds and resolves a
   comment on the test file.
+  Landed 2026-10-20: passed after #10 made `file_id` optional when
+  `list_comments` gets a `thread_id`.
 - [ ] You try it: leave a comment on a board in Penpot, ask Claude to read
   and answer it, and check the reply in Penpot.
 
