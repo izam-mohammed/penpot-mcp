@@ -1,0 +1,54 @@
+# Releases: run by .github/workflows/release.yml on a v* tag.
+# Check locally with: goreleaser check
+version: 2
+project_name: penpot-mcp
+
+builds:
+  - main: ./cmd/penpot-mcp
+    binary: penpot-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    goos: [darwin, linux, windows]
+    goarch: [amd64, arm64]
+
+archives:
+  - formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - README.md
+
+checksum:
+  name_template: checksums.txt
+
+sboms:
+  - artifacts: archive
+
+changelog:
+  use: github
+  filters:
+    exclude:
+      - "^docs\\(plan\\)"
+
+homebrew_casks:
+  - name: penpot-mcp
+    homepage: https://github.com/izam-mohammed/penpot-mcp
+    description: Drive Penpot from an agent through its backend API, no browser tab.
+    repository:
+      owner: izam-mohammed
+      name: homebrew-tap
+      token: '{{ envOrDefault "HOMEBREW_TAP_TOKEN" "" }}'
+    # No tap token, no cask: the release itself still goes out.
+    skip_upload: '{{ if eq (envOrDefault "HOMEBREW_TAP_TOKEN" "") "" }}true{{ else }}false{{ end }}'
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/penpot-mcp"]
+          end

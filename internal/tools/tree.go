@@ -54,12 +54,13 @@ type drawn struct {
 
 type drawOut struct {
 	penpot.Target
-	Shapes []drawn `json:"shapes"`
+	Shapes []drawn   `json:"shapes"`
+	Tab    *tabCheck `json:"tab,omitempty" jsonschema:"what the connected Penpot tab saw, when the MCP route is on"`
 }
 
 func (o drawOut) single() shapeOut {
 	s := o.Shapes[0]
-	return shapeOut{Target: o.Target, ShapeID: s.ShapeID, ParentID: s.ParentID, Width: s.Width, Height: s.Height}
+	return shapeOut{Target: o.Target, ShapeID: s.ShapeID, ParentID: s.ParentID, Width: s.Width, Height: s.Height, Tab: o.Tab}
 }
 
 func registerDrawTree(s *mcp.Server, d Deps) {
@@ -71,6 +72,7 @@ func registerDrawTree(s *mcp.Server, d Deps) {
 			"its children itself, first listed first. Coordinates are absolute page pixels. " +
 			"Returns every shape's id and box.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in drawIn) (*mcp.CallToolResult, drawOut, error) {
+		d := d.pick(ctx)
 		if err := in.validate(); err != nil {
 			return nil, drawOut{}, err
 		}
@@ -78,6 +80,9 @@ func registerDrawTree(s *mcp.Server, d Deps) {
 			return nil, drawOut{}, err
 		}
 		out, err := drawNodes(ctx, d, in.target, in.Shapes)
+		if err == nil {
+			out.Tab = afterWrite(ctx, d, out.FileID, textIDs(out))
+		}
 		return nil, out, err
 	})
 }
