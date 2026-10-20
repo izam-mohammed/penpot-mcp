@@ -67,11 +67,18 @@ func run() error {
 	if dir, err := os.UserCacheDir(); err == nil {
 		cache = filepath.Join(dir, "penpot-mcp", "fonts")
 	}
+	// Palette and token files are read only from the directory the server
+	// was started in, the user's project.
+	root, err := os.Getwd()
+	if err != nil {
+		return err
+	}
 	tools.Register(server, tools.Deps{
 		Client: client,
 		Writer: penpot.NewWriter(client),
 		Fonts:  fonts.NewMeasurer(base, cache, logger),
 		Log:    logger,
+		Root:   root,
 	})
 	return server.Run(ctx, &mcp.StdioTransport{})
 }

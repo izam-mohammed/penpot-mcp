@@ -39,6 +39,8 @@ type backend struct {
 	bodies  map[string]map[string]any
 	pages   [][2]string // id, name: get-file's pages, changed by add-page, mod-page, del-page and mov-page
 	logs    bytes.Buffer
+	lib     string // extra get-file data fields, such as `,"colors":{...}`
+	root    string // the server's working directory, for palette files
 }
 
 func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
@@ -91,6 +93,7 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	lib := b.lib
 	var order, index []string
 	for _, p := range b.pages {
 		order = append(order, `"`+p[0]+`"`)
@@ -103,7 +106,7 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 	case "get-file":
 		_, _ = w.Write([]byte(`{"id":"` + fileID + `","name":"test file","revn":3,"vern":0,
 			"permissions":{"canEdit":true,"canRead":true},
-			"data":{"pages":[` + strings.Join(order, ",") + `],"pagesIndex":{` + strings.Join(index, ",") + `}}}`))
+			"data":{"pages":[` + strings.Join(order, ",") + `],"pagesIndex":{` + strings.Join(index, ",") + `}` + lib + `}}`))
 	case "get-page":
 		_, _ = w.Write([]byte(`{"id":"` + pageID + `","name":"Page 1","objects":{
 			"00000000-0000-0000-0000-000000000000":{"id":"00000000-0000-0000-0000-000000000000","name":"Root Frame","type":"frame","shapes":["` + boardID + `"]},
@@ -157,7 +160,7 @@ func (b *backend) count(command string) int {
 
 func session(t *testing.T) (*mcp.ClientSession, *backend) {
 	t.Helper()
-	b := &backend{}
+	b := &backend{root: t.TempDir()}
 	srv := httptest.NewServer(http.HandlerFunc(b.serve))
 	t.Cleanup(srv.Close)
 	c, err := penpot.NewClient(srv.URL, "test-token", "test", nil)
@@ -168,7 +171,7 @@ func session(t *testing.T) (*mcp.ClientSession, *backend) {
 	// No font server: text falls back to the estimate, which is enough here.
 	Register(s, Deps{
 		Client: c, Writer: penpot.NewWriter(c), Fonts: fonts.NewMeasurer("http://127.0.0.1:1", "", nil),
-		Log: slog.New(slog.NewTextHandler(&b.logs, nil)),
+		Log: slog.New(slog.NewTextHandler(&b.logs, nil)), Root: b.root,
 	})
 
 	ctx := context.Background()
@@ -221,11 +224,14 @@ func TestListsTools(t *testing.T) {
 	for _, tool := range res.Tools {
 		names = append(names, tool.Name)
 	}
-	want := "add_page apply_changes create_board create_bool create_ellipse create_file create_group create_image " +
-		"create_path create_project create_rect create_text delete_file delete_page delete_project delete_shapes draw " +
-		"duplicate_file get_page_tree link_library list_files list_members list_pages list_projects list_teams " +
-		"move_files move_project move_shape pin_project rename_file rename_page rename_project reorder_pages " +
-		"reparent_shape restore_file search_files set_file_shared set_layout unlink_library update_shape whoami"
+	want := "add_color add_page add_typography apply_changes apply_token create_board create_bool " +
+		"create_component create_ellipse create_file create_group create_image create_path create_project " +
+		"create_rect create_text delete_color delete_component delete_file delete_page delete_project " +
+		"delete_shapes delete_typography draw duplicate_file get_page_tree import_palette " +
+		"instantiate_component link_library list_files list_library list_members list_pages list_projects " +
+		"list_teams move_files move_project move_shape pin_project rename_file rename_page rename_project " +
+		"reorder_pages reparent_shape restore_file search_files set_file_shared set_layout sync_tokens " +
+		"unlink_library update_color update_shape update_typography whoami"
 	if got := strings.Join(sortStrings(names), " "); got != want {
 		t.Errorf("tools = %s\nwant    %s", got, want)
 	}

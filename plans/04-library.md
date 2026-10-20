@@ -82,10 +82,16 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut (needs you: try it)
 
-- [ ] `add_color`, `add_typography`, `list_library`, `create_component`
+- [x] `add_color`, `add_typography`, `list_library`, `create_component`
   and `instantiate_component` land (expected in
   `internal/tools/library.go`), pinned by `TestColorIdempotent` and
   `TestInstanceRefs`.
+  Landed 2026-10-20: `create_component` turns an existing board into the
+  main instance (draw it first), rather than drawing one itself. A name
+  like `Brand / Primary` is split into path and name. A copy is the main's
+  subtree with new ids, each shape's `shapeRef` on its original, moved by
+  `shiftRaw`. Also pinned by `TestTypographyStrings`, `TestCreateComponent`
+  and `TestListLibrary`.
 - [ ] Check: `make check` passes, and `make live` adds two colours and a
   button component, then places two instances.
 - [ ] You try it: ask Claude to add your brand colours and a button
@@ -94,15 +100,29 @@ repository instructions for recording useful development findings.
 
 ### Phase 2: tokens and palettes
 
-- [ ] `sync_tokens`, `apply_token`, `import_palette` and the update and
+- [x] `sync_tokens`, `apply_token`, `import_palette` and the update and
   delete tools land (expected in `internal/tools/tokens.go`,
   `internal/palette/`), pinned by `TestPaletteRefusesOutsideCwd`; check:
   `make check` passes.
+  Landed 2026-10-20: `sync_tokens` sends `set-tokens-lib` with the DTCG
+  multi-set JSON, which Penpot decodes with its own `read-multi-set-dtcg`
+  (`common/src/app/common/types/tokens_lib.cljc`); it replaces the file's
+  tokens, so it carries `destructiveHint`. `apply_token` sets the value and
+  `appliedTokens` (fill, stroke colour, radius, opacity) and reads the value
+  from `get-file`'s `tokensLib` unless `value` is given. Both are unproven
+  against a live file until `TestLiveTokens` runs. `import_palette` reads
+  Swift, Kotlin, markdown tables, CSS custom properties, DTCG or Style
+  Dictionary JSON and hex lists (`internal/palette/`), only under the
+  server's working directory (`Deps.Root`), never `.env` or `.git`.
+  `delete_component` also deletes the main instance, as Penpot's editor does.
 
 ### Phase 3: open the PR
 
-- [ ] The branch pushed and its PR opened against `main` (or, if one is
+- [x] The branch pushed and its PR opened against `main` (or, if one is
   already open for this branch, its body brought up to date) with a
   Conventional Commit title for the whole change, a body naming this plan,
   what changed and why, and the checks run with their result. The PR's URL
   printed as the evidence. Opened, never merged.
+
+Landed 2026-10-20: https://github.com/izam-mohammed/penpot-mcp/pull/4, stacked
+on #3 (base `feat/dashboard`).
