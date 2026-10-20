@@ -63,8 +63,9 @@ chat message.
 | what is on a page | `get_page_tree` with `file_id`, optional `page_id`, `depth` |
 
 `get_page_tree` is flat, top-most first, parents before their children:
-each shape has `parent_id` and `depth`. `more_children` counts what the
-depth cut off. Ask for a deeper `depth` rather than guessing.
+each shape has `parent_id` and `depth`, and a text shape its `text`
+(500 characters at most). `more_children` counts what the depth cut off.
+Ask for a deeper `depth` rather than guessing.
 
 Files are found by name through `list_projects` then `list_files`. When two
 files share a name, ask which one.
