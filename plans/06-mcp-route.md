@@ -118,7 +118,8 @@ repository instructions for recording useful development findings.
   Landed 2026-10-20: written and syntax-checked, not run: it needs the
   user's `PENPOT_MCP_URL`. The URL reaches curl through `-K -` on stdin
   and is never printed.
-- [ ] Check: `sh scripts/prove/penpot-mcp.sh` exits 0 and prints `PASS`.
+- [x] Check: `sh scripts/prove/penpot-mcp.sh` exits 0 and prints `PASS`.
+  Landed 2026-10-20: PASS against design.penpot.app, server 1.0.0.
 
 ### Phase 2: the rough cut (needs you: try it)
 
@@ -131,8 +132,10 @@ repository instructions for recording useful development findings.
   a sleeping tab never blocks start-up; the `tools/list` check runs then.
   MCP-route writes hold the API writer's lock (`Writer.Exclusive`) and
   drop the file's cached revision after.
-- [ ] Check: `make check` passes, and with the test file open in a tab,
+- [x] Check: `make check` passes, and with the test file open in a tab,
   `make live-mcp` reads `current_file` and runs a `reflow`.
+  Landed 2026-10-20: passed; with another file open in the tab it
+  refused first, as the guard should.
 - [ ] You try it: open the test file in Penpot with the MCP plugin
   connected, ask Claude which file is open and to reflow a board, and say
   whether it matched.
