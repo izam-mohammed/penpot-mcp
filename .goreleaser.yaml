@@ -44,9 +44,9 @@ homebrew_casks:
     repository:
       owner: izam-mohammed
       name: homebrew-tap
-      token: '{{ envOrDefault "HOMEBREW_TAP_TOKEN" "" }}'
+      token: '{{ index .Env "HOMEBREW_TAP_TOKEN" }}'
     # No tap token, no cask: the release itself still goes out.
-    skip_upload: '{{ if eq (envOrDefault "HOMEBREW_TAP_TOKEN" "") "" }}true{{ else }}false{{ end }}'
+    skip_upload: '{{ if index .Env "HOMEBREW_TAP_TOKEN" }}false{{ else }}true{{ end }}'
     hooks:
       post:
         install: |
