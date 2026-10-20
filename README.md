@@ -15,6 +15,9 @@ stdio.
 - `draw` builds a whole screen in one write
 - edits: update, move, reparent, delete, plus `apply_changes` for when
   nothing else fits
+- library: colours, type styles, components and their copies, design
+  tokens, and a palette pulled straight from your repo's css, swift,
+  kotlin, markdown or json
 
 coordinates are absolute page pixels, even inside boards. text is sized with
 the real font metrics, no browser required (that was the whole point).
