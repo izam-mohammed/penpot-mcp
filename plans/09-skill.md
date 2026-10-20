@@ -143,6 +143,10 @@ repository instructions for recording useful development findings.
   Landed 2026-10-19: the token flow stops before *Create access token*:
   the user clicks it and copies the token, so it is never on screen for
   the agent. Tests live in `skills/skill_test.go`.
+  Landed 2026-10-20: after `plans/02-drawing.md` merged, `SKILL.md`
+  covers `draw` (with a worked login screen, checked against `checkTree`),
+  the single-shape tools, `set_layout` and every edit tool;
+  `references/traps.md` gained the layout, text, move and group traps.
 - [x] Check: `make check` passes, and `/skills` in a new Claude Code session
   lists `penpot-mcp`.
 - [ ] You try it: in a fresh session say "set up penpot-mcp and draw a board
