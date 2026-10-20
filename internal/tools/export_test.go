@@ -88,8 +88,8 @@ func TestExportNeedsLogin(t *testing.T) {
 }
 
 func TestSSEEnd(t *testing.T) {
-	got, err := sseEnd([]byte("event: progress\ndata: [\"^ \",\"~:done\",1]\n\nevent: end\ndata: \"~rhttps://x/assets/by-id/9\"\n\n"))
-	if err != nil || got != `"~rhttps://x/assets/by-id/9"` {
+	got, err := sseEnd([]byte("event: progress\ndata: {\"~:done\":1}\n\nevent: end\ndata: {\"~#'\":\"~rhttps://x/assets/by-id/9\"}\n\n"))
+	if err != nil || got != `{"~#'":"~rhttps://x/assets/by-id/9"}` {
 		t.Errorf("end = %q, %v", got, err)
 	}
 	if _, err := sseEnd([]byte("event: error\ndata: boom\n")); err == nil || !strings.Contains(err.Error(), "boom") {

@@ -72,3 +72,17 @@ func TestTransitRoundTrip(t *testing.T) {
 		t.Error("an unknown cache code should fail")
 	}
 }
+
+// TestVerboseTagged: Penpot's SSE events are json-verbose transit, where a
+// top-level scalar arrives quoted as {"~#'": ...}, as export-binfile's end
+// event does with its download URI.
+func TestVerboseTagged(t *testing.T) {
+	v, err := Unmarshal([]byte(`{"~#'":"~rhttps://x/assets/by-id/9"}`))
+	if err != nil || v != "https://x/assets/by-id/9" {
+		t.Errorf("quoted uri = %v, %v", v, err)
+	}
+	v, err = Unmarshal([]byte(`{"~:id":"~u1","~:done":true}`))
+	if m, _ := v.(map[string]any); err != nil || m["id"] != "1" || m["done"] != true {
+		t.Errorf("verbose map = %v, %v", v, err)
+	}
+}

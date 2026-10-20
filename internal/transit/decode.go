@@ -119,7 +119,15 @@ func (r *reader) value(v any, key bool) (any, error) {
 		}
 		return out, nil
 	case map[string]any:
-		// Verbose transit writes maps as JSON objects.
+		// Verbose transit writes maps as JSON objects, and a tagged value
+		// (a quoted top-level scalar, a set) as a one-key {"~#tag": rep}.
+		if len(x) == 1 {
+			for k, item := range x {
+				if strings.HasPrefix(k, "~#") {
+					return r.value(item, false)
+				}
+			}
+		}
 		out := make(map[string]any, len(x))
 		for k, item := range x {
 			d, err := r.value(item, false)
