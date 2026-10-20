@@ -116,6 +116,13 @@ repository instructions for recording useful development findings.
   archives. The Homebrew cask needs an `izam-mohammed/homebrew-tap` repo
   and a `HOMEBREW_TAP_TOKEN` secret; without them the release still goes
   out and the cask is skipped.
+  Landed 2026-10-20: the first tags (v0.1.0 to v0.1.3) published the
+  archives but no cask. goreleaser takes `repository.token` only as
+  exactly `{{ .Env.HOMEBREW_TAP_TOKEN }}` (#13, #14), and the tap token
+  needs Contents read and write on the tap, not only read. v0.1.5 is the
+  first release with the cask; `brew install --cask
+  izam-mohammed/tap/penpot-mcp` installs it and `penpot-mcp --version`
+  prints `0.1.5`.
 
 ### Phase 4: open the PR
 
@@ -127,3 +134,14 @@ repository instructions for recording useful development findings.
 
 Landed 2026-10-20: https://github.com/izam-mohammed/penpot-mcp/pull/8, stacked
 on #7 (base `feat/collaboration`).
+
+## Amended, 2026-10-20: the repository was recreated
+
+Before the repository went public, its history was rewritten to drop a
+real Penpot profile id from two tests and local paths from
+`docs/existing-mcp-reference.md`. GitHub keeps every pull request's
+commits read-only, so the old repository was deleted and a new public one
+was made from the clean `main`. The pull request links in these plans
+(#1 to #14) and the releases v0.1.0 to v0.1.4 went with it; the commits
+they merged are all in `main`. The new repository's first release is
+v0.1.5.
