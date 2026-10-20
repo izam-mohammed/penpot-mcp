@@ -1,7 +1,7 @@
 ---
 name: penpot-mcp
-description: "Set up and drive the penpot-mcp server (the `penpot-api` MCP tools) to read and draw in Penpot through its backend API, with no browser tab: install and connect it, find teams, projects, files and pages, draw boards and rectangles, check the result. Uses Claude in Chrome only for what needs a browser: making the access token and looking at a drawing."
-when_to_use: "connect penpot-mcp, add the penpot api mcp, penpot access token, list penpot projects or files, draw in penpot without the plugin, mcp__penpot-api tools, PENPOT_ACCESS_TOKEN was not accepted, penpot-mcp not connected"
+description: "Set up and drive the penpot-mcp server (the `penpot-api` MCP tools) to read and draw in Penpot through its backend API, with no browser tab: install and connect it, find teams, projects, files and pages, draw whole screens (boards, shapes, text, paths, images, groups, layouts) in one call, edit, move and delete shapes, check the result. Uses Claude in Chrome only for what needs a browser: making the access token and looking at a drawing."
+when_to_use: "connect penpot-mcp, add the penpot api mcp, penpot access token, list penpot projects or files, draw in penpot without the plugin, draw a screen in penpot, edit or delete penpot shapes, mcp__penpot-api tools, PENPOT_ACCESS_TOKEN was not accepted, penpot-mcp not connected"
 ---
 
 # penpot-mcp
@@ -70,33 +70,78 @@ files share a name, ask which one.
 
 ## 4. Draw
 
+Prefer `draw`: one call, one write, a whole screen. The single-shape tools
+are for one-off additions.
+
 | Tool | Does |
 | --- | --- |
-| `create_board` | a board at the page root or inside a board (`parent_id`) |
-| `create_rect` | a rectangle at the root or inside a board |
+| `draw` | up to 500 shapes in one write: board, rect, ellipse, text, path, image, group, bool |
+| `create_board`, `create_rect`, `create_ellipse` | one box shape, at the root or inside a board |
+| `create_text` | a text box sized with the font's real metrics; wraps when given `width` |
+| `create_path` | a vector path from SVG path data `d` |
+| `create_image` | uploads a local PNG, JPEG, WebP, GIF or SVG (absolute path, up to 20 MB) and places it |
+| `set_layout` | gives an existing board a flex or grid layout and places its children |
+
+`draw` takes `shapes` bottom to top: each later shape sits above the
+earlier ones. A node names itself with `ref`; later nodes set `parent` to
+that ref (or to the id of a board, group or bool already on the page).
+Groups and bools need a `ref` and at least one child. A board with
+`layout: flex` or `grid` places its children in list order; give it
+`gap`, `padding`, `direction`, `justify`, `align_items` or `columns`.
+
+```json
+{"file_id": "...", "shapes": [
+  {"ref": "screen", "type": "board", "name": "Login", "x": 0, "y": 0, "width": 390, "height": 844,
+   "layout": "flex", "direction": "column", "gap": 16, "padding": 24},
+  {"parent": "screen", "type": "text", "text": "Welcome back", "font_family": "Inter", "font_size": 28, "font_weight": 700},
+  {"parent": "screen", "type": "rect", "name": "Email", "width": 342, "height": 48, "radius": 8, "fill": "#FFFFFF", "stroke": "#D0D5DD"},
+  {"parent": "screen", "type": "rect", "name": "Sign in", "width": 342, "height": 48, "radius": 8, "fill": "#2563EB"}
+]}
+```
 
 Rules:
 
 - **Coordinates are absolute page pixels**, also inside a board: a rect
-  20 px into a board at (500, 0) sits at x = 520.
-- `parent_id` must be a board (`type: frame` in the tree); a rect or group
-  is refused.
-- Fill is `#RRGGBB`; boards default to white, rectangles to grey.
+  20 px into a board at (500, 0) sits at x = 520. In a layout board the
+  server places the children; their x and y are ignored.
+- Parents hold shapes only when they are boards (`type: frame` in the
+  tree), groups or bools.
+- Colours are `#RRGGBB`. Boards default to white fill, other shapes to grey;
+  paths with no fill get a black stroke.
+- Text: `font_family` is a Google font name or Source Sans Pro (default).
+  A reply with `text_measured: false` means the font could not be fetched
+  and the size is an estimate; check it by eye.
 - Every reply names the file and page it landed in. Check them before the
   next call.
 - Writes to one account run one at a time (Penpot's limit). Do not call
-  draw tools in parallel; send them one after another.
+  write tools in parallel; send them one after another.
 - Leave space: put new boards beside existing ones (read `get_page_tree`
   first, find the right-most `x + width`, add 100).
 
-## 5. Check the result
+## 5. Edit
+
+| Tool | Does |
+| --- | --- |
+| `update_shape` | name, x, y, width, height, rotation, fill, stroke, radius, opacity, hidden, or a text's `text` (re-measured) |
+| `move_shape` | moves shapes by `dx`, `dy`; children move along, groups around them refit |
+| `reparent_shape` | moves shapes into another board, group or bool, or reorders them with `index` (0 is the bottom) |
+| `create_group`, `create_bool` | groups or combines shapes that share a parent |
+| `delete_shapes` | deletes shapes and everything inside them; never the root frame |
+| `apply_changes` | last resort: raw `update-file` changes, checked first |
+
+Take ids from `get_page_tree` or from the reply of the call that drew
+them. Edit tools take up to 200 ids. Use `apply_changes` only when no
+other tool fits, and never for moves between parents (Penpot ignores
+`mov-objects` over JSON; `reparent_shape` sends it the way that works).
+
+## 6. Check the result
 
 Read it back: `get_page_tree` must show each new shape with the expected
 `parent_id`. To see it, use Claude in Chrome:
 [references/chrome.md](references/chrome.md) § Look at a drawing. Open
 files show API edits live.
 
-## 6. When it fails
+## 7. When it fails
 
 | Error | Meaning | Do |
 | --- | --- | --- |
@@ -104,7 +149,10 @@ files show API edits live.
 | `this token cannot edit file` | view-only access | pick a file the account can edit |
 | `HTTP 429 rate-limit` | Penpot's rate limit, already retried once | wait the seconds it says, then go on |
 | `HTTP 409 validation/vern-conflict` | someone restored a version; already re-read once | call `get_page_tree` again, then redo |
-| `parent ... is a rect` | parent is not a board | use the board's id |
+| `parent ... is a rect` | parent is not a board, group or bool | use the board's id |
+| `the shapes must share a parent` | group or bool across parents | `reparent_shape` them together first |
+| `the root frame cannot be edited, moved or deleted` | the page's root id was given | use the ids of shapes on the page |
+| `... is ignored by Penpot over JSON` | `mov-objects` sent to `apply_changes` | use `reparent_shape` |
 | `HTTP 500 .../data-validation` | Penpot rejected a shape | report the `explain` text; do not retry blindly |
 
 More traps: [references/traps.md](references/traps.md).
