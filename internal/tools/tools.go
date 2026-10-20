@@ -26,6 +26,10 @@ type Deps struct {
 	// Route is the MCP route to a Penpot tab; nil when PENPOT_MCP_URL is
 	// not set, and then its tools are not listed.
 	Route *mcproute.Route
+
+	// Profiles are other accounts, chosen per call with a "profile"
+	// argument; each has its own client and write queue.
+	Profiles map[string]Deps
 }
 
 func (d Deps) log() *slog.Logger {
@@ -37,6 +41,9 @@ func (d Deps) log() *slog.Logger {
 
 // Register adds every tool to the server.
 func Register(s *mcp.Server, d Deps) {
+	if len(d.Profiles) > 0 {
+		s.AddReceivingMiddleware(profileMiddleware(profileNames(d.Profiles)))
+	}
 	registerRead(s, d)
 	registerDraw(s, d)
 	registerLayout(s, d)

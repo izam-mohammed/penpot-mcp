@@ -127,6 +127,7 @@ func registerEdit(s *mcp.Server, d Deps) {
 		Description: "Change one shape: name, position (children follow), size, rotation, fill, stroke, " +
 			"radius, opacity, visibility, or a text shape's text. Only the fields given change.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in updateIn) (*mcp.CallToolResult, changedOut, error) {
+		d := d.pick(ctx)
 		out, err := updateShape(ctx, d, in)
 		return nil, out, err
 	})
@@ -135,6 +136,7 @@ func registerEdit(s *mcp.Server, d Deps) {
 		Name:        "move_shape",
 		Description: "Move shapes by dx, dy pixels; everything inside them moves too, and groups around them refit.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in moveIn) (*mcp.CallToolResult, changedOut, error) {
+		d := d.pick(ctx)
 		out, err := moveShapes(ctx, d, in)
 		return nil, out, err
 	})
@@ -144,6 +146,7 @@ func registerEdit(s *mcp.Server, d Deps) {
 		Description: "Move shapes into another board, group or bool, or reorder them in their own parent " +
 			"with index. They keep their page position.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in reparentIn) (*mcp.CallToolResult, changedOut, error) {
+		d := d.pick(ctx)
 		out, err := reparent(ctx, d, in)
 		return nil, out, err
 	})
@@ -153,6 +156,7 @@ func registerEdit(s *mcp.Server, d Deps) {
 		Description: "Delete shapes and everything inside them. Returns the names removed. " +
 			"The root frame is never deleted.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in idsIn) (*mcp.CallToolResult, changedOut, error) {
+		d := d.pick(ctx)
 		out, err := deleteShapes(ctx, d, in)
 		return nil, out, err
 	})
@@ -161,6 +165,7 @@ func registerEdit(s *mcp.Server, d Deps) {
 		Name:        "create_group",
 		Description: "Group shapes that share a parent. The group takes the place of the top one.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in groupIn) (*mcp.CallToolResult, groupOut, error) {
+		d := d.pick(ctx)
 		out, err := group(ctx, d, in, false)
 		return nil, out, err
 	})
@@ -169,6 +174,7 @@ func registerEdit(s *mcp.Server, d Deps) {
 		Name:        "create_bool",
 		Description: "Combine shapes that share a parent into a boolean shape: union, difference, intersection or exclude.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in groupIn) (*mcp.CallToolResult, groupOut, error) {
+		d := d.pick(ctx)
 		out, err := group(ctx, d, in, true)
 		return nil, out, err
 	})
@@ -178,6 +184,7 @@ func registerEdit(s *mcp.Server, d Deps) {
 		Description: "Last resort: send raw update-file changes when no other tool fits. Use the shape tools " +
 			"first. Only known change types are accepted; mov-objects is refused (use reparent_shape).",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in applyIn) (*mcp.CallToolResult, applyOut, error) {
+		d := d.pick(ctx)
 		out, err := applyChanges(ctx, d, in)
 		return nil, out, err
 	})

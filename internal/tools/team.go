@@ -39,6 +39,7 @@ func registerTeam(s *mcp.Server, d Deps) {
 		Description: "List a team's members with their role: owner, admin, editor or viewer.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in membersIn) (*mcp.CallToolResult, membersOut, error) {
+		d := d.pick(ctx)
 		team, err := teamOrDefault(ctx, d, in.TeamID)
 		if err != nil {
 			return nil, membersOut{}, err

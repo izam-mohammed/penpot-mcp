@@ -83,6 +83,7 @@ func registerRead(s *mcp.Server, d Deps) {
 		Description: "The Penpot account this server acts as: id, name, email, default team and project.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ empty) (*mcp.CallToolResult, whoamiOut, error) {
+		d := d.pick(ctx)
 		var p penpot.Profile
 		if err := d.Client.Call(ctx, "get-profile", empty{}, &p); err != nil {
 			return nil, whoamiOut{}, err
@@ -95,6 +96,7 @@ func registerRead(s *mcp.Server, d Deps) {
 		Description: "List the Penpot teams this account belongs to.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ empty) (*mcp.CallToolResult, teamsOut, error) {
+		d := d.pick(ctx)
 		var t []penpot.Team
 		err := d.Client.Call(ctx, "get-teams", empty{}, &t)
 		return nil, teamsOut{Teams: t}, err
@@ -105,6 +107,7 @@ func registerRead(s *mcp.Server, d Deps) {
 		Description: "List Penpot projects, across all teams or for one team.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in projectsIn) (*mcp.CallToolResult, projectsOut, error) {
+		d := d.pick(ctx)
 		var p []penpot.Project
 		var err error
 		if in.TeamID == "" {
@@ -123,6 +126,7 @@ func registerRead(s *mcp.Server, d Deps) {
 		Description: "List the files in a Penpot project.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in filesIn) (*mcp.CallToolResult, filesOut, error) {
+		d := d.pick(ctx)
 		if err := checkID("project_id", in.ProjectID); err != nil {
 			return nil, filesOut{}, err
 		}
@@ -136,6 +140,7 @@ func registerRead(s *mcp.Server, d Deps) {
 		Description: "List the pages of a Penpot file, in order.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in pagesIn) (*mcp.CallToolResult, pagesOut, error) {
+		d := d.pick(ctx)
 		if err := checkID("file_id", in.FileID); err != nil {
 			return nil, pagesOut{}, err
 		}
@@ -149,6 +154,7 @@ func registerRead(s *mcp.Server, d Deps) {
 			"id, parent_id, depth, name, type, x, y, width, height. Coordinates are absolute page pixels.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in treeIn) (*mcp.CallToolResult, treeOut, error) {
+		d := d.pick(ctx)
 		if err := checkID("file_id", in.FileID); err != nil {
 			return nil, treeOut{}, err
 		}

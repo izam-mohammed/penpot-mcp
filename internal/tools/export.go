@@ -82,6 +82,7 @@ func registerExport(s *mcp.Server, d Deps) {
 		Description: "Render a board or shape to PNG, JPEG, WEBP, SVG or PDF and write it to a path in the working directory. " +
 			"Needs PENPOT_EMAIL and PENPOT_PASSWORD: Penpot's exporter takes only a login session. A blank render is an error.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in exportShapeIn) (*mcp.CallToolResult, exportOut, error) {
+		d := d.pick(ctx)
 		out, err := exportShape(ctx, d, in)
 		return nil, out, err
 	})
@@ -90,6 +91,7 @@ func registerExport(s *mcp.Server, d Deps) {
 		Name:        "export_boards",
 		Description: "Export every top-level board of a page (optionally only names with a prefix) into a folder, one file per board.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in exportBoardsIn) (*mcp.CallToolResult, exportOut, error) {
+		d := d.pick(ctx)
 		out, err := exportBoards(ctx, d, in)
 		return nil, out, err
 	})
@@ -98,6 +100,7 @@ func registerExport(s *mcp.Server, d Deps) {
 		Name:        "export_file",
 		Description: "Download a whole file as .penpot (Penpot's own format, re-importable) to a path in the working directory.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in exportFileIn) (*mcp.CallToolResult, exportOut, error) {
+		d := d.pick(ctx)
 		out, err := exportFile(ctx, d, in)
 		return nil, out, err
 	})
@@ -106,6 +109,7 @@ func registerExport(s *mcp.Server, d Deps) {
 		Name:        "import_file",
 		Description: "Import a .penpot file from the working directory into a project as a new file.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in importFileIn) (*mcp.CallToolResult, fileImportOut, error) {
+		d := d.pick(ctx)
 		out, err := importFile(ctx, d, in)
 		return nil, out, err
 	})
