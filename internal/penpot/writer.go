@@ -84,6 +84,14 @@ func (w *Writer) Pages(ctx context.Context, fileID string) (string, []PageMeta, 
 	return st.name, append([]PageMeta(nil), st.pages...), nil
 }
 
+// Forget drops the cached state of a file, after a call that changed its
+// name or pages outside Apply.
+func (w *Writer) Forget(fileID string) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	delete(w.files, fileID)
+}
+
 func (w *Writer) state(ctx context.Context, fileID string, refresh bool) (*fileState, error) {
 	if st, ok := w.files[fileID]; ok && !refresh {
 		return st, nil
@@ -171,4 +179,25 @@ func NewID() string {
 	b[6] = b[6]&0x0f | 0x40
 	b[8] = b[8]&0x3f | 0x80
 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
+}
+
+// Exclusive runs fn under the write lock, so an MCP-route write never runs
+// beside an API write, then drops the file's cached revision: the tab's
+// write moved it on.
+func (w *Writer) Exclusive(fileID string, fn func() error) error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	defer delete(w.files, fileID)
+	return fn()
+}
+
+// FileName returns the cached file name, loading the file once.
+func (w *Writer) FileName(ctx context.Context, fileID string) (string, error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	st, err := w.state(ctx, fileID, false)
+	if err != nil {
+		return "", err
+	}
+	return st.name, nil
 }

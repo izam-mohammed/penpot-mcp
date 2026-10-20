@@ -219,8 +219,9 @@ type setLayoutIn struct {
 
 type setLayoutOut struct {
 	penpot.Target
-	BoardID string  `json:"board_id"`
-	Placed  []drawn `json:"placed" jsonschema:"each direct child's new box, in layout order"`
+	BoardID string    `json:"board_id"`
+	Placed  []drawn   `json:"placed" jsonschema:"each direct child's new box, in layout order"`
+	Tab     *tabCheck `json:"tab,omitempty" jsonschema:"what the connected Penpot tab saw, when the MCP route is on"`
 }
 
 func registerLayout(s *mcp.Server, d Deps) {
@@ -229,6 +230,7 @@ func registerLayout(s *mcp.Server, d Deps) {
 		Description: "Give a board a flex (row or column) or grid layout and place its children. " +
 			"Children go in layer order, top layer first, as Penpot lays them out. Child sizes are kept.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in setLayoutIn) (*mcp.CallToolResult, setLayoutOut, error) {
+		d := d.pick(ctx)
 		if err := checkID("file_id", in.FileID); err != nil {
 			return nil, setLayoutOut{}, err
 		}
@@ -283,6 +285,7 @@ func registerLayout(s *mcp.Server, d Deps) {
 		if err := d.Writer.Apply(ctx, t.FileID, changes); err != nil {
 			return nil, setLayoutOut{}, err
 		}
+		out.Tab = afterWrite(ctx, d, t.FileID, nil)
 		return nil, out, nil
 	})
 }

@@ -12,6 +12,7 @@ in CI.
 | golangci-lint | v2.14.x | `Makefile` (`GOLANGCI_LINT_VERSION`), installed with `go install` |
 | govulncheck | latest `golang.org/x/vuln` release | `Makefile` |
 | gitleaks | v8 | `Makefile` |
+| GoReleaser | v2 (`~> v2` in the release workflow) | `.goreleaser.yaml`, `.github/workflows/release.yml` |
 
 ## Checks
 
@@ -24,6 +25,7 @@ in CI.
 | Proof scripts | POSIX `sh` + `curl` | none | `sh scripts/prove/<name>.sh` | prints `PASS` (needs the env vars; not in CI) |
 | Dependency audit | govulncheck | none | `govulncheck ./...` | no reachable vulnerability |
 | Secret scan | gitleaks | `.gitleaks.toml` when added | `gitleaks git --no-banner` | no findings |
+| Release config | GoReleaser | `.goreleaser.yaml` | `goreleaser check` | validated (run by the release workflow before every release) |
 | Build | `go build` | none | `go build -trimpath -ldflags="-s -w" -o bin/penpot-mcp ./cmd/penpot-mcp` | builds |
 
 `make check` runs format, lint, build, tests, govulncheck and gitleaks in

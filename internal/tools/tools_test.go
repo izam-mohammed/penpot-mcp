@@ -1,9 +1,11 @@
 package tools
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -21,6 +23,12 @@ const (
 	pageID  = "a0000000-0000-4000-8000-000000000001"
 	boardID = "b0000000-0000-4000-8000-000000000001"
 	rectID  = "c0000000-0000-4000-8000-000000000001"
+	teamID  = "70000000-0000-4000-8000-000000000001"
+
+	newProjectID = "90000000-0000-4000-8000-000000000001"
+	draftsID     = "90000000-0000-4000-8000-000000000002"
+	threadID     = "7c000000-0000-4000-8000-000000000001"
+	snapID       = "5b000000-0000-4000-8000-000000000001"
 )
 
 // backend replays recorded Penpot replies by command name.
@@ -30,6 +38,12 @@ type backend struct {
 	updates []map[string]any
 	raw     []string // update-file bodies as sent
 	ctypes  []string // their content types
+	bodies  map[string]map[string]any
+	pages   [][2]string // id, name: get-file's pages, changed by add-page, mod-page, del-page and mov-page
+	logs    bytes.Buffer
+	lib     string        // extra get-file data fields, such as `,"colors":{...}`
+	root    string        // the server's working directory, for palette files
+	block   chan struct{} // when set, update-file waits for it
 }
 
 func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
@@ -37,21 +51,68 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 	data, _ := io.ReadAll(r.Body)
 	b.mu.Lock()
 	b.calls = append(b.calls, command)
+	var body map[string]any
+	_ = json.Unmarshal(data, &body)
+	if b.bodies == nil {
+		b.bodies = map[string]map[string]any{}
+	}
+	b.bodies[command] = body
+	if b.pages == nil {
+		b.pages = [][2]string{{pageID, "Page 1"}}
+	}
 	if command == "update-file" {
-		var body map[string]any
-		_ = json.Unmarshal(data, &body)
 		b.updates = append(b.updates, body)
 		b.raw = append(b.raw, string(data))
 		b.ctypes = append(b.ctypes, r.Header.Get("Content-Type"))
+		changes, _ := body["changes"].([]any)
+		for _, c := range changes {
+			ch, _ := c.(map[string]any)
+			id, _ := ch["id"].(string)
+			name, _ := ch["name"].(string)
+			switch ch["type"] {
+			case "add-page":
+				b.pages = append(b.pages, [2]string{id, name})
+			case "mod-page":
+				for i := range b.pages {
+					if b.pages[i][0] == id {
+						b.pages[i][1] = name
+					}
+				}
+			case "del-page", "mov-page":
+				var moved [2]string
+				kept := b.pages[:0:0]
+				for _, p := range b.pages {
+					if p[0] == id {
+						moved = p
+					} else {
+						kept = append(kept, p)
+					}
+				}
+				if ch["type"] == "mov-page" {
+					i := int(ch["index"].(float64))
+					kept = append(kept[:i], append([][2]string{moved}, kept[i:]...)...)
+				}
+				b.pages = kept
+			}
+		}
+	}
+	lib := b.lib
+	var order, index []string
+	for _, p := range b.pages {
+		order = append(order, `"`+p[0]+`"`)
+		index = append(index, `"`+p[0]+`":{"id":"`+p[0]+`","name":"`+p[1]+`"}`)
 	}
 	b.mu.Unlock()
 
+	if command == "update-file" && b.block != nil {
+		<-b.block
+	}
 	w.Header().Set("Content-Type", "application/json")
 	switch command {
 	case "get-file":
 		_, _ = w.Write([]byte(`{"id":"` + fileID + `","name":"test file","revn":3,"vern":0,
 			"permissions":{"canEdit":true,"canRead":true},
-			"data":{"pages":["` + pageID + `"],"pagesIndex":{"` + pageID + `":{"id":"` + pageID + `","name":"Page 1"}}}}`))
+			"data":{"pages":[` + strings.Join(order, ",") + `],"pagesIndex":{` + strings.Join(index, ",") + `}` + lib + `}}`))
 	case "get-page":
 		_, _ = w.Write([]byte(`{"id":"` + pageID + `","name":"Page 1","objects":{
 			"00000000-0000-0000-0000-000000000000":{"id":"00000000-0000-0000-0000-000000000000","name":"Root Frame","type":"frame","shapes":["` + boardID + `"]},
@@ -61,8 +122,51 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`{"revn":3,"lagged":[]}`))
 	case "upload-file-media-object":
 		_, _ = w.Write([]byte(`{"id":"d0000000-0000-4000-8000-000000000001","name":"swatch","width":120,"height":80,"mtype":"image/png"}`))
+	case "get-profile":
+		_, _ = w.Write([]byte(`{"id":"e0000000-0000-4000-8000-000000000001","fullname":"Test","defaultTeamId":"` + teamID + `"}`))
+	case "create-project":
+		_, _ = w.Write([]byte(`{"id":"` + newProjectID + `","name":"` + str(body, "name") + `","teamId":"` + str(body, "teamId") + `"}`))
+	case "create-file":
+		_, _ = w.Write([]byte(`{"id":"` + fileID + `","name":"` + str(body, "name") + `","projectId":"` + str(body, "projectId") + `"}`))
+	case "rename-file":
+		_, _ = w.Write([]byte(`{"id":"` + str(body, "id") + `","name":"` + str(body, "name") + `"}`))
 	case "get-all-projects":
-		_, _ = w.Write([]byte(`[{"id":"p1","name":"Drafts","teamId":"t1"}]`))
+		_, _ = w.Write([]byte(`[{"id":"` + draftsID + `","name":"Drafts","teamId":"` + teamID + `","isDefault":true},
+			{"id":"` + newProjectID + `","name":"Money Logs","teamId":"` + teamID + `"}]`))
+	case "duplicate-file":
+		_, _ = w.Write([]byte(`{"id":"f0000000-0000-4000-8000-000000000002","name":"test file (copy)","projectId":"` + newProjectID + `"}`))
+	case "search-files":
+		_, _ = w.Write([]byte(`[{"id":"` + fileID + `","name":"test file","projectId":"` + newProjectID + `"}]`))
+	case "get-team-deleted-files":
+		_, _ = w.Write([]byte(`[{"id":"` + fileID + `","name":"test file","projectId":"` + newProjectID + `","deletedAt":"2026-10-20T00:00:00Z"}]`))
+	case "get-team-members":
+		_, _ = w.Write([]byte(`[{"id":"m1","name":"Ana","email":"ana@example.com","isOwner":true,"isAdmin":true,"canEdit":true},
+			{"id":"m2","fullname":"Bo","email":"bo@example.com","canEdit":true},
+			{"id":"m3","name":"Cy","email":"cy@example.com"}]`))
+	case "get-comment-threads":
+		_, _ = w.Write([]byte(`[{"id":"` + threadID + `","seqn":3,"pageId":"` + pageID + `","frameId":"` + boardID + `",
+			"position":{"x":10,"y":20},"isResolved":false,"ownerFullname":"Ana","content":"make it bigger","count":2}]`))
+	case "get-comments":
+		_, _ = w.Write([]byte(`[{"id":"k1","ownerFullname":"Ana","content":"make it bigger","createdAt":"2026-10-20T00:00:00Z"}]`))
+	case "create-comment-thread":
+		_, _ = w.Write([]byte(`{"id":"` + threadID + `","seqn":4,"pageId":"` + pageID + `","position":{"x":1,"y":2}}`))
+	case "create-comment":
+		_, _ = w.Write([]byte(`{"id":"k2","createdAt":"2026-10-20T00:00:00Z"}`))
+	case "create-share-link":
+		_, _ = w.Write([]byte(`{"id":"5a000000-0000-4000-8000-000000000001"}`))
+	case "get-webhooks":
+		_, _ = w.Write([]byte(`[{"id":"w1","uri":"https://hooks.example.com/p","mtype":"application/json","isActive":true}]`))
+	case "create-webhook":
+		_, _ = w.Write([]byte(`{"id":"w2"}`))
+	case "get-file-snapshots":
+		_, _ = w.Write([]byte(`[{"id":"` + snapID + `","label":"before redesign","createdAt":"2026-10-19T00:00:00Z"}]`))
+	case "create-file-snapshot":
+		_, _ = w.Write([]byte(`{"id":"5b000000-0000-4000-8000-000000000009"}`))
+	case "update-comment-thread", "restore-file-snapshot", "delete-share-link", "delete-webhook":
+		w.WriteHeader(http.StatusNoContent)
+	case "rename-project", "move-project", "update-project-pin", "delete-project", "delete-file", "move-files",
+		"restore-deleted-team-files", "set-file-shared", "link-file-to-library", "unlink-file-from-library":
+		w.WriteHeader(http.StatusNoContent)
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		_, _ = w.Write([]byte(`{"type":"not-found","code":"object-not-found"}`))
@@ -83,7 +187,27 @@ func (b *backend) count(command string) int {
 
 func session(t *testing.T) (*mcp.ClientSession, *backend) {
 	t.Helper()
-	b := &backend{}
+	return sessionWith(t, nil)
+}
+
+// newBackend starts a recorded Penpot and returns Deps that talk to it.
+func newBackend(t *testing.T) (*backend, Deps) {
+	t.Helper()
+	b := &backend{root: t.TempDir()}
+	srv := httptest.NewServer(http.HandlerFunc(b.serve))
+	t.Cleanup(srv.Close)
+	c, err := penpot.NewClient(srv.URL, "test-token", "test", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return b, Deps{Client: c, Writer: penpot.NewWriter(c), Fonts: fonts.NewMeasurer("http://127.0.0.1:1", "", nil), Root: b.root}
+}
+
+// sessionWith is session with a change to the server's Deps, such as an
+// MCP route.
+func sessionWith(t *testing.T, change func(*Deps)) (*mcp.ClientSession, *backend) {
+	t.Helper()
+	b := &backend{root: t.TempDir()}
 	srv := httptest.NewServer(http.HandlerFunc(b.serve))
 	t.Cleanup(srv.Close)
 	c, err := penpot.NewClient(srv.URL, "test-token", "test", nil)
@@ -92,7 +216,14 @@ func session(t *testing.T) (*mcp.ClientSession, *backend) {
 	}
 	s := mcp.NewServer(&mcp.Implementation{Name: "test", Version: "0"}, nil)
 	// No font server: text falls back to the estimate, which is enough here.
-	Register(s, Deps{Client: c, Writer: penpot.NewWriter(c), Fonts: fonts.NewMeasurer("http://127.0.0.1:1", "", nil)})
+	deps := Deps{
+		Client: c, Writer: penpot.NewWriter(c), Fonts: fonts.NewMeasurer("http://127.0.0.1:1", "", nil),
+		Log: slog.New(slog.NewTextHandler(&b.logs, nil)), Root: b.root,
+	}
+	if change != nil {
+		change(&deps)
+	}
+	Register(s, deps)
 
 	ctx := context.Background()
 	st, ct := mcp.NewInMemoryTransports()
@@ -144,9 +275,17 @@ func TestListsTools(t *testing.T) {
 	for _, tool := range res.Tools {
 		names = append(names, tool.Name)
 	}
-	want := "apply_changes create_board create_bool create_ellipse create_group create_image create_path create_rect create_text " +
-		"delete_shapes draw get_page_tree list_files list_pages list_projects list_teams move_shape reparent_shape " +
-		"set_layout update_shape whoami"
+	want := "add_color add_comment add_page add_typography apply_changes apply_token create_board create_bool " +
+		"create_component create_ellipse create_file create_group create_image create_path create_project " +
+		"create_rect create_share_link create_snapshot create_text create_webhook delete_color " +
+		"delete_component delete_file delete_page delete_project delete_shapes delete_share_link " +
+		"delete_typography delete_webhook draw duplicate_file export_boards export_file export_shape " +
+		"get_page_tree import_file import_palette instantiate_component link_library list_comments list_files " +
+		"list_library list_members list_pages list_projects list_snapshots list_teams list_webhooks " +
+		"move_files move_project move_shape pin_project plugin_data rename_file rename_page rename_project " +
+		"reorder_pages reparent_shape reply_comment resolve_thread restore_file restore_snapshot search_files " +
+		"set_file_shared set_layout sync_tokens unlink_library update_color update_shape update_typography " +
+		"whoami"
 	if got := strings.Join(sortStrings(names), " "); got != want {
 		t.Errorf("tools = %s\nwant    %s", got, want)
 	}
