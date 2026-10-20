@@ -7,6 +7,7 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/izam-mohammed/penpot-mcp/internal/fonts"
+	"github.com/izam-mohammed/penpot-mcp/internal/mcproute"
 	"github.com/izam-mohammed/penpot-mcp/internal/penpot"
 )
 
@@ -21,6 +22,10 @@ type Deps struct {
 	// Exporter renders shapes; nil when PENPOT_EMAIL and PENPOT_PASSWORD
 	// are not set.
 	Exporter *penpot.Exporter
+
+	// Route is the MCP route to a Penpot tab; nil when PENPOT_MCP_URL is
+	// not set, and then its tools are not listed.
+	Route *mcproute.Route
 }
 
 func (d Deps) log() *slog.Logger {
@@ -42,4 +47,5 @@ func Register(s *mcp.Server, d Deps) {
 	registerLibrary(s, d)
 	registerTokens(s, d)
 	registerExport(s, d)
+	registerPlugin(s, d)
 }

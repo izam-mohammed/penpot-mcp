@@ -111,10 +111,11 @@ type textFields struct {
 
 type shapeOut struct {
 	penpot.Target
-	ShapeID  string  `json:"shape_id"`
-	ParentID string  `json:"parent_id"`
-	Width    float64 `json:"width,omitempty"`
-	Height   float64 `json:"height,omitempty"`
+	ShapeID  string    `json:"shape_id"`
+	ParentID string    `json:"parent_id"`
+	Width    float64   `json:"width,omitempty"`
+	Height   float64   `json:"height,omitempty"`
+	Tab      *tabCheck `json:"tab,omitempty"`
 }
 
 func registerDraw(s *mcp.Server, d Deps) {
@@ -206,6 +207,9 @@ func createOne(ctx context.Context, d Deps, tg target, node drawNode) (*mcp.Call
 	out, err := drawNodes(ctx, d, tg, []drawNode{node})
 	if err != nil {
 		return nil, shapeOut{}, err
+	}
+	if node.Type == "text" {
+		out.Tab = afterWrite(ctx, d, out.FileID, textIDs(out))
 	}
 	return nil, out.single(), nil
 }
