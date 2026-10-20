@@ -15,7 +15,7 @@ import (
 const maxComment = 750
 
 type listCommentsIn struct {
-	FileID   string `json:"file_id" jsonschema:"the file"`
+	FileID   string `json:"file_id,omitempty" jsonschema:"the file; not needed with thread_id"`
 	ThreadID string `json:"thread_id,omitempty" jsonschema:"one thread: list its comments instead of the file's threads"`
 }
 

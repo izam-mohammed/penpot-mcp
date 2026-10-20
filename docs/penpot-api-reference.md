@@ -403,7 +403,7 @@ Everything else is decoded correctly from JSON, including `add-obj.obj`, which i
 
 | type | fields |
 |---|---|
-| `set-tokens-lib` | `tokens-lib` (the full lib) or null |
+| `set-tokens-lib` | `tokens-lib` (the full lib) or null; over JSON, a DTCG JSON *string*: an object has its keys keywordized and fails "check error" (seen 2026-10-20) |
 | `set-token` | `set-id`, `token-id`, `attrs`: `{id?, name, type, value, description?, modified-at?}` or null (null deletes the token) |
 | `set-token-set` | `id`, `attrs`: `{id?, name, description?, modified-at?, tokens?}` or null |
 | `set-token-theme` | `id`, `attrs`: `{id?, name, group?, description?, is-source?, external-id?, modified-at?, sets?: string[]}` or null |
