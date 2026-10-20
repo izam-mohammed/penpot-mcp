@@ -1,9 +1,11 @@
 package tools
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -24,6 +26,7 @@ const (
 	teamID  = "70000000-0000-4000-8000-000000000001"
 
 	newProjectID = "90000000-0000-4000-8000-000000000001"
+	draftsID     = "90000000-0000-4000-8000-000000000002"
 )
 
 // backend replays recorded Penpot replies by command name.
@@ -34,7 +37,8 @@ type backend struct {
 	raw     []string // update-file bodies as sent
 	ctypes  []string // their content types
 	bodies  map[string]map[string]any
-	pages   [][2]string // id, name: get-file's pages, changed by add-page and mod-page
+	pages   [][2]string // id, name: get-file's pages, changed by add-page, mod-page, del-page and mov-page
+	logs    bytes.Buffer
 }
 
 func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +73,21 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 						b.pages[i][1] = name
 					}
 				}
+			case "del-page", "mov-page":
+				var moved [2]string
+				kept := b.pages[:0:0]
+				for _, p := range b.pages {
+					if p[0] == id {
+						moved = p
+					} else {
+						kept = append(kept, p)
+					}
+				}
+				if ch["type"] == "mov-page" {
+					i := int(ch["index"].(float64))
+					kept = append(kept[:i], append([][2]string{moved}, kept[i:]...)...)
+				}
+				b.pages = kept
 			}
 		}
 	}
@@ -103,7 +122,21 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 	case "rename-file":
 		_, _ = w.Write([]byte(`{"id":"` + str(body, "id") + `","name":"` + str(body, "name") + `"}`))
 	case "get-all-projects":
-		_, _ = w.Write([]byte(`[{"id":"p1","name":"Drafts","teamId":"t1"}]`))
+		_, _ = w.Write([]byte(`[{"id":"` + draftsID + `","name":"Drafts","teamId":"` + teamID + `","isDefault":true},
+			{"id":"` + newProjectID + `","name":"Money Logs","teamId":"` + teamID + `"}]`))
+	case "duplicate-file":
+		_, _ = w.Write([]byte(`{"id":"f0000000-0000-4000-8000-000000000002","name":"test file (copy)","projectId":"` + newProjectID + `"}`))
+	case "search-files":
+		_, _ = w.Write([]byte(`[{"id":"` + fileID + `","name":"test file","projectId":"` + newProjectID + `"}]`))
+	case "get-team-deleted-files":
+		_, _ = w.Write([]byte(`[{"id":"` + fileID + `","name":"test file","projectId":"` + newProjectID + `","deletedAt":"2026-10-20T00:00:00Z"}]`))
+	case "get-team-members":
+		_, _ = w.Write([]byte(`[{"id":"m1","name":"Ana","email":"ana@example.com","isOwner":true,"isAdmin":true,"canEdit":true},
+			{"id":"m2","fullname":"Bo","email":"bo@example.com","canEdit":true},
+			{"id":"m3","name":"Cy","email":"cy@example.com"}]`))
+	case "rename-project", "move-project", "update-project-pin", "delete-project", "delete-file", "move-files",
+		"restore-deleted-team-files", "set-file-shared", "link-file-to-library", "unlink-file-from-library":
+		w.WriteHeader(http.StatusNoContent)
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		_, _ = w.Write([]byte(`{"type":"not-found","code":"object-not-found"}`))
@@ -133,7 +166,10 @@ func session(t *testing.T) (*mcp.ClientSession, *backend) {
 	}
 	s := mcp.NewServer(&mcp.Implementation{Name: "test", Version: "0"}, nil)
 	// No font server: text falls back to the estimate, which is enough here.
-	Register(s, Deps{Client: c, Writer: penpot.NewWriter(c), Fonts: fonts.NewMeasurer("http://127.0.0.1:1", "", nil)})
+	Register(s, Deps{
+		Client: c, Writer: penpot.NewWriter(c), Fonts: fonts.NewMeasurer("http://127.0.0.1:1", "", nil),
+		Log: slog.New(slog.NewTextHandler(&b.logs, nil)),
+	})
 
 	ctx := context.Background()
 	st, ct := mcp.NewInMemoryTransports()
@@ -186,8 +222,10 @@ func TestListsTools(t *testing.T) {
 		names = append(names, tool.Name)
 	}
 	want := "add_page apply_changes create_board create_bool create_ellipse create_file create_group create_image " +
-		"create_path create_project create_rect create_text delete_shapes draw get_page_tree list_files list_pages " +
-		"list_projects list_teams move_shape rename_file rename_page reparent_shape set_layout update_shape whoami"
+		"create_path create_project create_rect create_text delete_file delete_page delete_project delete_shapes draw " +
+		"duplicate_file get_page_tree link_library list_files list_members list_pages list_projects list_teams " +
+		"move_files move_project move_shape pin_project rename_file rename_page rename_project reorder_pages " +
+		"reparent_shape restore_file search_files set_file_shared set_layout unlink_library update_shape whoami"
 	if got := strings.Join(sortStrings(names), " "); got != want {
 		t.Errorf("tools = %s\nwant    %s", got, want)
 	}
