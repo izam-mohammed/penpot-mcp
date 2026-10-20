@@ -106,3 +106,7 @@ goreleaser check  # before tagging a release; a v* tag runs .github/workflows/re
 ```
 
 what's next lives in `PLAN.md`. standards in `docs/standards.md`.
+
+## license
+
+mit, see [LICENSE](LICENSE)
