@@ -86,25 +86,42 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut (needs you: try it)
 
-- [ ] `create_project`, `create_file`, `rename_file`, `add_page` and
+- [x] `create_project`, `create_file`, `rename_file`, `add_page` and
   `rename_page` land (expected in `internal/tools/dashboard.go`,
   `pages.go`), pinned by `httptest` replays.
-- [ ] Check: `make check` passes, and `make live` creates a project and a
+  Landed 2026-10-20: pinned by `TestCreateProjectUsesPenpotID`,
+  `TestCreateFileReturnsPages`, `TestRenameFileDropsCache`,
+  `TestAddAndRenamePage` and `TestDashboardRejectsBadInput`. The live check
+  is `TestLiveDashboard`; it reuses the `penpot-mcp live` project and file
+  on later runs, since deletes land in phase 2.
+- [x] Check: `make check` passes, and `make live` creates a project and a
   file named `penpot-mcp live`, adds a page, and renames both.
+  Landed 2026-10-20: `TestLiveDashboard` passed (8.4 s): it created the
+  project and file, then ran every phase 1 and phase 2 tool against them.
 - [ ] You try it: ask Claude to make a new project with a file and two
   named pages, and check them in the Penpot dashboard.
 
 ### Phase 2: the rest, with the delete guard
 
-- [ ] The remaining tools from `## The decision` land, deletes guarded
+- [x] The remaining tools from `## The decision` land, deletes guarded
   (expected in `internal/tools/dashboard.go`, `internal/tools/pages.go`),
   pinned by `TestDeleteNeedsConfirm` and `TestDeleteLogged`; check:
   `make check` passes.
+  Landed 2026-10-20: project and file tools in `dashboard.go`, page tools
+  in `pages.go`, `list_members` in `team.go`. `confirm` is optional in the
+  schema so a missing one gets the guard's own message, not a schema error.
+  Deletes also refuse the team's default project and a file's last page.
+  `restore_file` with no ids lists the team's deleted files. Destructive
+  calls log id and name through `Deps.Log`. The reply shapes of the newer
+  commands are checked by `TestLiveDashboard`, which now also cleans up the
+  page it adds.
 
 ### Phase 3: open the PR
 
-- [ ] The branch pushed and its PR opened against `main` (or, if one is
+- [x] The branch pushed and its PR opened against `main` (or, if one is
   already open for this branch, its body brought up to date) with a
   Conventional Commit title for the whole change, a body naming this plan,
   what changed and why, and the checks run with their result. The PR's URL
   printed as the evidence. Opened, never merged.
+
+Landed 2026-10-20: https://github.com/izam-mohammed/penpot-mcp/pull/3.
