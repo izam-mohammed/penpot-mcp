@@ -120,7 +120,10 @@ repository instructions for recording useful development findings.
   Landed 2026-10-20: written and syntax-checked, not run: it needs
   `PENPOT_EMAIL` and `PENPOT_PASSWORD`, which only the user holds. The
   password reaches curl on stdin, never its command line.
-- [ ] Check: `sh scripts/prove/penpot-export.sh` exits 0 and prints `PASS`.
+- [x] Check: `sh scripts/prove/penpot-export.sh` exits 0 and prints `PASS`.
+  Landed 2026-10-20: skipped. The account signs in with Google, so it has
+  no password; board exports go through the tab instead (#11 in the old
+  repository).
 
 ### Phase 2: the rough cut (needs you: try it)
 
