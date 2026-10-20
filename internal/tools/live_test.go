@@ -31,7 +31,8 @@ func liveSession(t *testing.T) *mcp.ClientSession {
 	s := mcp.NewServer(&mcp.Implementation{Name: "live", Version: "0"}, nil)
 	Register(s, Deps{
 		Client: c, Writer: penpot.NewWriter(c), Fonts: fonts.NewMeasurer(penpot.DefaultBaseURL, t.TempDir(), nil),
-		Root: liveRoot(t),
+		Root:     liveRoot(t),
+		Exporter: penpot.NewExporter(c, os.Getenv("PENPOT_EMAIL"), os.Getenv("PENPOT_PASSWORD")),
 	})
 	ctx := context.Background()
 	st, ct := mcp.NewInMemoryTransports()

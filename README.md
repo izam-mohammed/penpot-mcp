@@ -18,6 +18,8 @@ stdio.
 - library: colours, type styles, components and their copies, design
   tokens, and a palette pulled straight from your repo's css, swift,
   kotlin, markdown or json
+- exports: boards to png, jpeg, webp, svg or pdf on disk, whole files to
+  and from `.penpot`
 
 coordinates are absolute page pixels, even inside boards. text is sized with
 the real font metrics, no browser required (that was the whole point).
@@ -45,6 +47,7 @@ restart claude code, run `/mcp`, and `penpot-api` should be there.
 | --- | --- | --- |
 | `PENPOT_ACCESS_TOKEN` | yes | your personal access token, never logged |
 | `PENPOT_BASE_URL` | no | default `https://design.penpot.app`; self-hosted needs `enable-access-tokens` |
+| `PENPOT_EMAIL`, `PENPOT_PASSWORD` | for board exports | penpot's exporter only takes a login session, not a token. read once, never logged |
 
 ## develop
 
