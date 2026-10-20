@@ -199,3 +199,4 @@ on #5 (base `feat/export`).
   Conventional Commit title, a body naming this plan, what changed and
   why, and the checks run with their result. The PR's URL printed as the
   evidence.
+  Landed 2026-10-20: https://github.com/izam-mohammed/penpot-mcp/pull/12
