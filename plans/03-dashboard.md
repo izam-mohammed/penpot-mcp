@@ -86,9 +86,14 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut (needs you: try it)
 
-- [ ] `create_project`, `create_file`, `rename_file`, `add_page` and
+- [x] `create_project`, `create_file`, `rename_file`, `add_page` and
   `rename_page` land (expected in `internal/tools/dashboard.go`,
   `pages.go`), pinned by `httptest` replays.
+  Landed 2026-10-20: pinned by `TestCreateProjectUsesPenpotID`,
+  `TestCreateFileReturnsPages`, `TestRenameFileDropsCache`,
+  `TestAddAndRenamePage` and `TestDashboardRejectsBadInput`. The live check
+  is `TestLiveDashboard`; it reuses the `penpot-mcp live` project and file
+  on later runs, since deletes land in phase 2.
 - [ ] Check: `make check` passes, and `make live` creates a project and a
   file named `penpot-mcp live`, adds a page, and renames both.
 - [ ] You try it: ask Claude to make a new project with a file and two

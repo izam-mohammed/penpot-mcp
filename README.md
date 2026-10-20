@@ -8,6 +8,7 @@ stdio.
 ## what it does
 
 - reads: teams, projects, files, pages, a page's shape tree
+- makes: projects, files and pages, and renames them
 - draws: boards, rects, ellipses, text, svg paths, images, groups, bools,
   flex and grid layouts
 - `draw` builds a whole screen in one write
