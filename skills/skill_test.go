@@ -23,9 +23,17 @@ func read(t *testing.T, path string) string {
 // on screen, and never reads the dialog.
 func TestChromeDocStopsBeforeSecrets(t *testing.T) {
 	doc := read(t, "penpot-mcp/references/chrome.md")
-	start := strings.Index(doc, "## Make an access token")
+	checkSecretFlow(t, doc, "## Make an access token", "Do not click *Create access token*")
+	checkSecretFlow(t, doc, "## Get the MCP key", "Do not click the generate button yourself")
+}
+
+// checkSecretFlow holds a flow that ends where a secret appears: it must
+// stop, say not to click, and never act on the page after stopping.
+func checkSecretFlow(t *testing.T, doc, heading, noClick string) {
+	t.Helper()
+	start := strings.Index(doc, heading)
 	if start < 0 {
-		t.Fatal("no token flow")
+		t.Fatalf("no %q flow", heading)
 	}
 	flow := doc[start:]
 	if end := strings.Index(flow[3:], "\n## "); end >= 0 {
@@ -35,18 +43,18 @@ func TestChromeDocStopsBeforeSecrets(t *testing.T) {
 	flow = strings.Join(strings.Fields(flow), " ")
 	for _, must := range []string{
 		"Stop here",
-		"Do not click *Create access token*",
+		noClick,
 		"never screenshot, `read_page`, `find` or copy",
 	} {
 		if !strings.Contains(flow, must) {
-			t.Errorf("token flow lacks %q", must)
+			t.Errorf("%s lacks %q", heading, must)
 		}
 	}
 	// No step after the stop may act on the page.
 	after := flow[strings.Index(flow, "Stop here"):]
 	for _, act := range []string{"`screenshot`", "`read_page`", "`find`", "left_click", "pbpaste"} {
 		if strings.Contains(after, act) {
-			t.Errorf("token flow acts on the page after stopping: %s", act)
+			t.Errorf("%s acts on the page after stopping: %s", heading, act)
 		}
 	}
 }
