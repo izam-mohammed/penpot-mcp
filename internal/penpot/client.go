@@ -10,9 +10,12 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"mime/multipart"
 	"net"
 	"net/http"
+	"net/textproto"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -116,8 +119,51 @@ func (c *Client) Call(ctx context.Context, command string, params, out any) erro
 	if err != nil {
 		return fmt.Errorf("encode %s params: %w", command, err)
 	}
+	return c.send(ctx, command, "application/json", body, out)
+}
+
+// CallTransit posts a body already encoded as transit+json. The reply is
+// still read as JSON.
+func (c *Client) CallTransit(ctx context.Context, command string, body []byte, out any) error {
+	return c.send(ctx, command, "application/transit+json", body, out)
+}
+
+// Upload posts a multipart form: fields first, then the file part named
+// fileField.
+func (c *Client) Upload(ctx context.Context, command string, fields map[string]string,
+	fileField, fileName, contentType string, data []byte, out any,
+) error {
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
+	keys := make([]string, 0, len(fields))
+	for k := range fields {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		if err := w.WriteField(k, fields[k]); err != nil {
+			return fmt.Errorf("encode %s form: %w", command, err)
+		}
+	}
+	h := textproto.MIMEHeader{}
+	h.Set("Content-Disposition", fmt.Sprintf(`form-data; name=%q; filename=%q`, fileField, fileName))
+	h.Set("Content-Type", contentType)
+	part, err := w.CreatePart(h)
+	if err != nil {
+		return fmt.Errorf("encode %s form: %w", command, err)
+	}
+	if _, err := part.Write(data); err != nil {
+		return fmt.Errorf("encode %s form: %w", command, err)
+	}
+	if err := w.Close(); err != nil {
+		return fmt.Errorf("encode %s form: %w", command, err)
+	}
+	return c.send(ctx, command, w.FormDataContentType(), b.Bytes(), out)
+}
+
+func (c *Client) send(ctx context.Context, command, contentType string, body []byte, out any) error {
 	for attempt := 0; ; attempt++ {
-		wait, err := c.do(ctx, command, body, out)
+		wait, err := c.do(ctx, command, contentType, body, out)
 		if wait > 0 && attempt == 0 {
 			c.log.Info("rate limited, retrying", "command", command, "after", wait)
 			if serr := c.sleep(ctx, wait); serr != nil {
@@ -129,7 +175,7 @@ func (c *Client) Call(ctx context.Context, command string, params, out any) erro
 	}
 }
 
-func (c *Client) do(ctx context.Context, command string, body []byte, out any) (time.Duration, error) {
+func (c *Client) do(ctx context.Context, command, contentType string, body []byte, out any) (time.Duration, error) {
 	endpoint := c.base.JoinPath("api", "main", "methods", command).String()
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
 	if err != nil {
@@ -137,7 +183,7 @@ func (c *Client) do(ctx context.Context, command string, body []byte, out any) (
 	}
 	req.Header.Set("Authorization", "Token "+c.token)
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("X-Client", "penpot-mcp/"+c.version)
 	req.Header.Set("User-Agent", "penpot-mcp/"+c.version)
 

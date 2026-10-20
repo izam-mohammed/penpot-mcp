@@ -19,7 +19,7 @@ func TestBoxGeometry(t *testing.T) {
 		`"points":[{"x":100,"y":100},{"x":300,"y":100},{"x":300,"y":220},{"x":100,"y":220}],` +
 		`"transform":{"a":1,"b":0,"c":0,"d":1,"e":0,"f":0},` +
 		`"transformInverse":{"a":1,"b":0,"c":0,"d":1,"e":0,"f":0}}`
-	got, err := json.Marshal(Box(100, 100, 200, 120))
+	got, err := json.Marshal(BoxGeometry(100, 100, 200, 120))
 	if err != nil {
 		t.Fatal(err)
 	}
