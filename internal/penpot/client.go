@@ -246,6 +246,9 @@ func decodeError(status int, data []byte) error {
 	return pe
 }
 
+// BaseURL is the Penpot instance, without a trailing slash.
+func (c *Client) BaseURL() string { return c.base.String() }
+
 // Download fetches an asset URL the server handed back (an export or a
 // .penpot file). The token goes only to the Penpot host itself; any other
 // host gets a plain GET.

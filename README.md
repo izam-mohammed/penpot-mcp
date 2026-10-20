@@ -20,6 +20,8 @@ stdio.
   kotlin, markdown or json
 - exports: boards to png, jpeg, webp, svg or pdf on disk, whole files to
   and from `.penpot`
+- people: comments and replies, share links, webhooks, saved versions
+  and restores (which save a version first, because trust issues)
 - with a penpot tab open (optional): plugin code, reflow, real text
   sizes, html and css, component swaps and variants, through penpot's
   own mcp. the old one, demoted to sidekick
