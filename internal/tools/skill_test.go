@@ -16,7 +16,9 @@ const toolsDoc = "../../skills/penpot-mcp/references/tools.md"
 
 // hybrid tools do their work on the API and add a step in the tab when one
 // is connected (docs/bridge.md).
-var hybrid = map[string]bool{"draw": true, "create_text": true, "set_layout": true}
+var hybrid = map[string]bool{
+	"draw": true, "create_text": true, "set_layout": true, "instantiate_component": true, "apply_token": true,
+}
 
 // exporterTools need the exporter's login session.
 var exporterTools = map[string]bool{"export_shape": true, "export_boards": true}
@@ -52,8 +54,9 @@ func renderToolsDoc(t *testing.T) string {
 	b.WriteString("# penpot-mcp tools\n\n")
 	b.WriteString("Generated from the server by `go test ./internal/tools -run TestSkillListsEveryTool -update`;\n")
 	b.WriteString("`TestSkillListsEveryTool` fails when this file and the server differ.\n\n")
-	b.WriteString("Route: **API** needs only the access token; **API + login** also needs\n")
-	b.WriteString("`PENPOT_EMAIL` and `PENPOT_PASSWORD`; **hybrid** runs on the API and adds a\n")
+	b.WriteString("Route: **API** needs only the access token; **login or tab** also needs\n")
+	b.WriteString("`PENPOT_EMAIL` and `PENPOT_PASSWORD`, or else a connected tab with the\n")
+	b.WriteString("shape's page open; **hybrid** runs on the API and adds a\n")
 	b.WriteString("step in the tab when one is connected; **tab** needs `PENPOT_MCP_URL` and a\n")
 	b.WriteString("connected Penpot tab with the file open.\n\n")
 	b.WriteString("| Tool | Route | Does |\n| --- | --- | --- |\n")
@@ -65,7 +68,7 @@ func renderToolsDoc(t *testing.T) string {
 		case hybrid[tool.Name]:
 			route = "hybrid"
 		case exporterTools[tool.Name]:
-			route = "API + login"
+			route = "login or tab"
 		}
 		desc := strings.ReplaceAll(firstSentence(tool.Description), "|", "\\|")
 		fmt.Fprintf(&b, "| `%s` | %s | %s |\n", tool.Name, route, desc)

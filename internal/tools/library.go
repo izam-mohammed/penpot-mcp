@@ -144,15 +144,16 @@ type componentOut struct {
 
 type instanceOut struct {
 	penpot.Target
-	ShapeID     string  `json:"shape_id"`
-	ComponentID string  `json:"component_id"`
-	Name        string  `json:"name"`
-	ParentID    string  `json:"parent_id"`
-	X           float64 `json:"x"`
-	Y           float64 `json:"y"`
-	Width       float64 `json:"width"`
-	Height      float64 `json:"height"`
-	Shapes      int     `json:"shapes"`
+	ShapeID     string    `json:"shape_id"`
+	ComponentID string    `json:"component_id"`
+	Name        string    `json:"name"`
+	ParentID    string    `json:"parent_id"`
+	X           float64   `json:"x"`
+	Y           float64   `json:"y"`
+	Width       float64   `json:"width"`
+	Height      float64   `json:"height"`
+	Shapes      int       `json:"shapes"`
+	Tab         *tabCheck `json:"tab,omitempty"`
 }
 
 type instanceIn struct {
@@ -215,6 +216,9 @@ func registerLibrary(s *mcp.Server, d Deps) {
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in instanceIn) (*mcp.CallToolResult, instanceOut, error) {
 		d := d.pick(ctx)
 		out, err := instantiate(ctx, d, in)
+		if err == nil {
+			out.Tab = afterWrite(ctx, d, out.FileID, nil)
+		}
 		return nil, out, err
 	})
 }

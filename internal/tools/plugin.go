@@ -62,8 +62,49 @@ type viewportIn struct {
 }
 
 type apiInfoIn struct {
-	Type   string `json:"type" jsonschema:"a Plugin API type, such as Shape, Board or Penpot"`
-	Member string `json:"member,omitempty" jsonschema:"one member of that type"`
+	Type   string `json:"type" jsonschema:"a Plugin API type, such as Shape, Board or Penpot; or a backend method, such as create-project"`
+	Member string `json:"member,omitempty" jsonschema:"one member of that type, or one parameter or reply field of that method"`
+	Source string `json:"source,omitempty" jsonschema:"plugin or backend; by default a kebab-case name, or any name without a tab, is a backend method"`
+}
+
+// registerAPIInfo adds api_info, which answers from the backend's own
+// documentation with or without a tab.
+func registerAPIInfo(s *mcp.Server, d Deps) {
+	mcp.AddTool(s, &mcp.Tool{
+		Name: "api_info",
+		Description: "Penpot's documentation: a backend method's parameters and reply (from Penpot's OpenAPI document), " +
+			"or a Plugin API type or member (from the official MCP server, needs PENPOT_MCP_URL).",
+		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, in apiInfoIn) (*mcp.CallToolResult, textOut, error) {
+		d := d.pick(ctx)
+		if err := checkName(in.Type); err != nil {
+			return nil, textOut{}, fmt.Errorf("type: %w", err)
+		}
+		source := in.Source
+		if source == "" {
+			source = "plugin"
+			if methodRE.MatchString(in.Type) || d.Route == nil {
+				source = "backend"
+			}
+		}
+		switch source {
+		case "backend":
+			t, err := backendInfo(ctx, d, in.Type, in.Member)
+			return nil, textOut{Text: t}, err
+		case "plugin":
+		default:
+			return nil, textOut{}, fmt.Errorf("source must be plugin or backend")
+		}
+		if d.Route == nil {
+			return nil, textOut{}, errNoRoute
+		}
+		args := map[string]any{"type": in.Type}
+		if in.Member != "" {
+			args["member"] = in.Member
+		}
+		t, err := d.Route.Call(ctx, "penpot_api_info", args)
+		return nil, textOut{Text: t}, err
+	})
 }
 
 type svgIn struct {
@@ -346,26 +387,6 @@ return users.map(u => ({id: u.id, name: u.name, page: u.position ? u.position.pa
 		code += `const v = penpot.viewport; return {zoom: v.zoom, center: v.center, bounds: v.bounds};`
 		out, err := inTab(ctx, d, in.FileID, code, false)
 		return nil, out, err
-	})
-
-	mcp.AddTool(s, &mcp.Tool{
-		Name:        "api_info",
-		Description: "Penpot's Plugin API documentation for one type or member, from the official server.",
-		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
-	}, func(ctx context.Context, _ *mcp.CallToolRequest, in apiInfoIn) (*mcp.CallToolResult, textOut, error) {
-		d := d.pick(ctx)
-		if err := checkName(in.Type); err != nil {
-			return nil, textOut{}, fmt.Errorf("type: %w", err)
-		}
-		if d.Route == nil {
-			return nil, textOut{}, errNoRoute
-		}
-		args := map[string]any{"type": in.Type}
-		if in.Member != "" {
-			args["member"] = in.Member
-		}
-		t, err := d.Route.Call(ctx, "penpot_api_info", args)
-		return nil, textOut{Text: t}, err
 	})
 
 	mcp.AddTool(s, &mcp.Tool{
