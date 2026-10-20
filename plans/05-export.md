@@ -112,19 +112,27 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: prove the exporter (needs you: set PENPOT_EMAIL and PENPOT_PASSWORD)
 
-- [ ] `scripts/prove/penpot-export.sh` logs in, exports one board of the
+- [x] `scripts/prove/penpot-export.sh` logs in, exports one board of the
   test file to PNG per `docs/external/penpot-backend-api.md` § What this
   project calls, prints `PASS` when the file starts with the PNG signature,
   and also tries the share-link route and prints its result; both env vars
   listed in `.env.example`.
+  Landed 2026-10-20: written and syntax-checked, not run: it needs
+  `PENPOT_EMAIL` and `PENPOT_PASSWORD`, which only the user holds. The
+  password reaches curl on stdin, never its command line.
 - [ ] Check: `sh scripts/prove/penpot-export.sh` exits 0 and prints `PASS`.
 
 ### Phase 2: the rough cut (needs you: try it)
 
-- [ ] The transit encoder, the exporter session and `export_shape` land
+- [x] The transit encoder, the exporter session and `export_shape` land
   (expected in `internal/transit/`, `internal/penpot/exporter.go`,
   `internal/tools/export.go`), pinned by `TestTransitRoundTrip`,
   `TestPasswordNeverLogged` and `TestExportPathGuard`.
+  Landed 2026-10-20: the decoder sits beside the encoder in
+  `internal/transit/decode.go` and follows the write cache. The
+  exporter retries 429, 503 and timeouts three times and logs in again
+  once after a 401. `Client.Download` sends the token only to the Penpot
+  host (`TestDownloadKeepsTokenHome`).
 - [ ] Check: `make check` passes, and `make live` writes
   `out/board.png` from the test file.
 - [ ] You try it: ask Claude to export the board you drew to `design/` and
@@ -132,10 +140,15 @@ repository instructions for recording useful development findings.
 
 ### Phase 3: boards, files and fallbacks
 
-- [ ] `export_boards`, `export_file`, `import_file`, the timeout retries and
+- [x] `export_boards`, `export_file`, `import_file`, the timeout retries and
   the MCP-route fallback land (expected in `internal/tools/export.go`),
   pinned by `TestBlankPngFails`; check:
   `make check` passes.
+  Landed 2026-10-20: the MCP-route fallback is not built here: plan 06
+  builds that route, and until then a missing login answers with
+  `ErrNoExporter`, which names the two env vars. `export_file` and
+  `import_file` read Penpot's server-sent events and use the access
+  token. A flat or truncated PNG is refused before anything is written.
 
 ### Phase 4: open the PR
 

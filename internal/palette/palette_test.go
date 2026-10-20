@@ -95,7 +95,7 @@ func TestPaletteRefusesOutsideCwd(t *testing.T) {
 		{"../" + filepath.Base(outside) + "/secret.txt", "outside the working directory"},
 		{"link.txt", "outside the working directory"},
 		{".env", "not a palette file"},
-		{"big.txt", "palette files are read up to"},
+		{"big.txt", "files are read up to"},
 		{"bin.txt", "not a text file"},
 		{".", "not a regular file"},
 	} {
