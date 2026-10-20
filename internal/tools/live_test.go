@@ -33,6 +33,7 @@ func liveSession(t *testing.T) *mcp.ClientSession {
 		Client: c, Writer: penpot.NewWriter(c), Fonts: fonts.NewMeasurer(penpot.DefaultBaseURL, t.TempDir(), nil),
 		Root:     liveRoot(t),
 		Exporter: penpot.NewExporter(c, os.Getenv("PENPOT_EMAIL"), os.Getenv("PENPOT_PASSWORD")),
+		Route:    liveRoute(t),
 	})
 	ctx := context.Background()
 	st, ct := mcp.NewInMemoryTransports()
