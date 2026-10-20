@@ -82,10 +82,16 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut (needs you: try it)
 
-- [ ] `add_color`, `add_typography`, `list_library`, `create_component`
+- [x] `add_color`, `add_typography`, `list_library`, `create_component`
   and `instantiate_component` land (expected in
   `internal/tools/library.go`), pinned by `TestColorIdempotent` and
   `TestInstanceRefs`.
+  Landed 2026-10-20: `create_component` turns an existing board into the
+  main instance (draw it first), rather than drawing one itself. A name
+  like `Brand / Primary` is split into path and name. A copy is the main's
+  subtree with new ids, each shape's `shapeRef` on its original, moved by
+  `shiftRaw`. Also pinned by `TestTypographyStrings`, `TestCreateComponent`
+  and `TestListLibrary`.
 - [ ] Check: `make check` passes, and `make live` adds two colours and a
   button component, then places two instances.
 - [ ] You try it: ask Claude to add your brand colours and a button

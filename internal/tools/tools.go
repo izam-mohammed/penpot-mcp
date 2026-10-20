@@ -34,4 +34,5 @@ func Register(s *mcp.Server, d Deps) {
 	registerDashboard(s, d)
 	registerPages(s, d)
 	registerTeam(s, d)
+	registerLibrary(s, d)
 }
