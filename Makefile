@@ -42,3 +42,9 @@ live:
 live-mcp:
 	@test -n "$$PENPOT_MCP_URL" || { echo "set PENPOT_MCP_URL (see .env.example)"; exit 2; }
 	go test -tags live -run TestTabLive -count=1 -v ./internal/tools
+
+## install-skill: link the skill into the personal skills directory
+install-skill:
+	@dest="$${CLAUDE_CONFIG_DIR:-$$HOME/.claude}/skills/penpot-mcp"; \
+	if [ -e "$$dest" ] && [ ! -L "$$dest" ]; then echo "$$dest exists and is not a link; leaving it"; exit 1; fi; \
+	mkdir -p "$$(dirname "$$dest")" && ln -sfn "$(CURDIR)/skills/penpot-mcp" "$$dest" && echo "linked $$dest"
