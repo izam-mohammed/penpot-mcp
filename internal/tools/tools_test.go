@@ -21,6 +21,9 @@ const (
 	pageID  = "a0000000-0000-4000-8000-000000000001"
 	boardID = "b0000000-0000-4000-8000-000000000001"
 	rectID  = "c0000000-0000-4000-8000-000000000001"
+	teamID  = "70000000-0000-4000-8000-000000000001"
+
+	newProjectID = "90000000-0000-4000-8000-000000000001"
 )
 
 // backend replays recorded Penpot replies by command name.
@@ -30,6 +33,8 @@ type backend struct {
 	updates []map[string]any
 	raw     []string // update-file bodies as sent
 	ctypes  []string // their content types
+	bodies  map[string]map[string]any
+	pages   [][2]string // id, name: get-file's pages, changed by add-page and mod-page
 }
 
 func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
@@ -37,12 +42,40 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 	data, _ := io.ReadAll(r.Body)
 	b.mu.Lock()
 	b.calls = append(b.calls, command)
+	var body map[string]any
+	_ = json.Unmarshal(data, &body)
+	if b.bodies == nil {
+		b.bodies = map[string]map[string]any{}
+	}
+	b.bodies[command] = body
+	if b.pages == nil {
+		b.pages = [][2]string{{pageID, "Page 1"}}
+	}
 	if command == "update-file" {
-		var body map[string]any
-		_ = json.Unmarshal(data, &body)
 		b.updates = append(b.updates, body)
 		b.raw = append(b.raw, string(data))
 		b.ctypes = append(b.ctypes, r.Header.Get("Content-Type"))
+		changes, _ := body["changes"].([]any)
+		for _, c := range changes {
+			ch, _ := c.(map[string]any)
+			id, _ := ch["id"].(string)
+			name, _ := ch["name"].(string)
+			switch ch["type"] {
+			case "add-page":
+				b.pages = append(b.pages, [2]string{id, name})
+			case "mod-page":
+				for i := range b.pages {
+					if b.pages[i][0] == id {
+						b.pages[i][1] = name
+					}
+				}
+			}
+		}
+	}
+	var order, index []string
+	for _, p := range b.pages {
+		order = append(order, `"`+p[0]+`"`)
+		index = append(index, `"`+p[0]+`":{"id":"`+p[0]+`","name":"`+p[1]+`"}`)
 	}
 	b.mu.Unlock()
 
@@ -51,7 +84,7 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 	case "get-file":
 		_, _ = w.Write([]byte(`{"id":"` + fileID + `","name":"test file","revn":3,"vern":0,
 			"permissions":{"canEdit":true,"canRead":true},
-			"data":{"pages":["` + pageID + `"],"pagesIndex":{"` + pageID + `":{"id":"` + pageID + `","name":"Page 1"}}}}`))
+			"data":{"pages":[` + strings.Join(order, ",") + `],"pagesIndex":{` + strings.Join(index, ",") + `}}}`))
 	case "get-page":
 		_, _ = w.Write([]byte(`{"id":"` + pageID + `","name":"Page 1","objects":{
 			"00000000-0000-0000-0000-000000000000":{"id":"00000000-0000-0000-0000-000000000000","name":"Root Frame","type":"frame","shapes":["` + boardID + `"]},
@@ -61,6 +94,14 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`{"revn":3,"lagged":[]}`))
 	case "upload-file-media-object":
 		_, _ = w.Write([]byte(`{"id":"d0000000-0000-4000-8000-000000000001","name":"swatch","width":120,"height":80,"mtype":"image/png"}`))
+	case "get-profile":
+		_, _ = w.Write([]byte(`{"id":"e0000000-0000-4000-8000-000000000001","fullname":"Test","defaultTeamId":"` + teamID + `"}`))
+	case "create-project":
+		_, _ = w.Write([]byte(`{"id":"` + newProjectID + `","name":"` + str(body, "name") + `","teamId":"` + str(body, "teamId") + `"}`))
+	case "create-file":
+		_, _ = w.Write([]byte(`{"id":"` + fileID + `","name":"` + str(body, "name") + `","projectId":"` + str(body, "projectId") + `"}`))
+	case "rename-file":
+		_, _ = w.Write([]byte(`{"id":"` + str(body, "id") + `","name":"` + str(body, "name") + `"}`))
 	case "get-all-projects":
 		_, _ = w.Write([]byte(`[{"id":"p1","name":"Drafts","teamId":"t1"}]`))
 	default:
@@ -144,9 +185,9 @@ func TestListsTools(t *testing.T) {
 	for _, tool := range res.Tools {
 		names = append(names, tool.Name)
 	}
-	want := "apply_changes create_board create_bool create_ellipse create_group create_image create_path create_rect create_text " +
-		"delete_shapes draw get_page_tree list_files list_pages list_projects list_teams move_shape reparent_shape " +
-		"set_layout update_shape whoami"
+	want := "add_page apply_changes create_board create_bool create_ellipse create_file create_group create_image " +
+		"create_path create_project create_rect create_text delete_shapes draw get_page_tree list_files list_pages " +
+		"list_projects list_teams move_shape rename_file rename_page reparent_shape set_layout update_shape whoami"
 	if got := strings.Join(sortStrings(names), " "); got != want {
 		t.Errorf("tools = %s\nwant    %s", got, want)
 	}

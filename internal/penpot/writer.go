@@ -84,6 +84,14 @@ func (w *Writer) Pages(ctx context.Context, fileID string) (string, []PageMeta, 
 	return st.name, append([]PageMeta(nil), st.pages...), nil
 }
 
+// Forget drops the cached state of a file, after a call that changed its
+// name or pages outside Apply.
+func (w *Writer) Forget(fileID string) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	delete(w.files, fileID)
+}
+
 func (w *Writer) state(ctx context.Context, fileID string, refresh bool) (*fileState, error) {
 	if st, ok := w.files[fileID]; ok && !refresh {
 		return st, nil
