@@ -15,5 +15,5 @@ What the backend API does that an agent does not expect. Source:
 | Text has no size until measured | the backend keeps whatever box it is sent | the server measures with the font's own metrics; `text_measured: false` means an estimate |
 | Moves between parents | `mov-objects` is ignored over JSON | the server sends it as transit; use `reparent_shape`, not `apply_changes` |
 | Groups and bools | their box comes from their children | the server sends `reg-objects` so Penpot computes it |
-| Exports | not in this version | look at the drawing with Claude in Chrome instead |
+| Exports | the exporter takes a login session, not the access token | `export_shape` needs `PENPOT_EMAIL` and `PENPOT_PASSWORD`; without them, look at the drawing with Claude in Chrome |
 | Token in the browser | the token dialog shows it once | the user copies it; never you |

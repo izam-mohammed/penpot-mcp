@@ -48,3 +48,52 @@ screenshot, `read_page`, `find` or copy anything from the token dialog.
 
 If the canvas is blank after loading, wait 5 seconds more once, then say
 so rather than retrying.
+
+## Get the MCP key
+
+Only for the tab tools (section 8 of the skill). Secrets stop this flow
+too: the key is part of a URL shown once. You never screenshot,
+`read_page`, `find` or copy anything from the dialog that shows it.
+
+1. `navigate` to `https://design.penpot.app/#/settings/integrations` and
+   `find` the *MCP Server* section. Signed out: stop and ask the user to
+   sign in.
+2. If the section offers to enable or generate a key, `find` that button.
+3. Stop here. Tell the user: "Click it, copy the MCP URL, and add
+   `-e PENPOT_MCP_URL=<that URL>` to the `claude mcp add penpot-api ...`
+   command (section 2 of the skill), then restart Claude Code." Do not
+   click the generate button yourself and do not look at the dialog after
+   it opens.
+
+## Connect the plugin in a tab
+
+The tab tools reach Penpot through a tab with the MCP plugin running in
+it. One tab per account; it edits only the file open in it.
+
+1. Get the ids: `file_id` and `page_id` from `list_pages`, the team from
+   `whoami`.
+2. `navigate` to
+   `https://design.penpot.app/#/workspace?team-id=<team>&file-id=<file>&page-id=<page>`,
+   `computer` `wait` 5 seconds.
+3. `find` "MCP button" in the file's toolbar. A grey dot means not
+   connected: click it, then `find` "Connect here" and click that.
+4. Call `current_file`: it must name the file from step 1. That is the
+   file guard every tab tool repeats on its own.
+5. Leave the tab open: closing it disconnects the plugin. Tell the user it
+   is the tab the tools work through.
+
+## Wake a sleeping tab
+
+A tab tool answers "no Penpot tab is connected" when the tab is closed,
+still loading, or asleep in the background.
+
+1. `tabs_context_mcp`. If the Penpot tab is in your group, `computer`
+   `screenshot` it: a grey MCP dot means reconnect (Connect the plugin,
+   step 3).
+2. If the tab is not in your group, Claude in Chrome cannot reach it: ask
+   the user to bring their Penpot tab to the front, then retry once.
+3. After a wake, call `current_file` before any write: the tab may now
+   have another file open.
+4. A tab tool that answered "the code may have run anyway" timed out
+   after sending: read the file back (`get_page_tree`) before trying
+   again. Never repeat it blind.
