@@ -227,11 +227,12 @@ func TestListsTools(t *testing.T) {
 	want := "add_color add_page add_typography apply_changes apply_token create_board create_bool " +
 		"create_component create_ellipse create_file create_group create_image create_path create_project " +
 		"create_rect create_text delete_color delete_component delete_file delete_page delete_project " +
-		"delete_shapes delete_typography draw duplicate_file get_page_tree import_palette " +
-		"instantiate_component link_library list_files list_library list_members list_pages list_projects " +
-		"list_teams move_files move_project move_shape pin_project rename_file rename_page rename_project " +
-		"reorder_pages reparent_shape restore_file search_files set_file_shared set_layout sync_tokens " +
-		"unlink_library update_color update_shape update_typography whoami"
+		"delete_shapes delete_typography draw duplicate_file export_boards export_file export_shape " +
+		"get_page_tree import_file import_palette instantiate_component link_library list_files list_library " +
+		"list_members list_pages list_projects list_teams move_files move_project move_shape pin_project " +
+		"rename_file rename_page rename_project reorder_pages reparent_shape restore_file search_files " +
+		"set_file_shared set_layout sync_tokens unlink_library update_color update_shape update_typography " +
+		"whoami"
 	if got := strings.Join(sortStrings(names), " "); got != want {
 		t.Errorf("tools = %s\nwant    %s", got, want)
 	}

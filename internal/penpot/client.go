@@ -113,7 +113,8 @@ func sleepCtx(ctx context.Context, d time.Duration) error {
 }
 
 // Call posts params to /api/main/methods/{command} and decodes the reply into
-// out (which may be nil). A 429 is retried once after Retry-After.
+// out (which may be nil). A 429 is retried once after Retry-After. An out of
+// type *[]byte gets the raw reply instead, for streamed (SSE) replies.
 func (c *Client) Call(ctx context.Context, command string, params, out any) error {
 	body, err := json.Marshal(params)
 	if err != nil {
@@ -183,6 +184,11 @@ func (c *Client) do(ctx context.Context, command, contentType string, body []byt
 	}
 	req.Header.Set("Authorization", "Token "+c.token)
 	req.Header.Set("Accept", "application/json")
+	if _, raw := out.(*[]byte); raw {
+		// Streaming commands (export-binfile, import-binfile) answer with
+		// server-sent events.
+		req.Header.Set("Accept", "text/event-stream, application/json")
+	}
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("X-Client", "penpot-mcp/"+c.version)
 	req.Header.Set("User-Agent", "penpot-mcp/"+c.version)
@@ -207,6 +213,10 @@ func (c *Client) do(ctx context.Context, command, contentType string, body []byt
 		return 0, decodeError(resp.StatusCode, data)
 	}
 	if out == nil || resp.StatusCode == http.StatusNoContent || len(data) == 0 {
+		return 0, nil
+	}
+	if raw, ok := out.(*[]byte); ok {
+		*raw = data
 		return 0, nil
 	}
 	if err := json.Unmarshal(data, out); err != nil {
@@ -234,4 +244,43 @@ func decodeError(status int, data []byte) error {
 		pe.Code = strings.ToLower(strings.ReplaceAll(http.StatusText(status), " ", "-"))
 	}
 	return pe
+}
+
+// Download fetches an asset URL the server handed back (an export or a
+// .penpot file). The token goes only to the Penpot host itself; any other
+// host gets a plain GET.
+func (c *Client) Download(ctx context.Context, uri string, limit int64) ([]byte, error) {
+	u, err := url.Parse(uri)
+	if err != nil || (u.Scheme != "https" && (u.Scheme != "http" || !isLoopback(u.Hostname()))) {
+		return nil, fmt.Errorf("the server returned an asset URL that is not https")
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	if u.Host == c.base.Host {
+		req.Header.Set("Authorization", "Token "+c.token)
+	}
+	req.Header.Set("User-Agent", "penpot-mcp/"+c.version)
+	return fetch(c.client, req, limit)
+}
+
+// fetch runs req and reads at most limit bytes of a 2xx reply.
+func fetch(hc *http.Client, req *http.Request, limit int64) ([]byte, error) {
+	resp, err := hc.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("download: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+	if resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("download: HTTP %d", resp.StatusCode)
+	}
+	data, err := io.ReadAll(io.LimitReader(resp.Body, limit+1))
+	if err != nil {
+		return nil, fmt.Errorf("download: %w", err)
+	}
+	if int64(len(data)) > limit {
+		return nil, fmt.Errorf("download: larger than %d bytes", limit)
+	}
+	return data, nil
 }

@@ -16,7 +16,11 @@ type Deps struct {
 	Writer *penpot.Writer
 	Fonts  *fonts.Measurer
 	Log    *slog.Logger // destructive calls are logged here; nil discards
-	Root   string       // the directory palette and token files are read from
+	Root   string       // the directory palette, token and export files are read from and written to
+
+	// Exporter renders shapes; nil when PENPOT_EMAIL and PENPOT_PASSWORD
+	// are not set.
+	Exporter *penpot.Exporter
 }
 
 func (d Deps) log() *slog.Logger {
@@ -37,4 +41,5 @@ func Register(s *mcp.Server, d Deps) {
 	registerTeam(s, d)
 	registerLibrary(s, d)
 	registerTokens(s, d)
+	registerExport(s, d)
 }
