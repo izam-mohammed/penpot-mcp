@@ -176,3 +176,26 @@ repository instructions for recording useful development findings.
 
 Landed 2026-10-20: https://github.com/izam-mohammed/penpot-mcp/pull/6, stacked
 on #5 (base `feat/export`).
+
+### Phase 6: the leftovers
+
+- [x] `api_info` answers backend methods from Penpot's OpenAPI document
+  (`/api/main/doc/openapi.json`, fetched once), with or without a tab,
+  pinned by `TestAPIInfoBackend`; check: `make check` passes.
+  Landed 2026-10-20: in `internal/tools/apidoc.go`; a schema too large to
+  show whole is outlined one level deep, `member` opens one part.
+  `TestLiveAPIInfo` passed against design.penpot.app.
+- [x] `apply_token` runs in the tab for what the API path refuses (a token
+  that refers to another, a text's colour) and `instantiate_component`
+  gets the after-write reflow, pinned by `TestApplyTokenAliasNeedsTab` and
+  `TestInstanceTabStep`; check: `make live-mcp` applies a referring token.
+  Landed 2026-10-20: the first live run found `sync_tokens` leaves sets
+  inactive, which resolves nothing; it now marks the sets it writes
+  active unless the document has its own `$metadata`.
+
+### Phase 7: open the PR
+
+- [x] The branch pushed and its PR opened against `main` with a
+  Conventional Commit title, a body naming this plan, what changed and
+  why, and the checks run with their result. The PR's URL printed as the
+  evidence.
