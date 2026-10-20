@@ -71,6 +71,7 @@ func run() error {
 		Client: client,
 		Writer: penpot.NewWriter(client),
 		Fonts:  fonts.NewMeasurer(base, cache, logger),
+		Log:    logger,
 	})
 	return server.Run(ctx, &mcp.StdioTransport{})
 }
