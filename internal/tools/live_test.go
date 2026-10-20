@@ -29,7 +29,10 @@ func liveSession(t *testing.T) *mcp.ClientSession {
 		t.Fatal(err)
 	}
 	s := mcp.NewServer(&mcp.Implementation{Name: "live", Version: "0"}, nil)
-	Register(s, Deps{Client: c, Writer: penpot.NewWriter(c), Fonts: fonts.NewMeasurer(penpot.DefaultBaseURL, t.TempDir(), nil)})
+	Register(s, Deps{
+		Client: c, Writer: penpot.NewWriter(c), Fonts: fonts.NewMeasurer(penpot.DefaultBaseURL, t.TempDir(), nil),
+		Root: liveRoot(t),
+	})
 	ctx := context.Background()
 	st, ct := mcp.NewInMemoryTransports()
 	ss, err := s.Connect(ctx, st, nil)

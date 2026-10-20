@@ -100,10 +100,21 @@ repository instructions for recording useful development findings.
 
 ### Phase 2: tokens and palettes
 
-- [ ] `sync_tokens`, `apply_token`, `import_palette` and the update and
+- [x] `sync_tokens`, `apply_token`, `import_palette` and the update and
   delete tools land (expected in `internal/tools/tokens.go`,
   `internal/palette/`), pinned by `TestPaletteRefusesOutsideCwd`; check:
   `make check` passes.
+  Landed 2026-10-20: `sync_tokens` sends `set-tokens-lib` with the DTCG
+  multi-set JSON, which Penpot decodes with its own `read-multi-set-dtcg`
+  (`common/src/app/common/types/tokens_lib.cljc`); it replaces the file's
+  tokens, so it carries `destructiveHint`. `apply_token` sets the value and
+  `appliedTokens` (fill, stroke colour, radius, opacity) and reads the value
+  from `get-file`'s `tokensLib` unless `value` is given. Both are unproven
+  against a live file until `TestLiveTokens` runs. `import_palette` reads
+  Swift, Kotlin, markdown tables, CSS custom properties, DTCG or Style
+  Dictionary JSON and hex lists (`internal/palette/`), only under the
+  server's working directory (`Deps.Root`), never `.env` or `.git`.
+  `delete_component` also deletes the main instance, as Penpot's editor does.
 
 ### Phase 3: open the PR
 
