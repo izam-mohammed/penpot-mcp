@@ -253,8 +253,15 @@ func syncTokens(ctx context.Context, d Deps, in syncTokensIn) (syncOut, error) {
 	if len(out.Sets) == 0 {
 		return syncOut{}, fmt.Errorf("no token sets found; give set_name for a single set")
 	}
-	// Penpot decodes the library from DTCG JSON itself (read-multi-set-dtcg).
-	change := map[string]any{"type": "set-tokens-lib", "tokensLib": doc}
+	// Penpot decodes the library from DTCG JSON itself (read-multi-set-dtcg),
+	// which wants the keys as written. The JSON body's keys are kebab-cased
+	// and keywordized on the way in, so the doc goes as a string, which that
+	// decoder parses with the keys untouched.
+	raw, err := json.Marshal(doc)
+	if err != nil {
+		return syncOut{}, err
+	}
+	change := map[string]any{"type": "set-tokens-lib", "tokensLib": string(raw)}
 	if err := d.Writer.Apply(ctx, in.FileID, []map[string]any{change}); err != nil {
 		return syncOut{}, err
 	}

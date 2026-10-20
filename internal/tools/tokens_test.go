@@ -48,7 +48,7 @@ func TestSyncTokens(t *testing.T) {
 	if out.Tokens != 1 || len(out.Sets) != 1 || out.Sets[0] != "Light" {
 		t.Errorf("sync = %+v", out)
 	}
-	if !strings.Contains(b.raw[0], `"type":"set-tokens-lib"`) || !strings.Contains(b.raw[0], `"Light":{"color"`) {
+	if !strings.Contains(b.raw[0], `"type":"set-tokens-lib"`) || !strings.Contains(b.raw[0], `"tokensLib":"{\"Light\":{\"color\"`) {
 		t.Errorf("want the DTCG lib with the set wrapped: %s", b.raw[0])
 	}
 	for _, bad := range []map[string]any{

@@ -14,6 +14,14 @@ func TestComments(t *testing.T) {
 	if len(threads.Threads) != 1 || threads.Threads[0].Number != 3 || threads.Threads[0].Text != "make it bigger" || threads.Threads[0].X != 10 {
 		t.Errorf("threads = %+v", threads.Threads)
 	}
+	// A thread's comments need only the thread id.
+	var one commentsOut
+	if res := call(t, cs, "list_comments", map[string]any{"thread_id": threadID}, &one); res.IsError {
+		t.Fatal(errText(res))
+	}
+	if one.ThreadID != threadID || len(one.Comments) == 0 {
+		t.Errorf("thread comments = %+v", one)
+	}
 	var th thread
 	if res := call(t, cs, "add_comment", map[string]any{"file_id": fileID, "board_id": boardID, "x": 40, "y": 50, "text": "done"}, &th); res.IsError {
 		t.Fatal(errText(res))
