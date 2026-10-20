@@ -141,8 +141,11 @@ repository instructions for recording useful development findings.
   and `TestDrawCaps`.
 - [x] Check: `make check` passes, and `make live` draws a login screen
   (board, title text, two input rects, a button) in one call.
-- [ ] You try it: ask Claude to draw a simple login screen in your test
+- [x] You try it: ask Claude to draw a simple login screen in your test
   file, open it in Penpot, and say whether the text sits where it should.
+  Landed 2026-10-20: board `skill try: login` in `penpot-mcp test`, drawn
+  in one `draw` call with Inter text; every text measured, wrapping and
+  centring checked in Penpot and approved.
 
 ### Phase 2: the rest of the shapes, and edits
 
