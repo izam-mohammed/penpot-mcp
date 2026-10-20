@@ -111,19 +111,26 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: prove the official MCP (needs you: set PENPOT_MCP_URL)
 
-- [ ] `scripts/prove/penpot-mcp.sh` sends `initialize` and `tools/list` with
+- [x] `scripts/prove/penpot-mcp.sh` sends `initialize` and `tools/list` with
   a `User-Agent` per `docs/external/penpot-official-mcp.md` § What this
   project calls and prints `PASS` when `execute_code` is listed;
   `PENPOT_MCP_URL` listed in `.env.example`.
+  Landed 2026-10-20: written and syntax-checked, not run: it needs the
+  user's `PENPOT_MCP_URL`. The URL reaches curl through `-K -` on stdin
+  and is never printed.
 - [ ] Check: `sh scripts/prove/penpot-mcp.sh` exits 0 and prints `PASS`.
 
 ### Phase 2: the rough cut (needs you: try it)
 
-- [ ] The MCP-route client with the file guard and error mapping, and the
+- [x] The MCP-route client with the file guard and error mapping, and the
   `execute_code`, `current_file` and `reflow` tools land (expected in
   `internal/mcproute/`, `internal/tools/plugin.go`), pinned by
   `TestFileGuardRefuses`, `TestMcpUrlNeverLogged` and
   `TestNoRetryAfterTimeout`.
+  Landed 2026-10-20: the server connects on first use, not at start, so
+  a sleeping tab never blocks start-up; the `tools/list` check runs then.
+  MCP-route writes hold the API writer's lock (`Writer.Exclusive`) and
+  drop the file's cached revision after.
 - [ ] Check: `make check` passes, and with the test file open in a tab,
   `make live-mcp` reads `current_file` and runs a `reflow`.
 - [ ] You try it: open the test file in Penpot with the MCP plugin
@@ -132,11 +139,18 @@ repository instructions for recording useful development findings.
 
 ### Phase 3: hybrid steps and the rest
 
-- [ ] Text measuring and reflow after `create_text`, `draw` and
+- [x] Text measuring and reflow after `create_text`, `draw` and
   `set_layout`, `import_svg` through `createShapeFromSvg`, `api_info`
   plugin source, and the remaining MCP-only tools land (expected in
   `internal/tools/draw.go`, `internal/tools/plugin.go`), pinned by
   `TestHybridFallsBackWithoutTab`; check: `make check` passes.
+  Landed 2026-10-20: `draw`, `create_text` and `set_layout` add a `tab`
+  field with the reflow and the laid-out text sizes when the tab has the
+  file open, and a note otherwise; the API write always stands. Every
+  Plugin API method is checked with `typeof` first, so an older Penpot
+  says which method it lacks. Not built: `api_info`'s backend source
+  (OpenAPI) and hybrid steps for `instantiate_component` and
+  `apply_token`.
 
 ### Phase 4: review the agency
 
@@ -145,6 +159,9 @@ repository instructions for recording useful development findings.
   fixed and listed in `docs/research/06-mcp-route.md`, and
   `execute_code`'s last-resort wording is confirmed with a live session;
   check: `make check` passes.
+  Landed 2026-10-20: reviewed in `docs/research/06-mcp-route.md`; missing
+  hints fixed and the server instructions now call file content data.
+  Left open: the live-session check of `execute_code`'s wording.
 
 ### Phase 5: open the PR
 

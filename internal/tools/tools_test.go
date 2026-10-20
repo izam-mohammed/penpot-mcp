@@ -160,6 +160,13 @@ func (b *backend) count(command string) int {
 
 func session(t *testing.T) (*mcp.ClientSession, *backend) {
 	t.Helper()
+	return sessionWith(t, nil)
+}
+
+// sessionWith is session with a change to the server's Deps, such as an
+// MCP route.
+func sessionWith(t *testing.T, change func(*Deps)) (*mcp.ClientSession, *backend) {
+	t.Helper()
 	b := &backend{root: t.TempDir()}
 	srv := httptest.NewServer(http.HandlerFunc(b.serve))
 	t.Cleanup(srv.Close)
@@ -169,10 +176,14 @@ func session(t *testing.T) (*mcp.ClientSession, *backend) {
 	}
 	s := mcp.NewServer(&mcp.Implementation{Name: "test", Version: "0"}, nil)
 	// No font server: text falls back to the estimate, which is enough here.
-	Register(s, Deps{
+	deps := Deps{
 		Client: c, Writer: penpot.NewWriter(c), Fonts: fonts.NewMeasurer("http://127.0.0.1:1", "", nil),
 		Log: slog.New(slog.NewTextHandler(&b.logs, nil)), Root: b.root,
-	})
+	}
+	if change != nil {
+		change(&deps)
+	}
+	Register(s, deps)
 
 	ctx := context.Background()
 	st, ct := mcp.NewInMemoryTransports()

@@ -20,6 +20,9 @@ stdio.
   kotlin, markdown or json
 - exports: boards to png, jpeg, webp, svg or pdf on disk, whole files to
   and from `.penpot`
+- with a penpot tab open (optional): plugin code, reflow, real text
+  sizes, html and css, component swaps and variants, through penpot's
+  own mcp. the old one, demoted to sidekick
 
 coordinates are absolute page pixels, even inside boards. text is sized with
 the real font metrics, no browser required (that was the whole point).
@@ -47,6 +50,7 @@ restart claude code, run `/mcp`, and `penpot-api` should be there.
 | --- | --- | --- |
 | `PENPOT_ACCESS_TOKEN` | yes | your personal access token, never logged |
 | `PENPOT_BASE_URL` | no | default `https://design.penpot.app`; self-hosted needs `enable-access-tokens` |
+| `PENPOT_MCP_URL` | for tab tools | *your account > integrations > mcp server*. the whole url, key included |
 | `PENPOT_EMAIL`, `PENPOT_PASSWORD` | for board exports | penpot's exporter only takes a login session, not a token. read once, never logged |
 
 ## develop
@@ -54,6 +58,7 @@ restart claude code, run `/mcp`, and `penpot-api` should be there.
 ```sh
 make check   # format, lint, build, tests, govulncheck, gitleaks
 make live    # draws into a real file, needs the token
+make live-mcp  # the tab tools, with the test file open and the plugin connected
 ```
 
 what's next lives in `PLAN.md`. standards in `docs/standards.md`.

@@ -54,12 +54,13 @@ type drawn struct {
 
 type drawOut struct {
 	penpot.Target
-	Shapes []drawn `json:"shapes"`
+	Shapes []drawn   `json:"shapes"`
+	Tab    *tabCheck `json:"tab,omitempty" jsonschema:"what the connected Penpot tab saw, when the MCP route is on"`
 }
 
 func (o drawOut) single() shapeOut {
 	s := o.Shapes[0]
-	return shapeOut{Target: o.Target, ShapeID: s.ShapeID, ParentID: s.ParentID, Width: s.Width, Height: s.Height}
+	return shapeOut{Target: o.Target, ShapeID: s.ShapeID, ParentID: s.ParentID, Width: s.Width, Height: s.Height, Tab: o.Tab}
 }
 
 func registerDrawTree(s *mcp.Server, d Deps) {
@@ -78,6 +79,9 @@ func registerDrawTree(s *mcp.Server, d Deps) {
 			return nil, drawOut{}, err
 		}
 		out, err := drawNodes(ctx, d, in.target, in.Shapes)
+		if err == nil {
+			out.Tab = afterWrite(ctx, d, out.FileID, textIDs(out))
+		}
 		return nil, out, err
 	})
 }

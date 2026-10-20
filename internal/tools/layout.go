@@ -219,8 +219,9 @@ type setLayoutIn struct {
 
 type setLayoutOut struct {
 	penpot.Target
-	BoardID string  `json:"board_id"`
-	Placed  []drawn `json:"placed" jsonschema:"each direct child's new box, in layout order"`
+	BoardID string    `json:"board_id"`
+	Placed  []drawn   `json:"placed" jsonschema:"each direct child's new box, in layout order"`
+	Tab     *tabCheck `json:"tab,omitempty" jsonschema:"what the connected Penpot tab saw, when the MCP route is on"`
 }
 
 func registerLayout(s *mcp.Server, d Deps) {
@@ -283,6 +284,7 @@ func registerLayout(s *mcp.Server, d Deps) {
 		if err := d.Writer.Apply(ctx, t.FileID, changes); err != nil {
 			return nil, setLayoutOut{}, err
 		}
+		out.Tab = afterWrite(ctx, d, t.FileID, nil)
 		return nil, out, nil
 	})
 }
