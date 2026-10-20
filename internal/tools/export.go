@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"image"
@@ -80,7 +82,9 @@ func registerExport(s *mcp.Server, d Deps) {
 	mcp.AddTool(s, &mcp.Tool{
 		Name: "export_shape",
 		Description: "Render a board or shape to PNG, JPEG, WEBP, SVG or PDF and write it to a path in the working directory. " +
-			"Needs PENPOT_EMAIL and PENPOT_PASSWORD: Penpot's exporter takes only a login session. A blank render is an error.",
+			"Uses Penpot's exporter when PENPOT_EMAIL and PENPOT_PASSWORD are set (it takes only a login session); " +
+			"otherwise the connected Penpot tab renders it (png, jpeg, svg or pdf; the shape's page must be open there). " +
+			"A blank render is an error.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in exportShapeIn) (*mcp.CallToolResult, exportOut, error) {
 		d := d.pick(ctx)
 		out, err := exportShape(ctx, d, in)
@@ -244,11 +248,31 @@ func checkScale(s float64) error {
 	return nil
 }
 
-// renderTo renders one shape and writes it to path.
+// canRender fails when neither Penpot's exporter nor a tab can render.
+func canRender(d Deps, format string) error {
+	switch {
+	case d.Exporter != nil:
+		return nil
+	case d.Route == nil:
+		return penpot.ErrNoExporter
+	case format == "webp":
+		return errors.New("webp needs Penpot's exporter (PENPOT_EMAIL and PENPOT_PASSWORD); the tab renders png, jpeg, svg or pdf")
+	}
+	return nil
+}
+
+// renderTo renders one shape and writes it to path: through Penpot's
+// exporter when it has a login, else through the connected tab.
 func renderTo(ctx context.Context, d Deps, t penpot.Target, id, name, format string, scale float64, path string, overwrite bool) (written, error) {
-	data, err := d.Exporter.Render(ctx, penpot.Export{
-		FileID: t.FileID, PageID: t.PageID, ObjectID: id, Type: format, Scale: scale, Name: name,
-	})
+	var data []byte
+	var err error
+	if d.Exporter != nil {
+		data, err = d.Exporter.Render(ctx, penpot.Export{
+			FileID: t.FileID, PageID: t.PageID, ObjectID: id, Type: format, Scale: scale, Name: name,
+		})
+	} else {
+		data, err = tabRender(ctx, d, t, id, format, scale)
+	}
 	if err != nil {
 		return written{}, err
 	}
@@ -287,8 +311,8 @@ func exportShape(ctx context.Context, d Deps, in exportShapeIn) (exportOut, erro
 	if err != nil {
 		return exportOut{}, err
 	}
-	if d.Exporter == nil {
-		return exportOut{}, penpot.ErrNoExporter
+	if err := canRender(d, format); err != nil {
+		return exportOut{}, err
 	}
 	t, err := d.Writer.Resolve(ctx, in.FileID, in.PageID)
 	if err != nil {
@@ -338,8 +362,8 @@ func exportBoards(ctx context.Context, d Deps, in exportBoardsIn) (exportOut, er
 	if strings.TrimSpace(in.Dir) == "" {
 		return exportOut{}, errors.New("dir is required")
 	}
-	if d.Exporter == nil {
-		return exportOut{}, penpot.ErrNoExporter
+	if err := canRender(d, format); err != nil {
+		return exportOut{}, err
 	}
 	t, err := d.Writer.Resolve(ctx, in.FileID, in.PageID)
 	if err != nil {
@@ -486,4 +510,36 @@ func importFile(ctx context.Context, d Deps, in importFileIn) (fileImportOut, er
 		}
 	}
 	return out, nil
+}
+
+// tabRender renders a shape with the Plugin API's shape.export in the
+// connected tab, which must show the shape's page. The bytes come back as
+// base64.
+func tabRender(ctx context.Context, d Deps, t penpot.Target, id, format string, scale float64) ([]byte, error) {
+	if scale == 0 {
+		scale = 1
+	}
+	code := `if (penpot.currentPage.id !== ` + js(t.PageID) + `) throw new Error("the tab shows page " + JSON.stringify(penpot.currentPage.name) + ", not " + ` + js(t.PageName) + ` + ": open that page in the tab");
+const s = penpot.currentPage.getShapeById(` + js(id) + `);
+if (!s) throw new Error("shape not found on the open page");
+const bytes = await s.export({type: ` + js(format) + `, scale: ` + js(scale) + `});
+let bin = "";
+for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+return btoa(bin);`
+	out, err := inTab(ctx, d, t.FileID, code, false)
+	if err != nil {
+		return nil, err
+	}
+	var b64 string
+	if err := json.Unmarshal(out.raw, &b64); err != nil {
+		return nil, fmt.Errorf("the tab's export is not base64 text: %w", err)
+	}
+	if int64(base64.StdEncoding.DecodedLen(len(b64))) > penpot.MaxExport {
+		return nil, fmt.Errorf("the tab's export is over %d bytes", penpot.MaxExport)
+	}
+	data, err := base64.StdEncoding.DecodeString(b64)
+	if err != nil {
+		return nil, fmt.Errorf("the tab's export is not base64: %w", err)
+	}
+	return data, nil
 }
