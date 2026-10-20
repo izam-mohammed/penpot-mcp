@@ -321,6 +321,32 @@ func TestPageTree(t *testing.T) {
 	}
 }
 
+func TestPageTreeText(t *testing.T) {
+	para := func(s string) any {
+		return map[string]any{"type": "paragraph", "children": []any{map[string]any{"text": s}}}
+	}
+	objs := map[string]penpot.Object{
+		"a": {ID: "a", Name: "Title", Type: "text", Content: map[string]any{"type": "root", "children": []any{
+			map[string]any{"type": "paragraph-set", "children": []any{para("Welcome"), para("back")}},
+		}}},
+		"b": {ID: "b", Name: "Long", Type: "text", Content: map[string]any{"type": "root", "children": []any{para(strings.Repeat("é", maxNodeText+5))}}},
+		"c": {ID: "c", Name: "Box", Type: "rect"},
+	}
+	got := map[string]string{}
+	for _, n := range flatten(objs, penpot.ZeroID, []string{"c", "b", "a"}, 1, 3, nil) {
+		got[n.Name] = n.Text
+	}
+	if got["Title"] != "Welcome\nback" {
+		t.Errorf("Title text = %q", got["Title"])
+	}
+	if got["Long"] != strings.Repeat("é", maxNodeText)+"..." {
+		t.Errorf("Long text not clipped at %d runes: %d", maxNodeText, len([]rune(got["Long"])))
+	}
+	if got["Box"] != "" {
+		t.Errorf("a rect has text %q", got["Box"])
+	}
+}
+
 func TestWriteEchoesTarget(t *testing.T) {
 	cs, b := session(t)
 	var out shapeOut

@@ -32,5 +32,10 @@ Across tools:
   cannot double a write.
 - **The MCP URL never leaves the route** (`TestMcpUrlNeverLogged`).
 
-Not done: `execute_code`'s last-resort wording has not been tried in a live
-session yet; the plan's phase 4 item stays open until it is.
+Live check, 2026-10-20: three `claude -p` sessions against the real
+account, with every tab tool listed and `execute_code` blocked so an attempt
+would show. Asked for a page's text, a file's library and a count of shapes
+by type, none of them called `execute_code`. The text question exported the
+whole file and unzipped it, because `get_page_tree` returned no text; it now
+returns each text shape's text (capped at 500 characters), and the same
+question is answered with one `get_page_tree` call.
