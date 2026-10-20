@@ -149,9 +149,12 @@ repository instructions for recording useful development findings.
   `references/traps.md` gained the layout, text, move and group traps.
 - [x] Check: `make check` passes, and `/skills` in a new Claude Code session
   lists `penpot-mcp`.
-- [ ] You try it: in a fresh session say "set up penpot-mcp and draw a board
+- [x] You try it: in a fresh session say "set up penpot-mcp and draw a board
   in my test file", let it walk you through the token in Chrome, and say
   whether it stopped at the right places and the drawing showed up.
+  Landed 2026-10-20: the skill loaded and drove `penpot-api` to draw a
+  login screen and check it in Chrome. The token hand-off was not run:
+  the server was already connected.
 
 ### Phase 2: the MCP route in the browser
 

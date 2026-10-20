@@ -9,7 +9,7 @@
 
 ### Phase 2: draw for real
 
-- [ ] `plans/02-drawing.md` - text, images, paths, groups, layouts and
+- [x] `plans/02-drawing.md` - text, images, paths, groups, layouts and
   whole screens in one call, plus edits and deletes.
 
 ### Phase 3: everything the dashboard does
