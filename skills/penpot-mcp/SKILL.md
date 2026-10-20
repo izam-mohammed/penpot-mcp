@@ -157,7 +157,7 @@ files show API edits live.
 | `HTTP 500 .../data-validation` | Penpot rejected a shape | report the `explain` text; do not retry blindly |
 
 | `... needs confirm: true; ask the user first` | a delete, share link, webhook or restore | ask the user, then call again with `confirm: true` |
-| `exports need PENPOT_EMAIL and PENPOT_PASSWORD` | board exports need a login session | the user adds both to the MCP config; `export_file` works without |
+| `exports need PENPOT_EMAIL and PENPOT_PASSWORD ... or PENPOT_MCP_URL` | board exports need a login session or a tab | a Google or SSO account has no password: use the tab (section 8); otherwise the user adds both to the MCP config. `export_file` works without either |
 | `no Penpot tab is connected` | the tab is closed, loading or asleep | [references/chrome.md](references/chrome.md) § Wake a sleeping tab |
 | `the Penpot tab has "X" open, not "Y"` | the file guard: another file is open | open Y in the tab and reconnect, or work on X |
 | `the code may have run anyway` | a tab call timed out after sending | read the file back first; never repeat it blind |
@@ -198,8 +198,10 @@ short:
   `instantiate_component`, `import_palette` (a repo's own CSS, Swift,
   Kotlin, markdown or JSON colours), `sync_tokens` and `apply_token`.
 - **Export**: `export_shape` and `export_boards` write PNG, JPEG, WEBP,
-  SVG or PDF under the working directory (they need `PENPOT_EMAIL` and
-  `PENPOT_PASSWORD`); `export_file` and `import_file` move `.penpot` files.
+  SVG or PDF under the working directory (through Penpot's exporter with
+  `PENPOT_EMAIL` and `PENPOT_PASSWORD`, else through the connected tab,
+  which needs the shape's page open and does no WEBP); `export_file` and
+  `import_file` move `.penpot` files.
 - **People**: comments and replies, share links, webhooks, versions
   (`create_snapshot` before a big edit).
 - **Several accounts**: with `PENPOT_PROFILES`, every tool takes a

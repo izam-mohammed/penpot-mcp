@@ -92,7 +92,7 @@ write queue, so one slow account never holds up another.
 | `PENPOT_ACCESS_TOKEN` | yes | your personal access token, never logged |
 | `PENPOT_BASE_URL` | no | default `https://design.penpot.app`; self-hosted needs `enable-access-tokens` |
 | `PENPOT_MCP_URL` | for tab tools | *your account > integrations > mcp server*. the whole url, key included |
-| `PENPOT_EMAIL`, `PENPOT_PASSWORD` | for board exports | penpot's exporter only takes a login session, not a token. read once, never logged |
+| `PENPOT_EMAIL`, `PENPOT_PASSWORD` | for board exports without a tab | penpot's exporter only takes a login session, not a token. read once, never logged. signed in with google? skip these, exports go through the tab |
 | `PENPOT_PROFILES` | for several accounts | path to the profiles json above; profiles may also name `email_env`, `password_env` and `mcp_url_env` |
 | `PENPOT_MCP_HTTP_TOKEN` | for `--http` off loopback | the bearer token http clients must send |
 
