@@ -8,7 +8,8 @@ stdio.
 ## what it does
 
 - reads: teams, projects, files, pages, a page's shape tree
-- makes: projects, files and pages, and renames them
+- dashboard: projects, files and pages: create, rename, move, duplicate,
+  delete (with `confirm: true`) and restore, plus libraries and members
 - draws: boards, rects, ellipses, text, svg paths, images, groups, bools,
   flex and grid layouts
 - `draw` builds a whole screen in one write

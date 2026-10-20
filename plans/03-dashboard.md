@@ -101,10 +101,18 @@ repository instructions for recording useful development findings.
 
 ### Phase 2: the rest, with the delete guard
 
-- [ ] The remaining tools from `## The decision` land, deletes guarded
+- [x] The remaining tools from `## The decision` land, deletes guarded
   (expected in `internal/tools/dashboard.go`, `internal/tools/pages.go`),
   pinned by `TestDeleteNeedsConfirm` and `TestDeleteLogged`; check:
   `make check` passes.
+  Landed 2026-10-20: project and file tools in `dashboard.go`, page tools
+  in `pages.go`, `list_members` in `team.go`. `confirm` is optional in the
+  schema so a missing one gets the guard's own message, not a schema error.
+  Deletes also refuse the team's default project and a file's last page.
+  `restore_file` with no ids lists the team's deleted files. Destructive
+  calls log id and name through `Deps.Log`. The reply shapes of the newer
+  commands are checked by `TestLiveDashboard`, which now also cleans up the
+  page it adds.
 
 ### Phase 3: open the PR
 
