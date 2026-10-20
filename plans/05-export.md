@@ -146,7 +146,11 @@ repository instructions for recording useful development findings.
   `make check` passes.
   Landed 2026-10-20: the MCP-route fallback is not built here: plan 06
   builds that route, and until then a missing login answers with
-  `ErrNoExporter`, which names the two env vars. `export_file` and
+  `ErrNoExporter`, which names the two env vars. Landed 2026-10-20 (later):
+  the fallback is built on plan 06's route, `tabRender` running the Plugin
+  API's `shape.export` (png, jpeg, svg, pdf, any scale), since the official
+  `export_shape` does png and svg at 1x only; pinned by
+  `TestExportThroughTab`. `export_file` and
   `import_file` read Penpot's server-sent events and use the access
   token. A flat or truncated PNG is refused before anything is written.
 

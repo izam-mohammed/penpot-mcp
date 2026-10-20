@@ -17,8 +17,8 @@ import (
 )
 
 // ErrNoExporter is returned when PENPOT_EMAIL and PENPOT_PASSWORD are not set.
-var ErrNoExporter = errors.New("exports need PENPOT_EMAIL and PENPOT_PASSWORD in the server's environment: " +
-	"Penpot's exporter accepts only a login session, not an access token")
+var ErrNoExporter = errors.New("exports need PENPOT_EMAIL and PENPOT_PASSWORD in the server's environment " +
+	"(Penpot's exporter accepts only a login session, not an access token), or PENPOT_MCP_URL and a connected tab")
 
 // MaxExport caps one exported file.
 const MaxExport = 200 << 20
