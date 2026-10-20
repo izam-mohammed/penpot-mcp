@@ -67,9 +67,11 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut (needs you: try it)
 
-- [ ] `list_comments`, `add_comment`, `reply_comment` and
+- [x] `list_comments`, `add_comment`, `reply_comment` and
   `resolve_thread` land (expected in `internal/tools/comments.go`), pinned
   by `httptest` replays.
+  Landed 2026-10-20: pinned by `TestComments`. The live check is
+  `TestLiveCollab`, not run yet.
 - [ ] Check: `make check` passes, and `make live` adds and resolves a
   comment on the test file.
 - [ ] You try it: leave a comment on a board in Penpot, ask Claude to read
@@ -77,10 +79,13 @@ repository instructions for recording useful development findings.
 
 ### Phase 2: sharing and history
 
-- [ ] Share links, webhooks, snapshots and plugin data land (expected in
+- [x] Share links, webhooks, snapshots and plugin data land (expected in
   `internal/tools/sharing.go`, `internal/tools/history.go`), pinned by
   `TestShareNeedsConfirm` and `TestRestoreSnapshotsFirst`; check:
   `make check` passes.
+  Landed 2026-10-20: also pinned by `TestPluginData`. Webhooks take only
+  https URLs without credentials in them. Share links return the viewer
+  URL; deleting a share link or a webhook also needs `confirm: true`.
 
 ### Phase 3: open the PR
 
