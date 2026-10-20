@@ -90,8 +90,11 @@ repository instructions for recording useful development findings.
   pinned by `TestHttpNeedsTokenOffLoopback` and `TestHttpBodyCap`.
   Landed 2026-10-20: in `internal/httpserve/`, stateless, 4 MB body cap,
   bearer token compared in constant time, served at `/mcp`.
-- [ ] Check: `make check` passes, and `claude mcp add --transport http
+- [x] Check: `make check` passes, and `claude mcp add --transport http
   penpot-api http://127.0.0.1:8787/mcp` lists the tools.
+  Landed 2026-10-20: run on port 8788 under a throwaway name;
+  `claude mcp get` said Connected, `tools/list` over HTTP gave 72 tools
+  and `list_projects` answered from the real account. Entry removed after.
 - [ ] You try it: run the server with `--http`, add it to Claude Code over
   HTTP, and list your projects.
 
