@@ -27,6 +27,8 @@ const (
 
 	newProjectID = "90000000-0000-4000-8000-000000000001"
 	draftsID     = "90000000-0000-4000-8000-000000000002"
+	threadID     = "7c000000-0000-4000-8000-000000000001"
+	snapID       = "5b000000-0000-4000-8000-000000000001"
 )
 
 // backend replays recorded Penpot replies by command name.
@@ -137,6 +139,27 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`[{"id":"m1","name":"Ana","email":"ana@example.com","isOwner":true,"isAdmin":true,"canEdit":true},
 			{"id":"m2","fullname":"Bo","email":"bo@example.com","canEdit":true},
 			{"id":"m3","name":"Cy","email":"cy@example.com"}]`))
+	case "get-comment-threads":
+		_, _ = w.Write([]byte(`[{"id":"` + threadID + `","seqn":3,"pageId":"` + pageID + `","frameId":"` + boardID + `",
+			"position":{"x":10,"y":20},"isResolved":false,"ownerFullname":"Ana","content":"make it bigger","count":2}]`))
+	case "get-comments":
+		_, _ = w.Write([]byte(`[{"id":"k1","ownerFullname":"Ana","content":"make it bigger","createdAt":"2026-10-20T00:00:00Z"}]`))
+	case "create-comment-thread":
+		_, _ = w.Write([]byte(`{"id":"` + threadID + `","seqn":4,"pageId":"` + pageID + `","position":{"x":1,"y":2}}`))
+	case "create-comment":
+		_, _ = w.Write([]byte(`{"id":"k2","createdAt":"2026-10-20T00:00:00Z"}`))
+	case "create-share-link":
+		_, _ = w.Write([]byte(`{"id":"5a000000-0000-4000-8000-000000000001"}`))
+	case "get-webhooks":
+		_, _ = w.Write([]byte(`[{"id":"w1","uri":"https://hooks.example.com/p","mtype":"application/json","isActive":true}]`))
+	case "create-webhook":
+		_, _ = w.Write([]byte(`{"id":"w2"}`))
+	case "get-file-snapshots":
+		_, _ = w.Write([]byte(`[{"id":"` + snapID + `","label":"before redesign","createdAt":"2026-10-19T00:00:00Z"}]`))
+	case "create-file-snapshot":
+		_, _ = w.Write([]byte(`{"id":"5b000000-0000-4000-8000-000000000009"}`))
+	case "update-comment-thread", "restore-file-snapshot", "delete-share-link", "delete-webhook":
+		w.WriteHeader(http.StatusNoContent)
 	case "rename-project", "move-project", "update-project-pin", "delete-project", "delete-file", "move-files",
 		"restore-deleted-team-files", "set-file-shared", "link-file-to-library", "unlink-file-from-library":
 		w.WriteHeader(http.StatusNoContent)
@@ -235,13 +258,15 @@ func TestListsTools(t *testing.T) {
 	for _, tool := range res.Tools {
 		names = append(names, tool.Name)
 	}
-	want := "add_color add_page add_typography apply_changes apply_token create_board create_bool " +
+	want := "add_color add_comment add_page add_typography apply_changes apply_token create_board create_bool " +
 		"create_component create_ellipse create_file create_group create_image create_path create_project " +
-		"create_rect create_text delete_color delete_component delete_file delete_page delete_project " +
-		"delete_shapes delete_typography draw duplicate_file export_boards export_file export_shape " +
-		"get_page_tree import_file import_palette instantiate_component link_library list_files list_library " +
-		"list_members list_pages list_projects list_teams move_files move_project move_shape pin_project " +
-		"rename_file rename_page rename_project reorder_pages reparent_shape restore_file search_files " +
+		"create_rect create_share_link create_snapshot create_text create_webhook delete_color " +
+		"delete_component delete_file delete_page delete_project delete_shapes delete_share_link " +
+		"delete_typography delete_webhook draw duplicate_file export_boards export_file export_shape " +
+		"get_page_tree import_file import_palette instantiate_component link_library list_comments list_files " +
+		"list_library list_members list_pages list_projects list_snapshots list_teams list_webhooks " +
+		"move_files move_project move_shape pin_project plugin_data rename_file rename_page rename_project " +
+		"reorder_pages reparent_shape reply_comment resolve_thread restore_file restore_snapshot search_files " +
 		"set_file_shared set_layout sync_tokens unlink_library update_color update_shape update_typography " +
 		"whoami"
 	if got := strings.Join(sortStrings(names), " "); got != want {
