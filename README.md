@@ -4,7 +4,7 @@ An MCP server that drives [Penpot](https://penpot.app) through its backend
 HTTP API. No browser tab, no plugin: it reads and writes any file your access
 token can reach. One small Go binary, MCP over stdio.
 
-Status: first version. See `PLAN.md` for what comes next and
+Status: drawing and editing. See `PLAN.md` for what comes next and
 `docs/bridge.md` for every planned tool.
 
 ## Tools
@@ -19,8 +19,25 @@ Status: first version. See `PLAN.md` for what comes next and
 | `get_page_tree` | a page's shapes, flat, top-most first: id, parent, depth, name, type, box |
 | `create_board` | a board at the page root or inside another board |
 | `create_rect` | a rectangle at the root or inside a board |
+| `create_ellipse` | an ellipse filling a box |
+| `create_text` | a text box, sized with the real font metrics; wraps when given a width |
+| `create_path` | a vector path from SVG path data; every SVG command works |
+| `create_image` | uploads a local PNG, JPEG, WebP, GIF or SVG and places it |
+| `draw` | many shapes in one write (boards, rects, ellipses, text, paths, images, groups, bools, flex and grid boards): a whole screen per call |
+| `set_layout` | gives a board a flex or grid layout and places its children |
+| `update_shape` | name, position, size, rotation, fill, stroke, radius, opacity, visibility, or a text's text |
+| `move_shape` | moves shapes by dx, dy with everything inside them |
+| `reparent_shape` | moves shapes into another board, group or bool, or reorders them |
+| `create_group`, `create_bool` | groups or combines shapes that share a parent |
+| `delete_shapes` | deletes shapes and their children; never the root frame |
+| `apply_changes` | last resort: raw `update-file` changes, checked first |
 
 Coordinates are absolute page pixels, also for shapes inside a board.
+Penpot stores layouts but only its editor reflows them, so `draw` and
+`set_layout` place the children themselves, top layer first like Penpot.
+Text is measured with the font's own metrics: Google fonts are fetched as
+TTF from fonts.googleapis.com and Source Sans Pro from the Penpot instance,
+then cached under the user cache directory (`penpot-mcp/fonts`).
 
 ## Build
 
@@ -42,7 +59,7 @@ make build        # writes bin/penpot-mcp
      -- /absolute/path/to/bin/penpot-mcp
    ```
 
-3. Restart Claude Code and run `/mcp`: `penpot-api` lists eight tools.
+3. Restart Claude Code and run `/mcp`: `penpot-api` lists its tools.
 
 | Env var | Needed | Meaning |
 | --- | --- | --- |
