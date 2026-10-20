@@ -1,65 +1,51 @@
 # penpot-mcp
 
-An MCP server that drives [Penpot](https://penpot.app) through its backend
-HTTP API. No browser tab, no plugin: it reads and writes any file your access
-token can reach. One small Go binary, MCP over stdio.
+the official penpot mcp needs a browser tab open, a plugin awake, and a
+little prayer. i got tired of babysittin' it, so this one skips the browser
+and talks to penpot's backend api directly ~ one small go binary, mcp over
+stdio.
 
-Status: first version. See `PLAN.md` for what comes next and
-`docs/bridge.md` for every planned tool.
+## what it does
 
-## Tools
+- reads: teams, projects, files, pages, a page's shape tree
+- draws: boards, rects, ellipses, text, svg paths, images, groups, bools,
+  flex and grid layouts
+- `draw` builds a whole screen in one write
+- edits: update, move, reparent, delete, plus `apply_changes` for when
+  nothing else fits
 
-| Tool | Does |
-| --- | --- |
-| `whoami` | the account the token belongs to |
-| `list_teams` | your teams |
-| `list_projects` | projects, all teams or one |
-| `list_files` | files in a project |
-| `list_pages` | pages of a file |
-| `get_page_tree` | a page's shapes, flat, top-most first: id, parent, depth, name, type, box |
-| `create_board` | a board at the page root or inside another board |
-| `create_rect` | a rectangle at the root or inside a board |
+coordinates are absolute page pixels, even inside boards. text is sized with
+the real font metrics, no browser required (that was the whole point).
 
-Coordinates are absolute page pixels, also for shapes inside a board.
+## setup
 
-## Build
-
-Needs Go 1.26 (the `toolchain` line in `go.mod` fetches the pinned patch).
+needs go 1.26.
 
 ```sh
-make build        # writes bin/penpot-mcp
+make build   # writes bin/penpot-mcp
 ```
 
-## Configure
+make a token in penpot: *your account > integrations > personal access
+tokens*. it's shown once, so copy it.
 
-1. In Penpot, open *Your account > Integrations > Personal access tokens*
-   and create a token. It is shown once.
-2. Add the server to Claude Code, with the token in its environment:
+```sh
+claude mcp add penpot-api -s user \
+  -e PENPOT_ACCESS_TOKEN=<your token> \
+  -- /absolute/path/to/bin/penpot-mcp
+```
 
-   ```sh
-   claude mcp add penpot-api -s user \
-     -e PENPOT_ACCESS_TOKEN=<your token> \
-     -- /absolute/path/to/bin/penpot-mcp
-   ```
+restart claude code, run `/mcp`, and `penpot-api` should be there.
 
-3. Restart Claude Code and run `/mcp`: `penpot-api` lists eight tools.
-
-| Env var | Needed | Meaning |
+| env var | needed | what |
 | --- | --- | --- |
-| `PENPOT_ACCESS_TOKEN` | yes | your personal access token |
-| `PENPOT_BASE_URL` | no | default `https://design.penpot.app`; self-hosted: your `PENPOT_PUBLIC_URI` (needs `enable-access-tokens`) |
+| `PENPOT_ACCESS_TOKEN` | yes | your personal access token, never logged |
+| `PENPOT_BASE_URL` | no | default `https://design.penpot.app`; self-hosted needs `enable-access-tokens` |
 
-The binary checks the token at start and exits with
-`PENPOT_ACCESS_TOKEN was not accepted` if Penpot rejects it. The token is
-never logged.
-
-## Develop
+## develop
 
 ```sh
-make tools   # golangci-lint and govulncheck
-make check   # format, lint, build, race tests, govulncheck, gitleaks
-make live    # draws into a file named "penpot-mcp test" (needs the token)
+make check   # format, lint, build, tests, govulncheck, gitleaks
+make live    # draws into a real file, needs the token
 ```
 
-Standards: `docs/standards.md`. Proof scripts for each integration:
-`scripts/prove/`.
+what's next lives in `PLAN.md`. standards in `docs/standards.md`.
