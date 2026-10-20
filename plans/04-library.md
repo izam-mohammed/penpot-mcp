@@ -92,8 +92,10 @@ repository instructions for recording useful development findings.
   subtree with new ids, each shape's `shapeRef` on its original, moved by
   `shiftRaw`. Also pinned by `TestTypographyStrings`, `TestCreateComponent`
   and `TestListLibrary`.
-- [ ] Check: `make check` passes, and `make live` adds two colours and a
+- [x] Check: `make check` passes, and `make live` adds two colours and a
   button component, then places two instances.
+  Landed 2026-10-20: TestLiveLibrary passed first time; TestLiveTokens
+  passed after #10 sent the DTCG doc as a JSON string.
 - [ ] You try it: ask Claude to add your brand colours and a button
   component to the test file, open the assets panel, and say whether they
   look right.
