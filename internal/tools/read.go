@@ -67,6 +67,7 @@ type Node struct {
 	Y        *float64 `json:"y,omitempty"`
 	Width    *float64 `json:"width,omitempty"`
 	Height   *float64 `json:"height,omitempty"`
+	Text     string   `json:"text,omitempty"`
 	More     int      `json:"more_children,omitempty"`
 }
 
@@ -151,7 +152,8 @@ func registerRead(s *mcp.Server, d Deps) {
 	mcp.AddTool(s, &mcp.Tool{
 		Name: "get_page_tree",
 		Description: "A page's shapes as a flat list in drawing order (top-most first, parents before children): " +
-			"id, parent_id, depth, name, type, x, y, width, height. Coordinates are absolute page pixels.",
+			"id, parent_id, depth, name, type, x, y, width, height, and for text shapes their text. " +
+			"Coordinates are absolute page pixels.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in treeIn) (*mcp.CallToolResult, treeOut, error) {
 		d := d.pick(ctx)
@@ -186,8 +188,20 @@ func registerRead(s *mcp.Server, d Deps) {
 	})
 }
 
-// maxNodes caps the reply size.
-const maxNodes = 2000
+// maxNodes caps the reply size, and maxNodeText one text shape's text in it.
+const (
+	maxNodes    = 2000
+	maxNodeText = 500
+)
+
+// clip cuts s to n runes, marking the cut.
+func clip(s string, n int) string {
+	r := []rune(s)
+	if len(r) <= n {
+		return s
+	}
+	return string(r[:n]) + "..."
+}
 
 func flatten(objs map[string]penpot.Object, parent string, ids []string, level, depth int, out []Node) []Node {
 	// Penpot lists children bottom to top; show top-most first.
@@ -199,6 +213,9 @@ func flatten(objs map[string]penpot.Object, parent string, ids []string, level, 
 		n := Node{
 			ID: o.ID, ParentID: parent, Depth: level, Name: o.Name, Type: o.Type,
 			X: o.X, Y: o.Y, Width: o.Width, Height: o.Height,
+		}
+		if o.Type == "text" {
+			n.Text = clip(plainText(o.Content), maxNodeText)
 		}
 		if level == depth {
 			n.More = len(o.Shapes)

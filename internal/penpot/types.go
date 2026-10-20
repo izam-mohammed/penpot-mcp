@@ -82,6 +82,7 @@ type Object struct {
 	ParentID string   `json:"parentId"`
 	FrameID  string   `json:"frameId"`
 	Shapes   []string `json:"shapes,omitempty"`
+	Content  any      `json:"content,omitempty"`
 }
 
 // UpdateResult is update-file's reply. Revn is the value before the update.
