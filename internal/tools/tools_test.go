@@ -41,8 +41,9 @@ type backend struct {
 	bodies  map[string]map[string]any
 	pages   [][2]string // id, name: get-file's pages, changed by add-page, mod-page, del-page and mov-page
 	logs    bytes.Buffer
-	lib     string // extra get-file data fields, such as `,"colors":{...}`
-	root    string // the server's working directory, for palette files
+	lib     string        // extra get-file data fields, such as `,"colors":{...}`
+	root    string        // the server's working directory, for palette files
+	block   chan struct{} // when set, update-file waits for it
 }
 
 func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
@@ -103,6 +104,9 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 	}
 	b.mu.Unlock()
 
+	if command == "update-file" && b.block != nil {
+		<-b.block
+	}
 	w.Header().Set("Content-Type", "application/json")
 	switch command {
 	case "get-file":
@@ -184,6 +188,19 @@ func (b *backend) count(command string) int {
 func session(t *testing.T) (*mcp.ClientSession, *backend) {
 	t.Helper()
 	return sessionWith(t, nil)
+}
+
+// newBackend starts a recorded Penpot and returns Deps that talk to it.
+func newBackend(t *testing.T) (*backend, Deps) {
+	t.Helper()
+	b := &backend{root: t.TempDir()}
+	srv := httptest.NewServer(http.HandlerFunc(b.serve))
+	t.Cleanup(srv.Close)
+	c, err := penpot.NewClient(srv.URL, "test-token", "test", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return b, Deps{Client: c, Writer: penpot.NewWriter(c), Fonts: fonts.NewMeasurer("http://127.0.0.1:1", "", nil), Root: b.root}
 }
 
 // sessionWith is session with a change to the server's Deps, such as an

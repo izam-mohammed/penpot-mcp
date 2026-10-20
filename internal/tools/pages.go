@@ -33,6 +33,7 @@ func registerPages(s *mcp.Server, d Deps) {
 		Name:        "add_page",
 		Description: "Add an empty page at the end of a file. Returns its id and the file's pages in order.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in addPageIn) (*mcp.CallToolResult, pageOut, error) {
+		d := d.pick(ctx)
 		out, err := addPage(ctx, d, in)
 		return nil, out, err
 	})
@@ -42,6 +43,7 @@ func registerPages(s *mcp.Server, d Deps) {
 		Description: "Rename a page.",
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in renamePageIn) (*mcp.CallToolResult, pageOut, error) {
+		d := d.pick(ctx)
 		out, err := renamePage(ctx, d, in)
 		return nil, out, err
 	})
@@ -117,6 +119,7 @@ func registerPagesRest(s *mcp.Server, d Deps) {
 			"A file's last page is never deleted.",
 		Annotations: destructive,
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in deletePageIn) (*mcp.CallToolResult, pageOut, error) {
+		d := d.pick(ctx)
 		out, err := deletePage(ctx, d, in)
 		return nil, out, err
 	})
@@ -126,6 +129,7 @@ func registerPagesRest(s *mcp.Server, d Deps) {
 		Description: "Move a page to another position in the file's page list.",
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in reorderPageIn) (*mcp.CallToolResult, pageOut, error) {
+		d := d.pick(ctx)
 		out, err := reorderPage(ctx, d, in)
 		return nil, out, err
 	})

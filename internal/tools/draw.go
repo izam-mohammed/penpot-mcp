@@ -124,6 +124,7 @@ func registerDraw(s *mcp.Server, d Deps) {
 		Description: "Add a board (frame) to a Penpot page, at the root or inside another board. " +
 			"Returns the new shape id and the file and page it landed in.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in shapeIn) (*mcp.CallToolResult, shapeOut, error) {
+		d := d.pick(ctx)
 		out, err := createBox(ctx, d, "board", in)
 		return nil, out, err
 	})
@@ -133,6 +134,7 @@ func registerDraw(s *mcp.Server, d Deps) {
 		Description: "Add a rectangle to a Penpot page, at the root or inside a board. " +
 			"Returns the new shape id and the file and page it landed in.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in shapeIn) (*mcp.CallToolResult, shapeOut, error) {
+		d := d.pick(ctx)
 		out, err := createBox(ctx, d, "rect", in)
 		return nil, out, err
 	})
@@ -141,6 +143,7 @@ func registerDraw(s *mcp.Server, d Deps) {
 		Name:        "create_ellipse",
 		Description: "Add an ellipse that fills the given box, at the root or inside a board.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in shapeIn) (*mcp.CallToolResult, shapeOut, error) {
+		d := d.pick(ctx)
 		out, err := createBox(ctx, d, "ellipse", in)
 		return nil, out, err
 	})
@@ -150,6 +153,7 @@ func registerDraw(s *mcp.Server, d Deps) {
 		Description: "Add a text box. Without width the box fits the text; with width the text wraps " +
 			"and the height grows. Sizes are measured with the real font. Returns the box size.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in textIn) (*mcp.CallToolResult, shapeOut, error) {
+		d := d.pick(ctx)
 		return createOne(ctx, d, in.target, drawNode{Type: "text", Name: in.Name, textFields: in.textFields})
 	})
 
@@ -158,6 +162,7 @@ func registerDraw(s *mcp.Server, d Deps) {
 		Description: "Add a vector path from SVG path data (absolute page pixels). Every SVG command works; " +
 			"arcs and quadratics become cubic curves. Returns the path's bounding box.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in pathIn) (*mcp.CallToolResult, shapeOut, error) {
+		d := d.pick(ctx)
 		node := drawNode{Type: "path", Name: in.Name, D: in.D, Fill: in.Fill, Stroke: in.Stroke, StrokeWidth: in.StrokeWidth}
 		return createOne(ctx, d, in.target, node)
 	})
@@ -167,6 +172,7 @@ func registerDraw(s *mcp.Server, d Deps) {
 		Description: "Upload a local image into the file and place it as an image-filled rectangle. " +
 			"Only PNG, JPEG, WebP, GIF and SVG files are read.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in imageIn) (*mcp.CallToolResult, shapeOut, error) {
+		d := d.pick(ctx)
 		node := drawNode{
 			Type: "image", Name: in.Name, ImagePath: in.ImagePath, Height: in.Height,
 			Radius: in.Radius, Rotation: in.Rotation, textFields: textFields{X: in.X, Y: in.Y, Width: in.Width},

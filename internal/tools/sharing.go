@@ -59,6 +59,7 @@ func registerSharing(s *mcp.Server, d Deps) {
 			"Needs confirm: true, given only after the user asked for a link.",
 		Annotations: &mcp.ToolAnnotations{DestructiveHint: ptr(true), OpenWorldHint: ptr(true)},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in shareIn) (*mcp.CallToolResult, shareOut, error) {
+		d := d.pick(ctx)
 		out, err := createShare(ctx, d, in)
 		return nil, out, err
 	})
@@ -68,6 +69,7 @@ func registerSharing(s *mcp.Server, d Deps) {
 		Description: "Delete a share link: it stops working for everyone. Needs confirm: true.",
 		Annotations: destructive,
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in idConfirmIn) (*mcp.CallToolResult, idConfirmIn, error) {
+		d := d.pick(ctx)
 		if err := checkID("id", in.ID); err != nil {
 			return nil, idConfirmIn{}, err
 		}
@@ -86,6 +88,7 @@ func registerSharing(s *mcp.Server, d Deps) {
 		Description: "A team's webhooks: URL, format, active, recent errors.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in teamIn) (*mcp.CallToolResult, webhooksOut, error) {
+		d := d.pick(ctx)
 		team, err := teamOrDefault(ctx, d, in.TeamID)
 		if err != nil {
 			return nil, webhooksOut{}, err
@@ -110,6 +113,7 @@ func registerSharing(s *mcp.Server, d Deps) {
 			"That sends design data outside Penpot: needs confirm: true, given only after the user asked for it.",
 		Annotations: &mcp.ToolAnnotations{DestructiveHint: ptr(true), OpenWorldHint: ptr(true)},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in webhookIn) (*mcp.CallToolResult, webhook, error) {
+		d := d.pick(ctx)
 		u, err := url.Parse(in.URL)
 		if err != nil || u.Scheme != "https" || u.Host == "" || u.User != nil {
 			return nil, webhook{}, fmt.Errorf("url must be an https URL without credentials in it")
@@ -138,6 +142,7 @@ func registerSharing(s *mcp.Server, d Deps) {
 		Description: "Delete a webhook. Needs confirm: true.",
 		Annotations: destructive,
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in idConfirmIn) (*mcp.CallToolResult, idConfirmIn, error) {
+		d := d.pick(ctx)
 		if err := checkID("id", in.ID); err != nil {
 			return nil, idConfirmIn{}, err
 		}
