@@ -21,4 +21,6 @@ func Register(s *mcp.Server, d Deps) {
 	registerDraw(s, d)
 	registerLayout(s, d)
 	registerEdit(s, d)
+	registerDashboard(s, d)
+	registerPages(s, d)
 }
