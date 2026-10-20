@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -253,6 +254,12 @@ func syncTokens(ctx context.Context, d Deps, in syncTokensIn) (syncOut, error) {
 	if len(out.Sets) == 0 {
 		return syncOut{}, fmt.Errorf("no token sets found; give set_name for a single set")
 	}
+	// Sets Penpot holds inactive resolve nothing, so the synced sets are
+	// made active unless the document says which are.
+	if _, ok := doc["$metadata"]; !ok {
+		sort.Strings(out.Sets)
+		doc["$metadata"] = map[string]any{"tokenSetOrder": out.Sets, "activeSets": out.Sets}
+	}
 	// Penpot decodes the library from DTCG JSON itself (read-multi-set-dtcg),
 	// which wants the keys as written. The JSON body's keys are kebab-cased
 	// and keywordized on the way in, so the doc goes as a string, which that
@@ -358,8 +365,16 @@ func applyToken(ctx context.Context, d Deps, in applyTokenIn) (changedOut, error
 		}
 		value = v
 	}
-	if strings.HasPrefix(value, "{") {
-		return changedOut{}, fmt.Errorf("token %q refers to another token (%s); give the resolved value", in.Token, value)
+	alias := strings.HasPrefix(value, "{")
+	if alias && d.Route == nil {
+		return changedOut{}, fmt.Errorf("token %q refers to another token (%s); give the resolved value, "+
+			"or connect a Penpot tab (PENPOT_MCP_URL) to let Penpot resolve it", in.Token, value)
+	}
+	if _, ok := tokenProps[in.Attribute]; !ok {
+		return changedOut{}, fmt.Errorf("attribute must be fill, stroke_color, radius or opacity")
+	}
+	if alias {
+		return tabApplyToken(ctx, d, in)
 	}
 	var attrs map[string]any
 	var keys []string
@@ -415,7 +430,11 @@ func applyToken(ctx context.Context, d Deps, in applyTokenIn) (changedOut, error
 				return changedOut{}, fmt.Errorf("groups have no fill; apply the token to their children")
 			}
 			if typ == penpot.TypeText {
-				return changedOut{}, fmt.Errorf("text colour tokens are not supported here yet; use update_shape")
+				if d.Route != nil {
+					return tabApplyToken(ctx, d, in)
+				}
+				return changedOut{}, fmt.Errorf("a token on a text's colour needs a connected Penpot tab (PENPOT_MCP_URL); " +
+					"without one, use update_shape")
 			}
 			a["fills"] = fillList(value)
 		case "stroke_color":
@@ -613,4 +632,41 @@ func deleteAsset(ctx context.Context, d Deps, in deleteAssetIn, kind string) (as
 	}
 	d.log().Info("deleted "+kind, "file_id", in.FileID, "id", in.ID, "name", str(a, "name"))
 	return assetOut{FileID: in.FileID, ID: in.ID, Name: str(a, "name"), Path: str(a, "path")}, nil
+}
+
+// tokenProps are the Plugin API's TokenProperty names for each attribute.
+var tokenProps = map[string][]string{
+	"fill":         {"fill"},
+	"stroke_color": {"strokeColor"},
+	"radius":       {"borderRadiusTopLeft", "borderRadiusTopRight", "borderRadiusBottomRight", "borderRadiusBottomLeft"},
+	"opacity":      {"opacity"},
+}
+
+// tabApplyToken applies a token in the connected tab, for what the API
+// path cannot do: a token that refers to another one, which Penpot
+// resolves, and a text's colour. The token is looked up by name in the
+// active sets, the last match winning, as Penpot resolves it.
+func tabApplyToken(ctx context.Context, d Deps, in applyTokenIn) (changedOut, error) {
+	ref := pageRef{FileID: in.FileID, PageID: in.PageID}
+	t, p, err := loadIDs(ctx, d, idsIn{pageRef: ref, ShapeIDs: in.ShapeIDs}, 1)
+	if err != nil {
+		return changedOut{}, err
+	}
+	code := "if (!penpot.library.local.tokens) throw new Error('this Penpot has no design tokens in its Plugin API');\n" +
+		shapesJS(in.ShapeIDs) + `
+const sets = penpot.library.local.tokens.sets;
+let token;
+for (const set of sets.filter(s => s.active)) {
+  token = set.tokens.find(x => x.name === ` + js(in.Token) + `) || token;
+}
+if (!token) {
+  const off = sets.filter(s => !s.active && s.tokens.some(x => x.name === ` + js(in.Token) + `)).map(s => s.name);
+  throw new Error("token " + ` + js(in.Token) + ` + (off.length ? " is only in inactive sets (" + off.join(", ") + "): activate one in Penpot" : " is in no set"));
+}
+token.applyToShapes(shapes, ` + js(tokenProps[in.Attribute]) + `);
+return token.resolvedValueString || null;`
+	if _, err := inTab(ctx, d, in.FileID, code, true); err != nil {
+		return changedOut{}, err
+	}
+	return changedOut{Target: t, Shapes: described(p, in.ShapeIDs)}, nil
 }

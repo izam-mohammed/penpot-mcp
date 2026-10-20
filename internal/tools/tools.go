@@ -55,6 +55,7 @@ func Register(s *mcp.Server, d Deps) {
 	registerTokens(s, d)
 	registerExport(s, d)
 	registerPlugin(s, d)
+	registerAPIInfo(s, d)
 	registerComments(s, d)
 	registerSharing(s, d)
 	registerHistory(s, d)
