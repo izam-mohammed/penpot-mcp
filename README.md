@@ -7,13 +7,15 @@ the official one for the few things only a tab can do.
 
 ## install
 
-paste this into claude code:
+paste this into claude code, codex or whatever you use to roam around:
 
 ```text
-install penpot-mcp from https://github.com/izam-mohammed/penpot-mcp with
-`brew install --cask izam-mohammed/tap/penpot-mcp` (or the release binary
-for my os if there's no brew), then give me the exact `claude mcp add`
-command to run with my penpot access token. don't ask me for the token.
+yo bro, install penpot-mcp for me from
+https://github.com/izam-mohammed/penpot-mcp. use
+`brew install --cask izam-mohammed/tap/penpot-mcp`, or if brew isn't
+around, grab the release binary for my os. then hand me the exact
+`claude mcp add` command to run with my penpot access token. don't ask
+me for the token, it's mine and i'm keeping it. thanks king.
 ```
 
 ### by hand
