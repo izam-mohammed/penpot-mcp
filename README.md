@@ -1,4 +1,4 @@
-# penpot-mcp
+<p align="center"><img src="docs/assets/banner.svg" alt="Penpot MCP: a pot of pens rocketing through a portal, leaving a sleepy browser tab behind" width="100%"></p>
 
 the [official penpot mcp](https://github.com/penpot/penpot/tree/develop/mcp) wants a browser tab
 open, a plugin awake and the right file in front of it. i got tired of
@@ -6,8 +6,6 @@ babysittin' it, so this one talks to penpot's api directly ~ and still calls
 the official one for the few things only a tab can do.
 
 ## install
-
-### the lazy way
 
 paste this into claude code:
 
