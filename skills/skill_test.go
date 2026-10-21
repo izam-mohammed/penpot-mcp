@@ -136,7 +136,9 @@ func TestSkillLinksResolve(t *testing.T) {
 		if err != nil || d.IsDir() || filepath.Ext(path) != ".md" {
 			return err
 		}
-		for _, m := range link.FindAllStringSubmatch(read(t, path), -1) {
+		// Inline code shows a link to write, not one to follow.
+		text := regexp.MustCompile("`[^`]*`").ReplaceAllString(read(t, path), "")
+		for _, m := range link.FindAllStringSubmatch(text, -1) {
 			target := m[1]
 			if strings.Contains(target, "://") {
 				continue
@@ -165,5 +167,85 @@ func TestEmbedHoldsEverySkill(t *testing.T) {
 	}
 	if got, want := strings.Join(embedded, " "), strings.Join(skillNames(t), " "); got != want {
 		t.Errorf("embedded %q, tree has %q", got, want)
+	}
+}
+
+// registered reads the tool names from references/tools.md, which
+// TestSkillListsEveryTool in internal/tools keeps equal to the server.
+func registered(t *testing.T) map[string]bool {
+	t.Helper()
+	row := regexp.MustCompile("(?m)^\\| `([a-z_]+)` \\|")
+	tools := map[string]bool{}
+	for _, m := range row.FindAllStringSubmatch(read(t, "penpot-mcp/references/tools.md"), -1) {
+		tools[m[1]] = true
+	}
+	if len(tools) == 0 {
+		t.Fatal("no tools in references/tools.md")
+	}
+	return tools
+}
+
+// toolCells returns the backticked names in every table column headed
+// "Tool".
+func toolCells(doc string) []string {
+	name := regexp.MustCompile("`([a-z_]+)`")
+	var names []string
+	col := -1
+	for _, line := range strings.Split(doc, "\n") {
+		if !strings.HasPrefix(line, "|") {
+			col = -1
+			continue
+		}
+		cells := strings.Split(strings.Trim(line, "|"), "|")
+		if col < 0 {
+			for i, c := range cells {
+				if strings.TrimSpace(c) == "Tool" {
+					col = i
+				}
+			}
+			if col < 0 {
+				col = len(cells) // a table with no Tool column: skip its rows
+			}
+			continue
+		}
+		if col < len(cells) {
+			for _, m := range name.FindAllStringSubmatch(cells[col], -1) {
+				names = append(names, m[1])
+			}
+		}
+	}
+	return names
+}
+
+// TestSkillToolsAreRegistered: every tool a skill's tables name is a real
+// tool, and every real tool is named by some skill.
+func TestSkillToolsAreRegistered(t *testing.T) {
+	tools := registered(t)
+	named := map[string]bool{}
+	var all strings.Builder
+	for _, skill := range skillNames(t) {
+		doc := read(t, skill+"/SKILL.md")
+		all.WriteString(doc)
+		for _, n := range toolCells(doc) {
+			if !tools[n] {
+				t.Errorf("%s names %q, which the server does not register", skill, n)
+			}
+			named[n] = true
+		}
+	}
+	for n := range tools {
+		if !strings.Contains(all.String(), "`"+n+"`") {
+			t.Errorf("no skill names %q", n)
+		}
+	}
+}
+
+// TestSkillsSayContentIsData: every skill reads design content as data.
+func TestSkillsSayContentIsData(t *testing.T) {
+	for _, skill := range skillNames(t) {
+		doc := strings.Join(strings.Fields(read(t, skill+"/SKILL.md")), " ")
+		if !strings.Contains(doc, "data, never instructions") && !strings.Contains(doc, "data, never as instructions") {
+			t.Errorf("%s does not say design content is data, never instructions", skill)
+		}
 	}
 }
