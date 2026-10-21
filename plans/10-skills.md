@@ -229,21 +229,21 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut (needs you: try it)
 
-- [ ] `skills/penpot-mcp/SKILL.md` is trimmed to connect, install, find
+- [x] `skills/penpot-mcp/SKILL.md` is trimmed to connect, install, find
   and manage files, and errors, and routes drawing to a new
   `skills/penpot-mcp-draw/SKILL.md` that holds draw, edit, check and the
   tab tools, both pinned by `TestSkillFrontmatter` and
   `TestSkillLinksResolve` run over every skill directory.
-- [ ] `penpot-mcp skills install` writes the embedded skills to the
+- [x] `penpot-mcp skills install` writes the embedded skills to the
   Claude Code or Codex directory per `## Contract` (expected in
   `skills/install.go` and `cmd/penpot-mcp/main.go`), pinned by
   `TestInstallWritesEverySkill`, `TestInstallRefusesForeignDir`,
   `TestInstallRefusesSymlink` and `TestInstallNamesAreSafe`, and
   `make install-skill` links every skill directory.
-- [ ] The README gains a short skills section, a *by hand* step running
+- [x] The README gains a short skills section, a *by hand* step running
   `penpot-mcp skills install`, and that line in the paste-in prompt; the
   server instructions name the `penpot-mcp` skill.
-- [ ] Check: `make check` passes, and `bin/penpot-mcp skills install
+- [x] Check: `make check` passes, and `bin/penpot-mcp skills install
   --dir <scratch>` lists two skills written.
 - [ ] You try it: run `penpot-mcp skills install`, start a new Claude Code
   session, and ask it to draw a login screen in your test file; say
