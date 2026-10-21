@@ -7,8 +7,6 @@ the official one for the few things only a tab can do.
 
 ## install
 
-### with claude code
-
 paste this into claude code:
 
 ```text
