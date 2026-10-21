@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="1200" height="320" role="img" aria-labelledby="t d">
+  <title id="t">penpot-mcp</title>
+  <desc id="d">A pot full of pens rockets through a portal into another universe, leaving a sleepy browser tab behind.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#160b2e"/>
+      <stop offset="0.55" stop-color="#2d0f5c"/>
+      <stop offset="1" stop-color="#0a3a57"/>
+    </linearGradient>
+    <radialGradient id="portal" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.18" stop-color="#fff3b0"/>
+      <stop offset="0.4" stop-color="#ffd166"/>
+      <stop offset="0.62" stop-color="#ef476f"/>
+      <stop offset="0.85" stop-color="#7b2ff7" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#7b2ff7" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="flame" x1="1" y1="0" x2="0" y2="0">
+      <stop offset="0" stop-color="#fff3b0"/>
+      <stop offset="0.4" stop-color="#ffd166"/>
+      <stop offset="1" stop-color="#ef476f" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="pot" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f08a5d"/>
+      <stop offset="1" stop-color="#c8553d"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="320" rx="24" fill="url(#sky)"/>
+
+  <!-- stars -->
+  <g fill="#ffffff">
+    <circle cx="40" cy="40" r="1.6" opacity="0.8"/><circle cx="120" cy="270" r="1.2" opacity="0.6"/>
+    <circle cx="210" cy="30" r="1" opacity="0.7"/><circle cx="300" cy="290" r="1.8" opacity="0.8"/>
+    <circle cx="380" cy="60" r="1.2" opacity="0.5"/><circle cx="470" cy="20" r="1.6" opacity="0.9"/>
+    <circle cx="520" cy="300" r="1" opacity="0.6"/><circle cx="600" cy="40" r="1.3" opacity="0.7"/>
+    <circle cx="690" cy="295" r="1.6" opacity="0.8"/><circle cx="760" cy="25" r="1" opacity="0.6"/>
+    <circle cx="830" cy="280" r="1.4" opacity="0.7"/><circle cx="905" cy="40" r="1.1" opacity="0.6"/>
+    <circle cx="1150" cy="40" r="1.6" opacity="0.8"/><circle cx="1170" cy="285" r="1.2" opacity="0.6"/>
+    <circle cx="90" cy="150" r="1" opacity="0.5"/><circle cx="440" cy="250" r="1.1" opacity="0.6"/>
+  </g>
+  <g fill="#ffd166">
+    <path d="M560 70 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z"/>
+    <path d="M1120 250 l2.5 6 6 2.5 -6 2.5 -2.5 6 -2.5 -6 -6 -2.5 6 -2.5z"/>
+    <path d="M30 250 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z"/>
+  </g>
+
+  <!-- a ringed planet -->
+  <g transform="translate(480 58)">
+    <circle r="22" fill="#06d6a0"/>
+    <circle r="22" fill="#118ab2" opacity="0.35" transform="translate(6 6)"/>
+    <ellipse rx="40" ry="9" fill="none" stroke="#ffd166" stroke-width="3" transform="rotate(-18)"/>
+  </g>
+
+  <!-- title -->
+  <text x="60" y="128" font-family="ui-rounded, 'SF Pro Rounded', 'Segoe UI', system-ui, sans-serif" font-size="58" font-weight="800" fill="#ffffff">penpot-mcp</text>
+  <text x="62" y="172" font-family="ui-rounded, 'SF Pro Rounded', 'Segoe UI', system-ui, sans-serif" font-size="22" fill="#d9c8ff">penpot, now leaving the browser tab.</text>
+  <text x="62" y="204" font-family="ui-rounded, 'SF Pro Rounded', 'Segoe UI', system-ui, sans-serif" font-size="22" fill="#d9c8ff">next stop: every file you own ~</text>
+
+  <!-- the abandoned tab, asleep -->
+  <g transform="translate(120 238) rotate(-12)">
+    <rect x="0" y="0" width="96" height="58" rx="8" fill="#2a2a40" stroke="#8d86c9" stroke-width="2"/>
+    <rect x="0" y="0" width="96" height="14" rx="7" fill="#8d86c9"/>
+    <circle cx="9" cy="7" r="2.5" fill="#ef476f"/><circle cx="18" cy="7" r="2.5" fill="#ffd166"/><circle cx="27" cy="7" r="2.5" fill="#06d6a0"/>
+    <path d="M30 34 q6 -5 12 0 M54 34 q6 -5 12 0" fill="none" stroke="#d9c8ff" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M42 46 q6 3 12 0" fill="none" stroke="#d9c8ff" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <text x="228" y="268" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="700" fill="#8d86c9" transform="rotate(-12 228 268)">z</text>
+  <text x="244" y="254" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="700" fill="#8d86c9" transform="rotate(-12 244 254)">z</text>
+  <text x="262" y="238" font-family="ui-rounded, system-ui, sans-serif" font-size="24" font-weight="700" fill="#8d86c9" transform="rotate(-12 262 238)">Z</text>
+
+  <!-- dotted flight path -->
+  <path d="M470 230 C 600 300, 760 260, 960 170" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/>
+
+  <!-- the portal -->
+  <g transform="translate(1040 160)">
+    <circle r="120" fill="url(#portal)"/>
+    <ellipse rx="70" ry="92" fill="none" stroke="#ffffff" stroke-opacity="0.8" stroke-width="3" stroke-dasharray="40 14"/>
+    <ellipse rx="52" ry="70" fill="none" stroke="#ef476f" stroke-width="4" stroke-dasharray="26 10" transform="rotate(25)"/>
+    <ellipse rx="34" ry="48" fill="none" stroke="#7b2ff7" stroke-width="4" stroke-dasharray="18 8" transform="rotate(-30)"/>
+  </g>
+
+  <!-- the pot, with a rocket trail -->
+  <g transform="translate(770 165) rotate(10)">
+    <path d="M-56 18 C -110 -2, -160 14, -220 26 C -160 38, -110 52, -56 40 Z" fill="url(#flame)"/>
+    <g stroke="#ffffff" stroke-opacity="0.55" stroke-width="3" stroke-linecap="round">
+      <line x1="-90" y1="-18" x2="-150" y2="-18"/>
+      <line x1="-80" y1="62" x2="-130" y2="62"/>
+    </g>
+    <!-- pens sticking out of the pot -->
+    <g transform="rotate(-14 -18 -30)">
+      <rect x="-24" y="-92" width="13" height="66" rx="2" fill="#ffd166"/>
+      <path d="M-24 -92 l6.5 -16 6.5 16z" fill="#f7e1c4"/><path d="M-20 -101 l2.5 -7 2.5 7z" fill="#2a2a40"/>
+    </g>
+    <g>
+      <rect x="-4" y="-104" width="14" height="78" rx="3" fill="#ef476f"/>
+      <rect x="-4" y="-104" width="14" height="12" rx="3" fill="#ffffff" opacity="0.5"/>
+    </g>
+    <g transform="rotate(16 26 -30)">
+      <rect x="18" y="-88" width="13" height="62" rx="2" fill="#06d6a0"/>
+      <path d="M18 -88 l6.5 -16 6.5 16z" fill="#f7e1c4"/><path d="M22 -97 l2.5 -7 2.5 7z" fill="#2a2a40"/>
+    </g>
+    <!-- pot body -->
+    <path d="M-56 -26 L 56 -26 L 42 66 Q 0 76 -42 66 Z" fill="url(#pot)"/>
+    <rect x="-64" y="-36" width="128" height="22" rx="8" fill="#f4a261"/>
+    <!-- face -->
+    <circle cx="-18" cy="16" r="8" fill="#ffffff"/><circle cx="18" cy="16" r="8" fill="#ffffff"/>
+    <circle cx="-15" cy="15" r="4" fill="#2a2a40"/><circle cx="21" cy="15" r="4" fill="#2a2a40"/>
+    <circle cx="-13" cy="13" r="1.4" fill="#ffffff"/><circle cx="23" cy="13" r="1.4" fill="#ffffff"/>
+    <path d="M-16 36 Q 2 54 20 36" fill="#2a2a40"/>
+    <path d="M-8 42 Q 2 50 12 42" fill="#ef476f"/>
+    <circle cx="-34" cy="32" r="6" fill="#ef476f" opacity="0.45"/><circle cx="36" cy="32" r="6" fill="#ef476f" opacity="0.45"/>
+  </g>
+
+  <!-- a little shout -->
+  <text x="840" y="296" font-family="ui-rounded, 'SF Pro Rounded', 'Segoe UI', system-ui, sans-serif" font-size="18" font-weight="700" fill="#ffd166">wheee, no plugin!</text>
+</svg>
