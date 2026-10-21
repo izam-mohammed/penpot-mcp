@@ -13,9 +13,11 @@ paste this into claude code, codex or whatever you use to roam around:
 yo bro, install penpot-mcp for me from
 https://github.com/izam-mohammed/penpot-mcp. use
 `brew install --cask izam-mohammed/tap/penpot-mcp`, or if brew isn't
-around, grab the release binary for my os. then hand me the exact
-`claude mcp add` command to run with my penpot access token. don't ask
-me for the token, it's mine and i'm keeping it. thanks king.
+around, grab the release binary for my os. then run
+`penpot-mcp skills install` (add `--agent codex` if you're codex) so you
+know how to drive it, and hand me the exact `claude mcp add` command to
+run with my penpot access token. don't ask me for the token, it's mine
+and i'm keeping it. thanks king.
 ```
 
 ### by hand
@@ -41,7 +43,32 @@ me for the token, it's mine and i'm keeping it. thanks king.
      -- "$(command -v penpot-mcp)"
    ```
 
-4. restart claude code. `/mcp` should list `penpot-api`.
+4. give your agent the manual:
+
+   ```sh
+   penpot-mcp skills install                # claude code
+   penpot-mcp skills install --agent codex  # codex
+   ```
+
+5. restart claude code. `/mcp` should list `penpot-api`, `/skills` the
+   `penpot-mcp` ones.
+
+## skills
+
+the binary carries its own skills, so your agent stops guessin' which of
+87 tools to call. `penpot-mcp skills install` writes them, from the same
+release as the tools they talk about.
+
+| skill | for |
+| --- | --- |
+| `penpot-mcp` | connecting, the token hand-off, finding and managing files, every error |
+| `penpot-mcp-draw` | whole screens in one call, edits, and lookin' at what landed |
+| `penpot-mcp-library` | colours, type styles, components, design tokens, your repo's palette |
+| `penpot-mcp-export` | boards to png, svg or pdf in your repo, `.penpot` files |
+| `penpot-mcp-collab` | comments, share links, webhooks, versions, several accounts |
+
+it won't overwrite a skill it didn't write; `--force` if you mean it.
+working on them from a checkout? `make install-skill` links them instead.
 
 ## how it's different
 
