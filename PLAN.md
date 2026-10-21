@@ -41,3 +41,8 @@
   binaries.
 - [x] `plans/09-skill.md` phases 3-4 - the skill's full tool list, kept in
   step with the code.
+
+### Phase 8: skills you can install
+
+- [ ] `plans/10-skills.md` - skills split by job, installed by the binary
+  into claude code or codex, and the readme says so.
