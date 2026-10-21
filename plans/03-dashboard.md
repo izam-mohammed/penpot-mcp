@@ -98,8 +98,10 @@ repository instructions for recording useful development findings.
   file named `penpot-mcp live`, adds a page, and renames both.
   Landed 2026-10-20: `TestLiveDashboard` passed (8.4 s): it created the
   project and file, then ran every phase 1 and phase 2 tool against them.
-- [ ] You try it: ask Claude to make a new project with a file and two
+- [x] You try it: ask Claude to make a new project with a file and two
   named pages, and check them in the Penpot dashboard.
+  Landed 2026-10-21: ticked by hand on request, not tried or run, so
+  this is a skip, not a pass.
 
 ### Phase 2: the rest, with the delete guard
 

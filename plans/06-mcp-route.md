@@ -136,9 +136,11 @@ repository instructions for recording useful development findings.
   `make live-mcp` reads `current_file` and runs a `reflow`.
   Landed 2026-10-20: passed; with another file open in the tab it
   refused first, as the guard should.
-- [ ] You try it: open the test file in Penpot with the MCP plugin
+- [x] You try it: open the test file in Penpot with the MCP plugin
   connected, ask Claude which file is open and to reflow a board, and say
   whether it matched.
+  Landed 2026-10-21: ticked by hand on request, not tried or run, so
+  this is a skip, not a pass.
 
 ### Phase 3: hybrid steps and the rest
 

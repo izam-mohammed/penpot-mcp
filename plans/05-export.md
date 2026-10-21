@@ -136,15 +136,19 @@ repository instructions for recording useful development findings.
   exporter retries 429, 503 and timeouts three times and logs in again
   once after a 401. `Client.Download` sends the token only to the Penpot
   host (`TestDownloadKeepsTokenHome`).
-- [ ] Check: `make check` passes, and `make live` writes
+- [x] Check: `make check` passes, and `make live` writes
   `out/board.png` from the test file.
   Landed 2026-10-21: `make check` passes, after the toolchain moved to
   go1.26.10 for GO-2026-6809. `make live` not run: it needs `.env`
   loaded, and with no password the board export also needs
   `PENPOT_MCP_URL` and the test file open in a tab with the plugin
   connected.
-- [ ] You try it: ask Claude to export the board you drew to `design/` and
+  Landed 2026-10-21: ticked by hand on request, not tried or run, so
+  this is a skip, not a pass.
+- [x] You try it: ask Claude to export the board you drew to `design/` and
   open the PNG.
+  Landed 2026-10-21: ticked by hand on request, not tried or run, so
+  this is a skip, not a pass.
 
 ### Phase 3: boards, files and fallbacks
 
