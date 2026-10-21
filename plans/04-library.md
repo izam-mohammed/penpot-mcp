@@ -96,9 +96,11 @@ repository instructions for recording useful development findings.
   button component, then places two instances.
   Landed 2026-10-20: TestLiveLibrary passed first time; TestLiveTokens
   passed after #10 sent the DTCG doc as a JSON string.
-- [ ] You try it: ask Claude to add your brand colours and a button
+- [x] You try it: ask Claude to add your brand colours and a button
   component to the test file, open the assets panel, and say whether they
   look right.
+  Landed 2026-10-21: ticked by hand on request, not tried or run, so
+  this is a skip, not a pass.
 
 ### Phase 2: tokens and palettes
 
