@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="1200" height="320" role="img" aria-labelledby="t d">
-  <title id="t">penpot-mcp</title>
+  <title id="t">Penpot MCP</title>
   <desc id="d">A pot full of pens rockets through a portal into another universe, leaving a sleepy browser tab behind.</desc>
   <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
@@ -53,7 +53,7 @@
   </g>
 
   <!-- title -->
-  <text x="60" y="128" font-family="ui-rounded, 'SF Pro Rounded', 'Segoe UI', system-ui, sans-serif" font-size="58" font-weight="800" fill="#ffffff">penpot-mcp</text>
+  <text x="60" y="128" font-family="ui-rounded, 'SF Pro Rounded', 'Segoe UI', system-ui, sans-serif" font-size="58" font-weight="800" fill="#ffffff">Penpot MCP</text>
   <text x="62" y="172" font-family="ui-rounded, 'SF Pro Rounded', 'Segoe UI', system-ui, sans-serif" font-size="22" fill="#d9c8ff">penpot, now leaving the browser tab.</text>
   <text x="62" y="204" font-family="ui-rounded, 'SF Pro Rounded', 'Segoe UI', system-ui, sans-serif" font-size="22" fill="#d9c8ff">next stop: every file you own ~</text>
 
