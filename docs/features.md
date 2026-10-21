@@ -6,6 +6,7 @@ References:
 
 - [penpot-api-reference.md](penpot-api-reference.md): the backend API (transport, auth, limits, `update-file`, change types, shape schema, command catalog).
 - [existing-mcp-reference.md](existing-mcp-reference.md): the official Penpot MCP server and the local `penpot` skill, including their traps.
+- [../skills/](../skills/): the skills that teach an agent to use these tools, one per job (`penpot-mcp`, `-draw`, `-library`, `-export`, `-collab`), embedded in the binary and installed with `penpot-mcp skills install` (`plans/10-skills.md`).
 
 ## Goals
 
