@@ -14,30 +14,30 @@
 
 ### Phase 3: everything the dashboard does
 
-- [ ] `plans/03-dashboard.md` - projects, files and pages created, renamed,
+- [x] `plans/03-dashboard.md` - projects, files and pages created, renamed,
   moved and deleted from the agent.
-- [ ] `plans/04-library.md` - colours, type styles, components and tokens.
+- [x] `plans/04-library.md` - colours, type styles, components and tokens.
 
 ### Phase 4: get designs out
 
-- [ ] `plans/05-export.md` - boards to PNG, SVG or PDF on disk, and whole
+- [x] `plans/05-export.md` - boards to PNG, SVG or PDF on disk, and whole
   `.penpot` files.
 
 ### Phase 5: the browser-only extras
 
-- [ ] `plans/06-mcp-route.md` - plugin code, reflow, text measuring and CSS
+- [x] `plans/06-mcp-route.md` - plugin code, reflow, text measuring and CSS
   through the official MCP when a tab is connected.
 - [x] `plans/09-skill.md` phase 2 - the skill connects and wakes the plugin
   tab with Claude in Chrome.
 
 ### Phase 6: working with people
 
-- [ ] `plans/07-collaboration.md` - comments, share links, webhooks and
+- [x] `plans/07-collaboration.md` - comments, share links, webhooks and
   snapshots.
 
 ### Phase 7: ship it
 
-- [ ] `plans/08-release.md` - HTTP transport, several accounts and released
+- [x] `plans/08-release.md` - HTTP transport, several accounts and released
   binaries.
 - [x] `plans/09-skill.md` phases 3-4 - the skill's full tool list, kept in
   step with the code.

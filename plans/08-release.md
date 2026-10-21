@@ -95,8 +95,10 @@ repository instructions for recording useful development findings.
   Landed 2026-10-20: run on port 8788 under a throwaway name;
   `claude mcp get` said Connected, `tools/list` over HTTP gave 72 tools
   and `list_projects` answered from the real account. Entry removed after.
-- [ ] You try it: run the server with `--http`, add it to Claude Code over
+- [x] You try it: run the server with `--http`, add it to Claude Code over
   HTTP, and list your projects.
+  Landed 2026-10-21: ticked by hand on request, not tried or run, so
+  this is a skip, not a pass.
 
 ### Phase 2: several accounts
 

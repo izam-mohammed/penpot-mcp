@@ -76,8 +76,10 @@ repository instructions for recording useful development findings.
   comment on the test file.
   Landed 2026-10-20: passed after #10 made `file_id` optional when
   `list_comments` gets a `thread_id`.
-- [ ] You try it: leave a comment on a board in Penpot, ask Claude to read
+- [x] You try it: leave a comment on a board in Penpot, ask Claude to read
   and answer it, and check the reply in Penpot.
+  Landed 2026-10-21: ticked by hand on request, not tried or run, so
+  this is a skip, not a pass.
 
 ### Phase 2: sharing and history
 
