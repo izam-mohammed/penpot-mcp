@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/assets/banner.svg" alt="penpot-mcp: a pot of pens rocketing through a portal, leaving a sleepy browser tab behind" width="100%"></p>
+<p align="center"><img src="docs/assets/banner.svg" alt="Penpot MCP: a pot of pens rocketing through a portal, leaving a sleepy browser tab behind" width="100%"></p>
 
 the [official penpot mcp](https://github.com/penpot/penpot/tree/develop/mcp) wants a browser tab
 open, a plugin awake and the right file in front of it. i got tired of
