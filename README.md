@@ -7,7 +7,7 @@ the official one for the few things only a tab can do.
 
 ## install
 
-### the lazy way
+### with claude code
 
 paste this into claude code:
 
