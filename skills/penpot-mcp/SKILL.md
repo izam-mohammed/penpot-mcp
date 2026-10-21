@@ -71,14 +71,14 @@ chat message.
 
 ## 3. Find what to work on
 
-| Need | Tool |
-| --- | --- |
-| who the token is | `whoami` |
-| teams | `list_teams`, `list_members` |
-| projects | `list_projects` (all teams) or with `team_id` |
-| files | `list_files` with `project_id`, or `search_files` by name |
-| pages of a file | `list_pages` with `file_id` |
-| what is on a page | `get_page_tree` with `file_id`, optional `page_id`, `depth` |
+| Need | Tool | Takes |
+| --- | --- | --- |
+| who the token is | `whoami` | nothing |
+| teams | `list_teams`, `list_members` | `team_id` for members |
+| projects | `list_projects` | optional `team_id`; all teams without it |
+| files | `list_files`, `search_files` | `project_id`, or a name to search |
+| pages of a file | `list_pages` | `file_id` |
+| what is on a page | `get_page_tree` | `file_id`, optional `page_id`, `depth` |
 
 `get_page_tree` is flat, top-most first, parents before their children:
 each shape has `parent_id` and `depth`, and a text shape its `text`

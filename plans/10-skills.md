@@ -251,7 +251,7 @@ repository instructions for recording useful development findings.
 
 ### Phase 2: the rest of the jobs
 
-- [ ] `skills/penpot-mcp-library/`, `skills/penpot-mcp-export/` and
+- [x] `skills/penpot-mcp-library/`, `skills/penpot-mcp-export/` and
   `skills/penpot-mcp-collab/` land with what is left of the old body,
   plus the export-into-the-repo flow, pinned by
   `TestSkillToolsAreRegistered` (every named tool exists, every tool is
