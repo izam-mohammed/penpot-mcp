@@ -14,9 +14,15 @@ None.
 A skill is a directory with a `SKILL.md`. Personal skills live in
 `~/.claude/skills/<skill-name>/SKILL.md`, project skills in
 `.claude/skills/<skill-name>/SKILL.md`. A personal skill wins over a project
-skill of the same name. This repo keeps the source in
-`skills/penpot-mcp/` and `make install-skill` symlinks it into the personal
-directory.
+skill of the same name. This repo keeps five skills in `skills/penpot-mcp*/`
+(`plans/10-skills.md`). `penpot-mcp skills install` copies the skills
+embedded in the binary into the personal directory; `make install-skill`
+symlinks the checkout's instead.
+
+Checked 21/10/2026 (https://code.claude.com/docs/en/plugins/components):
+plugin skills are namespaced `/<plugin>:<skill>` and a plugin's MCP tools
+are renamed `mcp__plugin_<plugin>_<server>__<tool>`, which is why the
+skills are not shipped as a plugin.
 
 ### Frontmatter
 
