@@ -27,7 +27,7 @@
 
 - [ ] `plans/06-mcp-route.md` - plugin code, reflow, text measuring and CSS
   through the official MCP when a tab is connected.
-- [ ] `plans/09-skill.md` phase 2 - the skill connects and wakes the plugin
+- [x] `plans/09-skill.md` phase 2 - the skill connects and wakes the plugin
   tab with Claude in Chrome.
 
 ### Phase 6: working with people
@@ -39,5 +39,5 @@
 
 - [ ] `plans/08-release.md` - HTTP transport, several accounts and released
   binaries.
-- [ ] `plans/09-skill.md` phases 3-4 - the skill's full tool list, kept in
+- [x] `plans/09-skill.md` phases 3-4 - the skill's full tool list, kept in
   step with the code.
