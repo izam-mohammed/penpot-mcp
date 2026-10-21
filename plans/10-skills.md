@@ -260,7 +260,7 @@ repository instructions for recording useful development findings.
 
 ### Phase 3: the other places that mention it
 
-- [ ] `CLAUDE.md`, `docs/features.md` and `PLAN.md` point at `skills/` and
+- [x] `CLAUDE.md`, `docs/features.md` and `PLAN.md` point at `skills/` and
   this plan, and `docs/external/claude-code-skills.md` notes the set and
   the installer; check: `make check` passes.
 
