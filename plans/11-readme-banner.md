@@ -112,10 +112,10 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut: both themes (needs you: try it)
 
-- [ ] `docs/assets/banner-dark.svg` and `docs/assets/banner-light.svg` built
+- [x] `docs/assets/banner-dark.svg` and `docs/assets/banner-light.svg` built
   from the current banner by the skill's `build.py`, its lint passing, and
   `docs/assets/banner.svg` removed.
-- [ ] `README.md`'s first line is a `<picture>` with the pair and the
+- [x] `README.md`'s first line is a `<picture>` with the pair and the
   current alt text.
 - [ ] Check: `make check` passes, and the skill's `preview.sh` renders both
   files with nothing overlapping.
@@ -124,7 +124,7 @@ repository instructions for recording useful development findings.
 
 ### Phase 2: log the concept
 
-- [ ] The skill's `concepts-used.md` gains the portal line, so no other
+- [x] The skill's `concepts-used.md` gains the portal line, so no other
   banner reuses it, and `CLAUDE.md` or `docs/features.md` paths naming
   `banner.svg` are updated if any do.
 - [ ] Check: `make check` passes, and `grep -rn banner.svg` finds nothing
@@ -132,7 +132,7 @@ repository instructions for recording useful development findings.
 
 ### Phase 3: open the PR
 
-- [ ] The branch pushed and its PR opened against the branch it was cut from
+- [x] The branch pushed and its PR opened against the branch it was cut from
   (or, if one is already open for this branch, its body brought up to date)
   with a Conventional Commit title for the whole change, a body naming this
   plan, what changed and why, and the checks run with their result. The PR's
