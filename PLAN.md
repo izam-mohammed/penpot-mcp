@@ -46,3 +46,11 @@
 
 - [ ] `plans/10-skills.md` - skills split by job, installed by the binary
   into claude code or codex, and the readme says so.
+
+### Phase 9: repository standards
+
+- [ ] `plans/13-quality-gates.md` - a coverage floor that climbs to 90 %,
+  the shared security gate on every PR, and actions pinned by SHA.
+- [ ] `plans/11-readme-banner.md` - the banner in a light and a dark
+  theme.
+- [ ] `plans/12-site.md` - a one-page site on GitHub Pages.
