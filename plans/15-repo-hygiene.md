@@ -93,14 +93,14 @@ an update bot config and a reporting policy.
 
 ### Phase 1: topics
 
-- [ ] The repository carries the topics `go`, `mcp`, `mcp-server`,
+- [x] The repository carries the topics `go`, `mcp`, `mcp-server`,
   `model-context-protocol`, `penpot`, `design-tools`, `claude-code` and
   `cli` (set with `gh repo edit --add-topic`; it had none); check: `gh repo
   view --json repositoryTopics` lists them.
 
 ### Phase 2: Dependabot
 
-- [ ] `.github/dependabot.yml` bumps Go modules and GitHub Actions weekly,
+- [x] `.github/dependabot.yml` bumps Go modules and GitHub Actions weekly,
   one group each, with a 7 day cooldown and `chore(deps)` / `ci(deps)`
   prefixes; check: the file parses as YAML and names only documented
   ecosystem values.
