@@ -54,3 +54,8 @@
 - [ ] `plans/11-readme-banner.md` - the banner in a light and a dark
   theme.
 - [ ] `plans/12-site.md` - a one-page site on GitHub Pages.
+
+### Phase 10: the detailed docs
+
+- [ ] `plans/14-docs.md` - an mdBook documentation site at `/docs/`, with
+  the tool and CLI reference generated from the server.
