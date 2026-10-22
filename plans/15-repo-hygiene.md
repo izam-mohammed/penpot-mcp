@@ -107,7 +107,7 @@ an update bot config and a reporting policy.
 
 ### Phase 3: security policy
 
-- [ ] `SECURITY.md` says only the latest release gets fixes, links GitHub
+- [x] `SECURITY.md` says only the latest release gets fixes, links GitHub
   private vulnerability reporting for this public repository, says what
   happens next and names this repository's scope, with no invented email or
   response time; check: read through against the README.
