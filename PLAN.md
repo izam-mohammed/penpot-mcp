@@ -46,3 +46,8 @@
 
 - [ ] `plans/10-skills.md` - skills split by job, installed by the binary
   into claude code or codex, and the readme says so.
+
+### Phase 9: repository standards
+
+- [ ] `plans/11-readme-banner.md` - the banner in a light and a dark
+  theme.
