@@ -56,6 +56,9 @@ rule 4 (no idea reused from another banner).
 `concepts-used.md` so no other banner takes it. Revisit if the user wants
 a new joke.
 
+Revisited 23/10/2026: the user wanted a new joke, so both themes now
+carry a lost poster for the browser tab instead of the portal.
+
 ## The decision
 
 `docs/assets/banner-dark.svg` is the current banner with the card's
