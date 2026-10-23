@@ -49,5 +49,5 @@
 
 ### Phase 9: repository standards
 
-- [ ] `plans/11-readme-banner.md` - the banner in a light and a dark
-  theme.
+- [ ] `plans/11-readme-banner.md` - the banner question, amended: one
+  banner for both themes, kept as it is.

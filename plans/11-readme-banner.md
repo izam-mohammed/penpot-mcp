@@ -38,6 +38,8 @@ Only the pair survives, so there is nothing to score against it.
 **Chosen: light and dark SVGs in `<picture>`.** Revisit if GitHub starts
 honouring media queries inside SVG images by its own theme.
 
+> Amended 23/10/2026: one banner, no theme switch. See the foot.
+
 ### Decision 2: same concept or a new one? (two-way door)
 
 The skill wants a fresh idea for every new banner; this is the same banner
@@ -56,9 +58,6 @@ rule 4 (no idea reused from another banner).
 `concepts-used.md` so no other banner takes it. Revisit if the user wants
 a new joke.
 
-Revisited 23/10/2026: the user wanted a new joke, so both themes now
-carry a lost poster for the browser tab instead of the portal.
-
 ## The decision
 
 `docs/assets/banner-dark.svg` is the current banner with the card's
@@ -68,6 +67,9 @@ the same layout and joke, each built and linted by the skill's `build.py`
 with both, the current alt text kept. `docs/assets/banner.svg` is replaced
 by the pair. The files stay in `docs/assets/`, where the repository keeps
 them, not the skill's default `assets/`.
+
+> Amended 23/10/2026: `docs/assets/banner.svg` stays the only banner.
+> See the foot.
 
 No new dependency or permission.
 
@@ -140,3 +142,14 @@ repository instructions for recording useful development findings.
   with a Conventional Commit title for the whole change, a body naming this
   plan, what changed and why, and the checks run with their result. The PR's
   URL printed as the evidence. Opened, never merged.
+
+## Amended, 23/10/2026: one banner, no theme switch
+
+Tried on the branch: the original banner reads better than the pair, and
+it doesn't need to switch with the GitHub theme. It sits on its own night
+sky inside a rounded card, so on a white page it reads as a card, not a
+slab. `docs/assets/banner.svg` is back as the only banner, `README.md`
+shows it with the plain `<img>` it has on `main`, and
+`docs/assets/banner-dark.svg` and `docs/assets/banner-light.svg` are gone.
+A new concept (a lost poster for the browser tab) was tried in between
+and dropped for the same reason. Boxes stay as they were.

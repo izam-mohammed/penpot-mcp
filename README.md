@@ -1,10 +1,4 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/banner-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="docs/assets/banner-light.svg">
-    <img src="docs/assets/banner-light.svg" alt="A lost poster for a sleeping browser tab that answers to penpot plugin, pinned next to a found card: one api, 87 tools, no tab to keep awake." width="100%">
-  </picture>
-</p>
+<p align="center"><img src="docs/assets/banner.svg" alt="Penpot MCP: a pot of pens rocketing through a portal, leaving a sleepy browser tab behind" width="100%"></p>
 
 the [official penpot mcp](https://github.com/penpot/penpot/tree/develop/mcp) wants a browser tab
 open, a plugin awake and the right file in front of it. i got tired of
