@@ -59,3 +59,8 @@
 
 - [ ] `plans/14-docs.md` - an mdBook documentation site at `/docs/`, with
   the tool and CLI reference generated from the server.
+
+### Phase 11: asked on 22/10/2026: repository hygiene
+
+- [x] `plans/15-repo-hygiene.md` - Dependabot keeps the Go modules and
+  the actions current, and `SECURITY.md` says how to report a hole.
