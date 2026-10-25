@@ -46,3 +46,8 @@
 
 - [ ] `plans/10-skills.md` - skills split by job, installed by the binary
   into claude code or codex, and the readme says so.
+
+### Phase 11: asked on 22/10/2026: repository hygiene
+
+- [x] `plans/15-repo-hygiene.md` - Dependabot keeps the Go modules and
+  the actions current, and `SECURITY.md` says how to report a hole.
