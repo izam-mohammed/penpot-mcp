@@ -38,6 +38,8 @@ Only the pair survives, so there is nothing to score against it.
 **Chosen: light and dark SVGs in `<picture>`.** Revisit if GitHub starts
 honouring media queries inside SVG images by its own theme.
 
+> Amended 23/10/2026: one banner, no theme switch. See the foot.
+
 ### Decision 2: same concept or a new one? (two-way door)
 
 The skill wants a fresh idea for every new banner; this is the same banner
@@ -65,6 +67,9 @@ the same layout and joke, each built and linted by the skill's `build.py`
 with both, the current alt text kept. `docs/assets/banner.svg` is replaced
 by the pair. The files stay in `docs/assets/`, where the repository keeps
 them, not the skill's default `assets/`.
+
+> Amended 23/10/2026: `docs/assets/banner.svg` stays the only banner.
+> See the foot.
 
 No new dependency or permission.
 
@@ -112,10 +117,10 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut: both themes (needs you: try it)
 
-- [ ] `docs/assets/banner-dark.svg` and `docs/assets/banner-light.svg` built
+- [x] `docs/assets/banner-dark.svg` and `docs/assets/banner-light.svg` built
   from the current banner by the skill's `build.py`, its lint passing, and
   `docs/assets/banner.svg` removed.
-- [ ] `README.md`'s first line is a `<picture>` with the pair and the
+- [x] `README.md`'s first line is a `<picture>` with the pair and the
   current alt text.
 - [ ] Check: `make check` passes, and the skill's `preview.sh` renders both
   files with nothing overlapping.
@@ -124,7 +129,7 @@ repository instructions for recording useful development findings.
 
 ### Phase 2: log the concept
 
-- [ ] The skill's `concepts-used.md` gains the portal line, so no other
+- [x] The skill's `concepts-used.md` gains the portal line, so no other
   banner reuses it, and `CLAUDE.md` or `docs/features.md` paths naming
   `banner.svg` are updated if any do.
 - [ ] Check: `make check` passes, and `grep -rn banner.svg` finds nothing
@@ -132,8 +137,19 @@ repository instructions for recording useful development findings.
 
 ### Phase 3: open the PR
 
-- [ ] The branch pushed and its PR opened against the branch it was cut from
+- [x] The branch pushed and its PR opened against the branch it was cut from
   (or, if one is already open for this branch, its body brought up to date)
   with a Conventional Commit title for the whole change, a body naming this
   plan, what changed and why, and the checks run with their result. The PR's
   URL printed as the evidence. Opened, never merged.
+
+## Amended, 23/10/2026: one banner, no theme switch
+
+Tried on the branch: the original banner reads better than the pair, and
+it doesn't need to switch with the GitHub theme. It sits on its own night
+sky inside a rounded card, so on a white page it reads as a card, not a
+slab. `docs/assets/banner.svg` is back as the only banner, `README.md`
+shows it with the plain `<img>` it has on `main`, and
+`docs/assets/banner-dark.svg` and `docs/assets/banner-light.svg` are gone.
+A new concept (a lost poster for the browser tab) was tried in between
+and dropped for the same reason. Boxes stay as they were.
