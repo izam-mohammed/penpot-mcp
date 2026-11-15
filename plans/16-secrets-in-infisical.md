@@ -208,6 +208,7 @@ build needs no secret.
 
 ### Phase 3: open the PR
 
-- [ ] The branch pushed and its PR opened against `main` with a
+- [x] The branch pushed and its PR opened against `main` with a
   Conventional Commit title, a body naming this plan, the names moved
   (never values) and the checks run. Merged once CI is green.
+  Landed 15/11/2026: https://github.com/izam-mohammed/penpot-mcp/pull/17
