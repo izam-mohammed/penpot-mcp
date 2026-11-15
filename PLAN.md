@@ -64,3 +64,8 @@
 
 - [x] `plans/15-repo-hygiene.md` - Dependabot keeps the Go modules and
   the actions current, and `SECURITY.md` says how to report a hole.
+
+### Phase 12: asked on 15/11/2026: secrets in Infisical
+
+- [ ] `plans/16-secrets-in-infisical.md` - the live checks take their
+  secrets from Infisical, with `.env` as the fallback.

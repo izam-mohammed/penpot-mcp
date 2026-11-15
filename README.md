@@ -118,6 +118,23 @@ serves the same tools at `/mcp`. off loopback it refuses to start without
 
 your token never gets logged. still, treat it like a password ~ it is one.
 
+## hacking on it
+
+the secrets for the live checks live in infisical (project `penpot-mcp`,
+env `dev`), not in a `.env` you pass around. on a new machine:
+
+```sh
+brew install infisical
+infisical login --domain=https://app.infisical.com
+sh scripts/prove/infisical.sh     # PASS: linked, every name present
+make live                         # or: sh scripts/dev.sh sh scripts/prove/penpot-api.sh
+```
+
+`scripts/dev.sh` runs any command under `infisical run --env=dev` when the
+checkout is linked and the cli is installed, and falls back to `.env`
+otherwise, with `.env.local` on top for values only your machine needs.
+`make check` needs none of them.
+
 ## license
 
 mit, see [LICENSE](LICENSE)
