@@ -212,3 +212,6 @@ build needs no secret.
   Conventional Commit title, a body naming this plan, the names moved
   (never values) and the checks run. Merged once CI is green.
   Landed 15/11/2026: https://github.com/izam-mohammed/penpot-mcp/pull/17
+  Left open: CI's `govulncheck` fails on GO-2026-6859 in `net/http`
+  (go1.26.10, fixed in go1.26.11), new since `main` last went green and not
+  from this change. Merge after the toolchain bump.
