@@ -1,5 +1,12 @@
 .DS_Store
 node_modules/
-.env
 bin/
 dist/
+
+# secrets live in Infisical; local copies stay out of git
+.env
+.env.*
+!.env.example
+.env.local
+.secrets/
+*.pem
