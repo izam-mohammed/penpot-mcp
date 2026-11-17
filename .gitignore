@@ -3,7 +3,7 @@ node_modules/
 bin/
 dist/
 
-# secrets live in Infisical; local copies stay out of git
+# local secrets stay out of git
 .env
 .env.*
 !.env.example

@@ -32,17 +32,16 @@ tools:
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
 	go install golang.org/x/vuln/cmd/govulncheck@latest
 
-## live: draw into the "penpot-mcp test" file with a real token (not in CI).
-## Secrets come from Infisical when linked, else .env (scripts/dev.sh).
+## live: draw into the "penpot-mcp test" file with a real token (not in CI)
 live:
-	@sh scripts/dev.sh sh -c 'test -n "$$PENPOT_ACCESS_TOKEN" || { echo "set PENPOT_ACCESS_TOKEN (see .env.example)"; exit 2; }; \
-		go test -tags live -run TestLive -count=1 -v ./internal/tools'
+	@test -n "$$PENPOT_ACCESS_TOKEN" || { echo "set PENPOT_ACCESS_TOKEN (see .env.example)"; exit 2; }
+	go test -tags live -run TestLive -count=1 -v ./internal/tools
 
 ## live-mcp: with the "penpot-mcp test" file open in a tab and the MCP plugin
 ## connected, read the open file and reflow it (not in CI)
 live-mcp:
-	@sh scripts/dev.sh sh -c 'test -n "$$PENPOT_MCP_URL" || { echo "set PENPOT_MCP_URL (see .env.example)"; exit 2; }; \
-		go test -tags live -run TestTabLive -count=1 -v ./internal/tools'
+	@test -n "$$PENPOT_MCP_URL" || { echo "set PENPOT_MCP_URL (see .env.example)"; exit 2; }
+	go test -tags live -run TestTabLive -count=1 -v ./internal/tools
 
 ## install-skill: link every skill into the personal skills directory, to
 ## work on them from this checkout (users run `penpot-mcp skills install`)
