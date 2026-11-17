@@ -1,5 +1,9 @@
 # the live checks take their secrets from Infisical, not a laptop-only .env
 
+> Amended 17/11/2026: removed as irrelevant. This repository is public and
+> keeps no active secrets, so Infisical is not needed. Everything this plan
+> added is gone; see the section at the foot. Boxes stay as they were.
+
 ## The ask
 
 "Have these proper and maintain in infisical ... create proper plan files
@@ -215,3 +219,16 @@ build needs no secret.
   Left open: CI's `govulncheck` fails on GO-2026-6859 in `net/http`
   (go1.26.10, fixed in go1.26.11), new since `main` last went green and not
   from this change. Merge after the toolchain bump.
+
+## Amended, 2026-11-17: removed, irrelevant
+
+The repository is public and holds no active secrets, so a secrets manager
+adds a dependency and a setup step for nothing. Removed: `.infisical.json`,
+`.infisical.yaml`, `scripts/dev.sh`, `scripts/infisical/`,
+`scripts/prove/infisical.sh`, the README's "hacking on it" section, the
+`Makefile` wrapper on `live` and `live-mcp` and the Infisical header in
+`.env.example`. The `Makefile` and `.env.example` are back to how they were
+before this plan. The extra `.gitignore` patterns for `.env.*`, `.secrets/`
+and `*.pem` stay. The live checks read `PENPOT_ACCESS_TOKEN` and the other
+names from the shell, as they did before. The Infisical project
+`penpot-mcp` is deleted too.

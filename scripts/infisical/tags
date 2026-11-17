@@ -1,6 +1,0 @@
-PENPOT_ACCESS_TOKEN backend,tests,scripts,api-key
-PENPOT_MCP_URL backend,tests,scripts,api-key
-PENPOT_BASE_URL backend,tests,scripts,config
-PENPOT_TEST_FILE_ID scripts,config
-PENPOT_EMAIL backend,tests,scripts,config
-PENPOT_PASSWORD backend,tests,scripts,api-key
