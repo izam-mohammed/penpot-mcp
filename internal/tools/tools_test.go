@@ -44,6 +44,7 @@ type backend struct {
 	lib     string        // extra get-file data fields, such as `,"colors":{...}`
 	root    string        // the server's working directory, for palette files
 	block   chan struct{} // when set, update-file waits for it
+	page    string        // when set, get-page replies with this body
 }
 
 func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +108,7 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	lib := b.lib
+	lib, pageBody := b.lib, b.page
 	var order, index []string
 	for _, p := range b.pages {
 		order = append(order, `"`+p[0]+`"`)
@@ -125,6 +126,10 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 			"permissions":{"canEdit":true,"canRead":true},
 			"data":{"pages":[` + strings.Join(order, ",") + `],"pagesIndex":{` + strings.Join(index, ",") + `}` + lib + `}}`))
 	case "get-page":
+		if pageBody != "" {
+			_, _ = w.Write([]byte(pageBody))
+			return
+		}
 		_, _ = w.Write([]byte(`{"id":"` + pageID + `","name":"Page 1","objects":{
 			"00000000-0000-0000-0000-000000000000":{"id":"00000000-0000-0000-0000-000000000000","name":"Root Frame","type":"frame","shapes":["` + boardID + `"]},
 			"` + boardID + `":{"id":"` + boardID + `","name":"Login","type":"frame","parentId":"00000000-0000-0000-0000-000000000000","frameId":"00000000-0000-0000-0000-000000000000","x":0,"y":0,"width":400,"height":300,"shapes":["` + rectID + `"]},
