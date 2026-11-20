@@ -1,12 +1,12 @@
 ---
 name: penpot-mcp
-description: "Set up and connect the penpot-mcp server (the `penpot-api` MCP tools), which drives Penpot through its backend API with no browser tab, and find or manage what to work on: teams, projects, files and pages, created, renamed, moved, duplicated, deleted and restored. Covers the access token and MCP key hand-off in Claude in Chrome, every error the server returns, and which penpot-mcp skill to load next: penpot-mcp-draw for screens and shapes, penpot-mcp-library for colours, type, components and tokens, penpot-mcp-export for PNG, SVG, PDF and .penpot files, penpot-mcp-collab for comments, share links, webhooks, versions and several accounts."
-when_to_use: "connect penpot-mcp, install penpot-mcp, add the penpot api mcp, penpot access token, PENPOT_ACCESS_TOKEN was not accepted, penpot-mcp not connected, mcp__penpot-api tools missing, list penpot projects or files, create a penpot project or file, rename or delete a penpot file or page, no Penpot tab is connected, PENPOT_MCP_URL, penpot-mcp skills install"
+description: "Set up and connect the penpot-mcp server (the `penpot` MCP tools), which drives Penpot through its backend API with no browser tab, and find or manage what to work on: teams, projects, files and pages, created, renamed, moved, duplicated, deleted and restored. Covers the access token and MCP key hand-off in Claude in Chrome, every error the server returns, and which penpot-mcp skill to load next: penpot-mcp-draw for screens and shapes, penpot-mcp-library for colours, type, components and tokens, penpot-mcp-export for PNG, SVG, PDF and .penpot files, penpot-mcp-collab for comments, share links, webhooks, versions and several accounts."
+when_to_use: "connect penpot-mcp, install penpot-mcp, add the penpot api mcp, penpot access token, PENPOT_ACCESS_TOKEN was not accepted, penpot-mcp not connected, mcp__penpot tools missing, list penpot projects or files, create a penpot project or file, rename or delete a penpot file or page, no Penpot tab is connected, PENPOT_MCP_URL, penpot-mcp skills install"
 ---
 
 # penpot-mcp
 
-An MCP server (`penpot-api`) that drives Penpot through its backend HTTP
+An MCP server (`penpot`) that drives Penpot through its backend HTTP
 API with a personal access token. No plugin, no tab, any file the token can
 reach. It also reaches the official Penpot MCP for the few things only a
 tab can do. This skill connects it, finds what to work on and handles
@@ -20,15 +20,15 @@ errors; the job skills do the rest:
 | comments, share links, webhooks, versions, several accounts | `penpot-mcp-collab` |
 
 Tools are named here by their MCP name (`draw`); in Claude Code they are
-`mcp__penpot-api__draw`. Load them with one `ToolSearch`, `select:` every
+`mcp__penpot__draw`. Load them with one `ToolSearch`, `select:` every
 tool the task needs.
 
 ## 1. Is it connected?
 
-Look for the `penpot-api` tools. Present: call `whoami` and go to
+Look for the `penpot` tools. Present: call `whoami` and go to
 section 3.
 
-Absent: check `claude mcp list` (Codex: `codex mcp list`) for `penpot-api`.
+Absent: check `claude mcp list` (Codex: `codex mcp list`) for `penpot`.
 
 - Listed but no tools: the server failed to start. The user runs
   `penpot-mcp </dev/null` with `PENPOT_ACCESS_TOKEN` set in their own shell
@@ -54,7 +54,7 @@ Absent: check `claude mcp list` (Codex: `codex mcp list`) for `penpot-api`.
    never type, echo or read it:
 
    ```sh
-   claude mcp add penpot-api -s user \
+   claude mcp add penpot -s user \
      -e PENPOT_ACCESS_TOKEN=<token> -- "$(command -v penpot-mcp)"
    ```
 
@@ -64,7 +64,7 @@ Absent: check `claude mcp list` (Codex: `codex mcp list`) for `penpot-api`.
    [references/chrome.md](references/chrome.md) § Get the MCP key),
    `PENPOT_EMAIL` and `PENPOT_PASSWORD` (board exports without a tab),
    `PENPOT_PROFILES` (several accounts).
-5. Restart the client, then `/mcp`: `penpot-api` lists its tools.
+5. Restart the client, then `/mcp`: `penpot` lists its tools.
 
 Never put the token in a file in a repository, a plan, a commit or a
 chat message.

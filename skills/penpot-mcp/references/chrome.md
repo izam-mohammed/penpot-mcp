@@ -1,7 +1,7 @@
 # Claude in Chrome flows for penpot-mcp
 
 Claude in Chrome (`mcp__claude-in-chrome__*`) is used only for the steps
-below. Everything else goes through the `penpot-api` tools.
+below. Everything else goes through the `penpot` tools.
 
 ## Rules for every flow
 
@@ -29,7 +29,7 @@ screenshot, `read_page`, `find` or copy anything from the token dialog.
 3. Type a name (`penpot-mcp <machine>`). Pick an expiry the user named, or
    90 days.
 4. Stop here. Tell the user: "Click *Create access token*, copy the token,
-   and run `claude mcp add penpot-api ...` with it (section 2 of the
+   and run `claude mcp add penpot ...` with it (section 2 of the
    skill). Tell me when it is done." Do not click *Create access token*
    yourself and do not look at the dialog after it opens.
 5. When the user is done, close your tab.
@@ -60,7 +60,7 @@ too: the key is part of a URL shown once. You never screenshot,
    sign in.
 2. If the section offers to enable or generate a key, `find` that button.
 3. Stop here. Tell the user: "Click it, copy the MCP URL, and add
-   `-e PENPOT_MCP_URL=<that URL>` to the `claude mcp add penpot-api ...`
+   `-e PENPOT_MCP_URL=<that URL>` to the `claude mcp add penpot ...`
    command (section 2 of the skill), then restart Claude Code." Do not
    click the generate button yourself and do not look at the dialog after
    it opens.

@@ -1,12 +1,12 @@
 ---
 name: penpot-mcp-library
-description: "Fill and use a Penpot file's library with the penpot-mcp server (the `penpot-api` MCP tools), no browser tab needed: colours and type styles added, changed and deleted; a repository's own palette (CSS custom properties, Swift, Kotlin, a markdown token table, JSON design tokens, a hex list) imported in one write; DTCG design tokens synced and applied to shapes; boards turned into components and placed as linked copies; shared libraries linked. With a Penpot tab connected, also detaching, swapping and switching component variants."
+description: "Fill and use a Penpot file's library with the penpot-mcp server (the `penpot` MCP tools), no browser tab needed: colours and type styles added, changed and deleted; a repository's own palette (CSS custom properties, Swift, Kotlin, a markdown token table, JSON design tokens, a hex list) imported in one write; DTCG design tokens synced and applied to shapes; boards turned into components and placed as linked copies; shared libraries linked. With a Penpot tab connected, also detaching, swapping and switching component variants."
 when_to_use: "penpot colours, penpot type styles, penpot library, import my repo's palette into penpot, brand colours in penpot, penpot design tokens, sync tokens to penpot, apply a token to shapes, make a penpot component, place a component, penpot variants, link a shared library"
 ---
 
 # The library with penpot-mcp
 
-Needs the `penpot-api` tools; if they are missing, load the `penpot-mcp`
+Needs the `penpot` tools; if they are missing, load the `penpot-mcp`
 skill first. Start with `list_library` on the file: it returns every
 colour, type style and component with its id and group path.
 
