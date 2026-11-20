@@ -63,7 +63,12 @@ same change that adds the tests; never lower it.
 ## CI
 
 `.github/workflows/check.yml` runs `make check` on every push and pull
-request. A red check blocks merge.
+request. A red check blocks merge. `.github/workflows/security.yml` calls
+the shared gate in `izam-mohammed/.github` (`ecosystem: go`) on every pull
+request and weekly: gitleaks blocks, the rest (osv-scanner, semgrep,
+zizmor) report. Every action is pinned by full commit SHA with the version
+in a comment, and each workflow has `permissions: {}` at the top with
+grants per job.
 
 ## Decided
 
@@ -73,3 +78,9 @@ request. A red check blocks merge.
 - govulncheck over osv-scanner: reachability-filtered, fewer false alarms
   for Go (`plans/01-first-version.md`, decision 4).
 - gitleaks: already installed, scans history.
+- The shared security gate over a parallel one: secrets, dependencies,
+  SAST and workflow audit from one caller file, kept beside `make check`
+  (`plans/13-quality-gates.md`, decision 3).
+- A ratchet floor file (`scripts/coverage-floor`) over a fixed 90 % now or
+  a hosted service: green on every phase, never drops
+  (`plans/13-quality-gates.md`, decision 1).

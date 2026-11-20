@@ -233,11 +233,11 @@ repository instructions for recording useful development findings.
 
 ### Phase 4: the shared gate and pinned workflows
 
-- [ ] `.github/workflows/security.yml` calls the shared gate with
+- [x] `.github/workflows/security.yml` calls the shared gate with
   `ecosystem: go`, `go-version: '1.26'`, pinned to its commit SHA, and
   every action in `check.yml` and `release.yml` is pinned by SHA with
   `permissions: {}` at the top and grants per job.
-- [ ] `docs/standards.md`'s CI and Decided sections name the gate.
+- [x] `docs/standards.md`'s CI and Decided sections name the gate.
 - [ ] Check: `make check` passes, and the PR's Security run reports stage
   1 green and zizmor with no unpinned action.
 
