@@ -36,6 +36,10 @@ retina PNGs.
    {"file_id": "<file id>", "dir": "docs/designs", "format": "png", "scale": 2}
    ```
 
+   ran for real on 2026-11-20 with `"format": "png", "scale": 2` on a 390 x
+   640 board named `Login`: one file, `Login.png`, 15 572 bytes, 780 x 1280,
+   and the image showed the title, two fields and the button as drawn.
+
 3. cite each image by its relative path from the plan or doc that needs
    it: `![Login](docs/designs/Login.png)`.
 4. look at one of the images before trusting them.
