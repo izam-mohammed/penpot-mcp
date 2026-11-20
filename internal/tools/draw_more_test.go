@@ -123,3 +123,23 @@ func TestImageType(t *testing.T) {
 		t.Errorf("an svg tag past the head = %q", got)
 	}
 }
+
+// An agent colours a text with `fill` as often as with `color`; both work.
+func TestDrawTextFillIsItsColour(t *testing.T) {
+	cs, b := session(t)
+	var out drawOut
+	res := call(t, cs, "draw", map[string]any{"file_id": fileID, "shapes": nodes{
+		{"type": "text", "text": "by fill", "x": 0, "y": 0, "fill": "#ab1234"},
+		{"type": "text", "text": "both", "x": 0, "y": 40, "fill": "#ab1234", "color": "#cd5678"},
+	}}, &out)
+	if res.IsError {
+		t.Fatal(errText(res))
+	}
+	raw := strings.Join(b.raw, "")
+	if !strings.Contains(raw, "#AB1234") {
+		t.Errorf("a text's fill was not used as its colour")
+	}
+	if !strings.Contains(raw, "#CD5678") {
+		t.Errorf("color should win over fill on a text")
+	}
+}
