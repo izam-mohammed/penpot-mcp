@@ -183,6 +183,12 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 	case "rename-project", "move-project", "update-project-pin", "delete-project", "delete-file", "move-files",
 		"restore-deleted-team-files", "set-file-shared", "link-file-to-library", "unlink-file-from-library":
 		w.WriteHeader(http.StatusNoContent)
+	case "get-teams":
+		_, _ = w.Write([]byte(`[{"id":"` + teamID + `","name":"Team","isDefault":true}]`))
+	case "get-projects":
+		_, _ = w.Write([]byte(`[{"id":"` + draftsID + `","name":"Drafts","teamId":"` + teamID + `","isDefault":true}]`))
+	case "get-project-files":
+		_, _ = w.Write([]byte(`[{"id":"` + fileID + `","name":"test file","projectId":"` + draftsID + `"}]`))
 	case "export-binfile":
 		w.Header().Set("Content-Type", "text/event-stream")
 		_, _ = w.Write([]byte("event: progress\ndata: {}\n\nevent: end\ndata: \"~rhttp://" + r.Host + "/assets/by-id/1\"\n\n"))
