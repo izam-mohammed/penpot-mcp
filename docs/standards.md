@@ -62,6 +62,11 @@ that order and stops on the first failure.
 `.github/workflows/check.yml` runs `make check` on every push and pull
 request. A red check blocks merge.
 
+`.github/workflows/pages.yml` deploys `site/` to GitHub Pages on push to
+`main` (when `site/` changes) and by hand. Write permissions sit on the
+deploy job only, actions are pinned by SHA, and Pages needs its source set to
+GitHub Actions (`plans/12-site.md`).
+
 ## Decided
 
 - golangci-lint v2 over separate `gofmt` + `go vet` + `staticcheck`: one
