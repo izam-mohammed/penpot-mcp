@@ -38,7 +38,7 @@ Set `PENPOT_BASE_URL` to the instance, and make sure the instance has
 the `enable-access-tokens` flag, or there are no access tokens to make:
 
 ```sh
-claude mcp add penpot-api -s user \
+claude mcp add penpot -s user \
   -e PENPOT_ACCESS_TOKEN=<your token> \
   -e PENPOT_BASE_URL=https://penpot.example.com \
   -- "$(command -v penpot-mcp)"

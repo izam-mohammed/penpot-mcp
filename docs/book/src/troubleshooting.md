@@ -1,7 +1,7 @@
 # Troubleshooting
 
 Errors the server returns, what each one means, and what to do. If
-`penpot-api` is listed in `/mcp` but has no tools, the server failed to
+`penpot` is listed in `/mcp` but has no tools, the server failed to
 start: run `penpot-mcp </dev/null` in your own shell, with the token set,
 to see the error.
 

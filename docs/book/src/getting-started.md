@@ -38,7 +38,7 @@ file in a repository, a commit or a chat message.
 for Claude Code:
 
 ```sh
-claude mcp add penpot-api -s user \
+claude mcp add penpot -s user \
   -e PENPOT_ACCESS_TOKEN=<your token> \
   -- "$(command -v penpot-mcp)"
 ```
@@ -64,10 +64,10 @@ errors mean. they come from the same release as the tools. see the
 
 ## 5. restart and check
 
-restart the agent. `/mcp` should list `penpot-api`, and `/skills` the
+restart the agent. `/mcp` should list `penpot`, and `/skills` the
 `penpot-mcp` ones.
 
-if `penpot-api` is listed but has no tools, the server failed to start.
+if `penpot` is listed but has no tools, the server failed to start.
 run `penpot-mcp </dev/null` in your own shell with the token set to see
 why. the usual one is `PENPOT_ACCESS_TOKEN was not accepted`: make a new
 token. more in [troubleshooting](troubleshooting.md).
