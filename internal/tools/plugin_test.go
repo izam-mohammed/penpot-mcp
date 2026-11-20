@@ -20,6 +20,7 @@ type tab struct {
 	openFile string
 	answer   string
 	export   string // base64 a shape.export call returns
+	text     string // raw JSON a generateMarkup or generateStyle call returns
 	codes    []string
 }
 
@@ -39,6 +40,8 @@ func (tb *tab) serve(t *testing.T) *mcproute.Route {
 			text = tb.answer
 		case strings.Contains(in.Code, "penpot.currentFile"):
 			text = `{"result":{"file_id":"` + tb.openFile + `","file_name":"open file","page_id":"` + pageID + `","page_name":"Page 1"}}`
+		case tb.text != "" && strings.Contains(in.Code, "return penpot.generate"):
+			text = `{"result":` + tb.text + `}`
 		case strings.Contains(in.Code, ".export("):
 			text = `{"result":"` + tb.export + `"}`
 		case strings.Contains(in.Code, "out[id]"):
