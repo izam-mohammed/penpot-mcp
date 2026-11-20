@@ -33,6 +33,13 @@ the id of a board, group or bool already on the page. a board with
 ]}
 ```
 
+ran for real on 2026-11-20 against a new file: the reply listed every shape
+with its id, parent and box (the board at 390 x 640, the title text at
+(24, 24) measured at 204 x 34, the three rects stacked 16 px apart from y =
+74), and `get_page_tree` showed the same ids and parents. no tab was
+connected, so the reply's `tab` note said it had not reflowed; the layout
+had still been placed by the server.
+
 the rules worth knowing:
 
 - coordinates are absolute page pixels, also inside a board. a rect 20 px
