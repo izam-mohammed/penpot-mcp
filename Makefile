@@ -7,7 +7,7 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 .PHONY: check fmt lint build test cover vuln secrets docs tools live live-mcp install-skill
 
 ## check: everything a change must pass (docs/standards.md)
-check: fmt lint build cover vuln secrets
+check: fmt lint build cover vuln secrets docs
 
 fmt:
 	$(GOLANGCI_LINT) fmt --diff
@@ -32,10 +32,10 @@ vuln:
 secrets:
 	gitleaks git --no-banner --redact
 
-## docs: build the book in docs/book, failing on any warning
+## docs: build the book in docs/book, failing on a warning or a broken link
 docs:
-	@command -v mdbook >/dev/null || { echo "mdbook is not installed; run make tools"; exit 2; }
-	sh scripts/docs
+	@PATH="$(GOBIN):$$PATH"; command -v mdbook >/dev/null || { echo "mdbook is not installed; run make tools"; exit 2; }; \
+	PATH="$(GOBIN):$$PATH" sh scripts/docs
 
 ## tools: install the pinned check tools
 tools:

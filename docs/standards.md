@@ -12,6 +12,8 @@ in CI.
 | golangci-lint | v2.14.x | `Makefile` (`GOLANGCI_LINT_VERSION`), installed with `go install` |
 | govulncheck | latest `golang.org/x/vuln` release | `Makefile` |
 | gitleaks | v8 | `Makefile` |
+| mdBook | 0.5.2 | `scripts/docs-tools`, by SHA-256 |
+| lychee | 0.24.2 | `scripts/docs-tools`, by SHA-256 |
 | GoReleaser | v2 (`~> v2` in the release workflow) | `.goreleaser.yaml`, `.github/workflows/release.yml` |
 
 ## Checks
@@ -27,12 +29,14 @@ in CI.
 | Dependency audit | govulncheck | none | `govulncheck ./...` | no reachable vulnerability |
 | Secret scan | gitleaks | `.gitleaks.toml` when added | `gitleaks git --no-banner` | no findings |
 | Release config | GoReleaser | `.goreleaser.yaml` | `goreleaser check` | validated (run by the release workflow before every release) |
+| Docs | mdBook, then lychee `--offline --include-fragments` on the built book | `docs/book/book.toml` | `make docs` | the book builds with no warning and every local link and anchor resolves |
 | Build | `go build` | none | `go build -trimpath -ldflags="-s -w" -o bin/penpot-mcp ./cmd/penpot-mcp` | builds |
 
 `make check` runs format, lint, build, tests with coverage (`make cover`,
-which prints each package lowest first), govulncheck and gitleaks in that
-order and stops on the first failure. Raise `scripts/coverage-floor` in the
-same change that adds the tests; never lower it.
+which prints each package lowest first), govulncheck, gitleaks and
+`make docs` in that order and stops on the first failure. Raise
+`scripts/coverage-floor` in the same change that adds the tests; never
+lower it.
 
 ## Tests
 
@@ -89,3 +93,10 @@ GitHub Actions (`plans/12-site.md`).
 - A ratchet floor file (`scripts/coverage-floor`) over a fixed 90 % now or
   a hosted service: green on every phase, never drops
   (`plans/13-quality-gates.md`, decision 1).
+- mdBook on GitHub Pages over Sphinx on Read the Docs, MkDocs Material,
+  Starlight and Docusaurus: one pinned binary, no package tree, static
+  output (`plans/14-docs.md`, decisions 1 and 2). lychee `--offline` checks
+  the built book's links (decision 4). The tool pages are written from the
+  server by `TestDocsListEveryTool`, the CLI page by `TestCLIDoc`
+  (decision 3). The book is `docs/book/`; the developer references stay in
+  `docs/`.

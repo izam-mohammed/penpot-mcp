@@ -1,5 +1,6 @@
 #!/bin/sh
-# Builds the book in docs/book and fails on any warning (plans/14-docs.md).
+# Builds the book in docs/book, fails on any warning, then checks every local
+# link and anchor with lychee (plans/14-docs.md).
 # Usage: scripts/docs [output-dir]   (default docs/book/book)
 set -eu
 
@@ -14,3 +15,8 @@ if grep -Eq '(^| )(WARN|ERROR)( |$)' "$log"; then
 	echo "docs: the book built with warnings" >&2
 	exit 1
 fi
+
+# Every local link and anchor must resolve; nothing is fetched. 404.html is
+# skipped: its links are root-relative to the site, not to the folder.
+command -v lychee >/dev/null 2>&1 || { echo "docs: lychee is not installed; run make tools" >&2; exit 2; }
+lychee --offline --include-fragments --no-progress --exclude-path "$out/404.html" "$out"
