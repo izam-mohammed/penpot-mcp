@@ -1,61 +1,65 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 440" width="1200" height="440" role="img" aria-labelledby="t d">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" width="1200" height="560" role="img" aria-labelledby="t d">
   <title id="t">the official penpot mcp against penpot-mcp</title>
-  <desc id="d">A request passes through four parts through a browser tab to reach one file on the official penpot mcp, and stalls when the tab sleeps. On penpot-mcp it passes through three parts, straight to the penpot api and reaches any file. Counts: 0 tabs against 1, any file against one open file, 87 tools against 4 on the hosted server.</desc>
+  <desc id="d">On the official penpot mcp every request goes through one browser tab that must stay open and awake, to the one file open in it. When the tab sleeps the call fails with no heartbeat, and requests for other files are blocked until someone switches the tab by hand. On penpot-mcp requests go straight to the penpot api and reach several files and accounts at once, with no tab.</desc>
   <style>
     .bg{fill:#160b2e}
-    .card{fill:#231247;stroke:#4b2a8a;stroke-width:2}
     .node{fill:#2d1a5c;stroke:#7b5fd0;stroke-width:2}
     .bad{fill:#3a1630;stroke:#ef476f;stroke-width:2}
     .good{fill:#0f3a3a;stroke:#06d6a0;stroke-width:2}
     .h{font:700 26px system-ui,sans-serif;fill:#fff}
     .l{font:600 17px system-ui,sans-serif;fill:#e8ddff;text-anchor:middle}
     .s{font:14px system-ui,sans-serif;fill:#b8a6e6;text-anchor:middle}
-    .big{font:800 34px system-ui,sans-serif;text-anchor:middle}
-    .cap{font:15px system-ui,sans-serif;fill:#b8a6e6;text-anchor:middle}
+    .err{font:700 15px ui-monospace,monospace;fill:#ff7a98;text-anchor:middle}
+    .big{font:800 30px system-ui,sans-serif;text-anchor:middle;fill:#06d6a0}
+    .vs{font:600 16px system-ui,sans-serif;fill:#ff7a98}
     .line{stroke:#7b5fd0;stroke-width:3;fill:none}
     .lineb{stroke:#ef476f;stroke-width:3;fill:none;stroke-dasharray:6 6}
   </style>
-  <rect class="bg" width="1200" height="440" rx="24"/>
+  <rect class="bg" width="1200" height="560" rx="24"/>
 
-  <!-- official lane -->
-  <text class="h" x="40" y="56">official penpot mcp</text>
-  <g>
-    <rect class="node" x="40"  y="84" width="200" height="64" rx="12"/><text class="l" x="140" y="122">claude</text>
-    <rect class="node" x="300" y="84" width="200" height="64" rx="12"/><text class="l" x="400" y="122">mcp server</text>
-    <rect class="bad"  x="560" y="84" width="260" height="64" rx="12">
-      <animate attributeName="opacity" values="1;0.35;1" dur="3s" repeatCount="indefinite"/>
-    </rect>
-    <text class="l" x="690" y="112">plugin in a browser tab</text>
-    <text class="s" x="690" y="134">must stay open and awake</text>
-    <rect class="node" x="880" y="84" width="280" height="64" rx="12"/><text class="l" x="1020" y="122">the one open file</text>
-    <path class="line" d="M240 116H300M500 116H560"/>
-    <path class="lineb" d="M820 116H880"/>
-    <circle r="7" fill="#ffd166">
-      <animateMotion dur="3s" repeatCount="indefinite" path="M240 116H680" keyTimes="0;1" calcMode="linear"/>
-      <animate attributeName="opacity" values="1;1;0" keyTimes="0;0.9;1" dur="3s" repeatCount="indefinite"/>
-    </circle>
-  </g>
-  <text class="cap" x="600" y="180">4 moving parts, 1 tab, 1 file. tab sleeps, the call stalls.</text>
+  <!-- official -->
+  <text class="h" x="40" y="52">official penpot mcp: one tab, one file, one at a time</text>
+  <rect class="node" x="40"  y="84"  width="150" height="56" rx="12"/><text class="l" x="115" y="118">claude</text>
+  <rect class="node" x="40"  y="160" width="150" height="56" rx="12" opacity="0.7"/><text class="l" x="115" y="194">claude (2nd)</text>
+  <rect class="node" x="260" y="120" width="170" height="56" rx="12"/><text class="l" x="345" y="154">mcp server</text>
+  <rect class="bad"  x="500" y="96"  width="300" height="104" rx="12">
+    <animate attributeName="opacity" values="1;0.3;1" dur="3s" repeatCount="indefinite"/>
+  </rect>
+  <text class="l" x="650" y="128">plugin in a browser tab</text>
+  <text class="s" x="650" y="152">must stay open, awake, on the right file</text>
+  <text class="err" x="650" y="184">zzz  no heartbeat for 30s</text>
+  <rect class="node" x="870" y="84" width="290" height="56" rx="12"/><text class="l" x="1015" y="118">file A (the open one)</text>
+  <rect class="node" x="870" y="160" width="290" height="56" rx="12" opacity="0.45" stroke-dasharray="5 5"/>
+  <text class="l" x="1015" y="194" opacity="0.6">file B: switch the tab yourself</text>
+  <path class="line" d="M190 112H225V148H260M190 188H225V148"/>
+  <path class="line" d="M430 148H500"/>
+  <path class="lineb" d="M800 112H870"/>
+  <path class="lineb" d="M800 188H830" />
+  <text class="err" x="850" y="194">x</text>
+  <circle r="7" fill="#ffd166">
+    <animateMotion dur="3s" repeatCount="indefinite" path="M190 112H225V148H560" keyTimes="0;1" calcMode="linear"/>
+    <animate attributeName="opacity" values="1;1;0" keyTimes="0;0.9;1" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle r="7" fill="#ffd166" opacity="0.7">
+    <animateMotion dur="3s" begin="0.4s" repeatCount="indefinite" path="M190 188H225V148H300" keyTimes="0;1" calcMode="linear"/>
+  </circle>
+  <text class="s" x="600" y="244">no tab, no answer. several tabs? the agent has to stop and ask you which one.</text>
 
-  <!-- ours lane -->
-  <text class="h" x="40" y="246">penpot-mcp</text>
-  <g>
-    <rect class="node" x="40"  y="274" width="200" height="64" rx="12"/><text class="l" x="140" y="312">claude</text>
-    <rect class="good" x="300" y="274" width="200" height="64" rx="12"/><text class="l" x="400" y="312">penpot-mcp</text>
-    <rect class="good" x="560" y="274" width="600" height="64" rx="12"/>
-    <text class="l" x="860" y="302">penpot api</text>
-    <text class="s" x="860" y="324">every team, project and file your token reaches</text>
-    <path class="line" d="M240 306H300M500 306H560"/>
-    <circle r="7" fill="#06d6a0">
-      <animateMotion dur="2s" repeatCount="indefinite" path="M240 306H1100" keyTimes="0;1" calcMode="linear"/>
-    </circle>
-  </g>
-  <text class="cap" x="600" y="370">3 moving parts, no tab, any file.</text>
+  <!-- ours -->
+  <text class="h" x="40" y="312">penpot-mcp: no tab, any file, any account</text>
+  <rect class="node" x="40"  y="344" width="150" height="56" rx="12"/><text class="l" x="115" y="378">claude</text>
+  <rect class="good" x="260" y="344" width="170" height="56" rx="12"/><text class="l" x="345" y="378">penpot-mcp</text>
+  <rect class="good" x="500" y="344" width="300" height="56" rx="12"/><text class="l" x="650" y="378">penpot api</text>
+  <rect class="node" x="870" y="324" width="290" height="44" rx="12"/><text class="l" x="1015" y="353">file A</text>
+  <rect class="node" x="870" y="378" width="290" height="44" rx="12"/><text class="l" x="1015" y="407">file B (other account)</text>
+  <rect class="node" x="870" y="432" width="290" height="44" rx="12"/><text class="l" x="1015" y="461">file C</text>
+  <path class="line" d="M190 372H260M430 372H500M800 372H835V346H870M800 372H870M800 372H835V454H870"/>
+  <circle r="6" fill="#06d6a0"><animateMotion dur="2s" repeatCount="indefinite" path="M190 372H800V346H870"/></circle>
+  <circle r="6" fill="#06d6a0"><animateMotion dur="2s" begin="0.3s" repeatCount="indefinite" path="M190 372H870"/></circle>
+  <circle r="6" fill="#06d6a0"><animateMotion dur="2s" begin="0.6s" repeatCount="indefinite" path="M190 372H800V454H870"/></circle>
+  <text class="s" x="345" y="440">nothing to keep open.</text>
 
-  <!-- numbers -->
-  <g>
-    <text class="big" x="200" y="418" fill="#06d6a0">0 tabs <tspan fill="#8a78b8" font-size="18" font-weight="600">vs 1</tspan></text>
-    <text class="big" x="600" y="418" fill="#06d6a0">any file <tspan fill="#8a78b8" font-size="18" font-weight="600">vs 1 open</tspan></text>
-    <text class="big" x="1000" y="418" fill="#06d6a0">87 tools <tspan fill="#8a78b8" font-size="18" font-weight="600">vs 4</tspan></text>
-  </g>
+  <text class="big" x="200" y="528">0 tabs <tspan class="vs">vs 1, always open</tspan></text>
+  <text class="big" x="640" y="528">many files <tspan class="vs">vs 1 at a time</tspan></text>
+  <text class="big" x="1030" y="528">87 tools <tspan class="vs">vs 4</tspan></text>
 </svg>
