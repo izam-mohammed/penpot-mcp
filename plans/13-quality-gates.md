@@ -217,12 +217,12 @@ repository instructions for recording useful development findings.
 
 ### Phase 2: the client, the small packages and main
 
-- [ ] `internal/penpot`, `internal/httpserve`, `internal/transit`,
+- [x] `internal/penpot`, `internal/httpserve`, `internal/transit`,
   `internal/mcproute` and `internal/fonts` reach 90 % each against the
   fakes, and `cmd/penpot-mcp`'s `run` is tested with fake args (expected
   in `cmd/penpot-mcp/main_test.go`); `scripts/coverage-floor` raised to
   the new total, rounded down.
-- [ ] Check: `make check` passes at the new floor.
+- [x] Check: `make check` passes at the new floor (72).
 
 ### Phase 3: the tools
 

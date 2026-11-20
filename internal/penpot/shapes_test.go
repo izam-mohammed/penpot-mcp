@@ -57,8 +57,10 @@ func TestSimpleShapeObjects(t *testing.T) {
 }
 
 func TestTextObjectContent(t *testing.T) {
-	s := TextStyle{FontID: "gfont-inter", FontFamily: "Inter", FontVariantID: "regular",
-		FontWeight: "400", FontStyle: "normal", FontSize: 14.5, LineHeight: 1.2, Color: "#112233"}
+	s := TextStyle{
+		FontID: "gfont-inter", FontFamily: "Inter", FontVariantID: "regular",
+		FontWeight: "400", FontStyle: "normal", FontSize: 14.5, LineHeight: 1.2, Color: "#112233",
+	}
 	obj := TextObject(testBox(), "one\ntwo", s, "auto-height")
 	if obj["growType"] != "auto-height" || obj["type"] != TypeText {
 		t.Fatalf("obj = %v", obj)

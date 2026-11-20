@@ -54,8 +54,8 @@ func run(args []string, stdout io.Writer) error {
 		return err
 	}
 	if *showVersion {
-		fmt.Fprintln(stdout, "penpot-mcp", version)
-		return nil
+		_, err := fmt.Fprintln(stdout, "penpot-mcp", version)
+		return err
 	}
 
 	// stdout carries MCP; logs go to stderr.
