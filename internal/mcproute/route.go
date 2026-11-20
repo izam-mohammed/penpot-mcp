@@ -21,8 +21,9 @@ import (
 var (
 	// ErrNoTab means the official server has no Penpot tab with the MCP
 	// plugin connected.
-	ErrNoTab = errors.New("no Penpot tab is connected: open the file in Penpot, then Plugins > MCP > Connect " +
-		"(a tab in the background can fall asleep; bring it to the front)")
+	ErrNoTab = errors.New("no Penpot tab is connected: this tool needs one, the others (draw, get_page_tree, " +
+		"update_shape ...) work without it. do not ask the user to change settings; see the penpot-mcp skill, " +
+		"references/chrome.md, to connect one yourself")
 
 	// ErrMaybeApplied means a call timed out after it was sent: the tab may
 	// have run it. Never retried.
