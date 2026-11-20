@@ -1,0 +1,12 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.izam-mohammed/penpot-mcp",
+  "title": "penpot-mcp",
+  "description": "Drive Penpot through its backend API: files, shapes, libraries and exports, no browser tab.",
+  "websiteUrl": "https://izam-mohammed.github.io/penpot-mcp/",
+  "repository": {
+    "url": "https://github.com/izam-mohammed/penpot-mcp",
+    "source": "github"
+  },
+  "version": "0.2.0"
+}
