@@ -148,10 +148,10 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut: the page, published (needs you: try it)
 
-- [ ] `site/index.html` with the header, pitch, banner, install prompt and
+- [x] `site/index.html` with the header, pitch, banner, install prompt and
   brew line, comparison, latest-release link and footer, self-contained,
   readable at 360 px wide.
-- [ ] `.github/workflows/pages.yml` uploads `site/` and deploys it on push
+- [x] `.github/workflows/pages.yml` uploads `site/` and deploys it on push
   to `main` and by hand, write permissions on the deploy job only, actions
   pinned by SHA; `docs/standards.md` names it under CI.
 - [ ] Check: `make check` passes, and opening `site/index.html` from disk
