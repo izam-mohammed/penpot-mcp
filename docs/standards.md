@@ -22,14 +22,17 @@ in CI.
 | Lint | golangci-lint (govet, staticcheck, errcheck, gosec, revive) | `.golangci.yml` | `golangci-lint run` | no issues |
 | Types | the Go compiler | `go.mod` | `go build ./...` | builds |
 | Unit tests | `go test` | none | `go test -race ./...` | all pass |
+| Coverage | `go test -coverprofile` | `scripts/coverage-floor` | `make cover` | total at or above the floor; the floor only rises, to 90 (target 95) |
 | Proof scripts | POSIX `sh` + `curl` | none | `sh scripts/prove/<name>.sh` | prints `PASS` (needs the env vars; not in CI) |
 | Dependency audit | govulncheck | none | `govulncheck ./...` | no reachable vulnerability |
 | Secret scan | gitleaks | `.gitleaks.toml` when added | `gitleaks git --no-banner` | no findings |
 | Release config | GoReleaser | `.goreleaser.yaml` | `goreleaser check` | validated (run by the release workflow before every release) |
 | Build | `go build` | none | `go build -trimpath -ldflags="-s -w" -o bin/penpot-mcp ./cmd/penpot-mcp` | builds |
 
-`make check` runs format, lint, build, tests, govulncheck and gitleaks in
-that order and stops on the first failure.
+`make check` runs format, lint, build, tests with coverage (`make cover`,
+which prints each package lowest first), govulncheck and gitleaks in that
+order and stops on the first failure. Raise `scripts/coverage-floor` in the
+same change that adds the tests; never lower it.
 
 ## Tests
 

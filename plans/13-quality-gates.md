@@ -206,12 +206,12 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut: a floor that never drops (needs you: try it)
 
-- [ ] `make cover` prints the per-package table lowest first and fails
+- [x] `make cover` prints the per-package table lowest first and fails
   under `scripts/coverage-floor` (64), and `make check` runs it in place
   of `test` (expected in `Makefile`), pinned by the floor failing when set
   to 100 in a scratch copy.
-- [ ] `docs/standards.md` gains the coverage row, the floor and the target.
-- [ ] Check: `make check` passes, and `make cover` prints 64 % or more.
+- [x] `docs/standards.md` gains the coverage row, the floor and the target.
+- [x] Check: `make check` passes, and `make cover` prints 64 % or more.
 - [ ] You try it: run `make check` and say whether the coverage table is
   the view you want on every run.
 
