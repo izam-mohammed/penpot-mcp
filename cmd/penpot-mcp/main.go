@@ -7,6 +7,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -36,21 +37,24 @@ const instructions = "Drives Penpot through its backend API: no browser tab need
 	"and names the skills for drawing, the library, exports and collaboration."
 
 func main() {
-	if err := run(); err != nil {
+	if err := run(os.Args[1:], os.Stdout); err != nil {
 		fmt.Fprintln(os.Stderr, "penpot-mcp:", err)
 		os.Exit(1)
 	}
 }
 
-func run() error {
-	if len(os.Args) > 1 && os.Args[1] == "skills" {
-		return runSkills(os.Args[2:])
+func run(args []string, stdout io.Writer) error {
+	if len(args) > 0 && args[0] == "skills" {
+		return runSkills(args[1:], stdout)
 	}
-	httpAddr := flag.String("http", "", "serve MCP over streamable HTTP on host:port, such as 127.0.0.1:8787, instead of stdio")
-	showVersion := flag.Bool("version", false, "print the version and exit")
-	flag.Parse()
+	fs := flag.NewFlagSet("penpot-mcp", flag.ContinueOnError)
+	httpAddr := fs.String("http", "", "serve MCP over streamable HTTP on host:port, such as 127.0.0.1:8787, instead of stdio")
+	showVersion := fs.Bool("version", false, "print the version and exit")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
 	if *showVersion {
-		fmt.Println("penpot-mcp", version)
+		fmt.Fprintln(stdout, "penpot-mcp", version)
 		return nil
 	}
 
@@ -158,7 +162,7 @@ func run() error {
 
 // runSkills is `penpot-mcp skills install`: it writes the embedded skills
 // into Claude Code's or Codex's skills directory. It needs no token.
-func runSkills(args []string) error {
+func runSkills(args []string, stdout io.Writer) error {
 	if len(args) == 0 || args[0] != "install" {
 		return errors.New("usage: penpot-mcp skills install [--agent claude|codex] [--dir PATH] [--force]")
 	}
@@ -188,5 +192,5 @@ func runSkills(args []string) error {
 			return fmt.Errorf("--agent %q: want claude or codex, or give --dir", *agent)
 		}
 	}
-	return skills.Install(skills.FS, target, version, *force, os.Stdout)
+	return skills.Install(skills.FS, target, version, *force, stdout)
 }
