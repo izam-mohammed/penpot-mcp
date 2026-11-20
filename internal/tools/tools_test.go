@@ -54,6 +54,10 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write(openAPIFixture)
 		return
 	}
+	if r.URL.Path == "/assets/by-id/1" {
+		_, _ = w.Write([]byte("PK-fake-penpot-archive"))
+		return
+	}
 	command := strings.TrimPrefix(r.URL.Path, "/api/main/methods/")
 	data, _ := io.ReadAll(r.Body)
 	b.mu.Lock()
@@ -174,6 +178,12 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 	case "rename-project", "move-project", "update-project-pin", "delete-project", "delete-file", "move-files",
 		"restore-deleted-team-files", "set-file-shared", "link-file-to-library", "unlink-file-from-library":
 		w.WriteHeader(http.StatusNoContent)
+	case "export-binfile":
+		w.Header().Set("Content-Type", "text/event-stream")
+		_, _ = w.Write([]byte("event: progress\ndata: {}\n\nevent: end\ndata: \"~rhttp://" + r.Host + "/assets/by-id/1\"\n\n"))
+	case "import-binfile":
+		w.Header().Set("Content-Type", "text/event-stream")
+		_, _ = w.Write([]byte("event: end\ndata: [\"~uf0000000-0000-4000-8000-000000000009\"]\n\n"))
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		_, _ = w.Write([]byte(`{"type":"not-found","code":"object-not-found"}`))
