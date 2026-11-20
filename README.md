@@ -2,10 +2,34 @@
 
 <p align="center"><a href="https://izam-mohammed.github.io/penpot-mcp/">site</a> · <a href="https://izam-mohammed.github.io/penpot-mcp/docs/">docs</a></p>
 
+<p align="center"><b>penpot mcp that needs no browser tab</b></p>
+
+<p align="center">
+<a href="https://github.com/izam-mohammed/penpot-mcp/actions/workflows/check.yml"><img src="https://github.com/izam-mohammed/penpot-mcp/actions/workflows/check.yml/badge.svg" alt="check"></a>
+<a href="https://github.com/izam-mohammed/penpot-mcp/releases/latest"><img src="https://img.shields.io/github/v/release/izam-mohammed/penpot-mcp" alt="latest release"></a>
+<a href="LICENSE"><img src="https://img.shields.io/github/license/izam-mohammed/penpot-mcp" alt="license"></a>
+<img src="https://img.shields.io/github/go-mod/go-version/izam-mohammed/penpot-mcp" alt="go version">
+</p>
+
 the [official penpot mcp](https://github.com/penpot/penpot/tree/develop/mcp) wants a browser tab
 open, a plugin awake and the right file in front of it. i got tired of
 babysittin' it, so this one talks to penpot's api directly ~ and still calls
 the official one for the few things only a tab can do.
+
+## what a prompt gets you
+
+<!-- demo gif goes in docs/assets/demo.gif; add the img tag here once the file exists -->
+
+say this to your agent, with no penpot tab open anywhere:
+
+```text
+make a project called "pocket bank", and in it a file with a login screen:
+dark board, logo on top, email and password fields, a green sign in button.
+then export the board as a png into docs/.
+```
+
+it creates the project and the file, draws the whole screen in one `draw`
+call, and writes the png into your repo. no tab was harmed.
 
 ## install
 
@@ -100,6 +124,10 @@ flowchart LR
 | share links and webhooks | no | yes |
 | several penpot accounts at once | no | yes |
 | plugin code, reflow, css and markup | yes | yes, by calling the official one |
+
+87 tools in total: 65 need only the access token, 5 are hybrid (api first,
+a tab step when one is open), 2 need a login or a tab, 15 need a tab. the
+full list is in the [tools reference](skills/penpot-mcp/references/tools.md).
 
 ## extras
 
