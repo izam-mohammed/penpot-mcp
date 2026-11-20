@@ -64,9 +64,3 @@
 
 - [x] `plans/15-repo-hygiene.md` - Dependabot keeps the Go modules and
   the actions current, and `SECURITY.md` says how to report a hole.
-
-### Phase 12: asked on 15/11/2026: secrets in Infisical (removed)
-
-- [x] `plans/16-secrets-in-infisical.md` - skipped and removed on
-  17/11/2026: a public repository keeps no active secrets, so Infisical
-  is not needed.
