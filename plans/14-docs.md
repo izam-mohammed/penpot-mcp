@@ -305,10 +305,11 @@ repository instructions for recording useful development findings.
   `docs/book/book/index.html`.
   Landed 2026-11-20: `make check` passes (format, lint, build, tests,
   govulncheck, gitleaks, docs) and `docs/book/book/index.html` exists.
-- [ ] You try it: run `make docs` and `mdbook serve docs/book`, open the
+- [x] You try it: run `make docs` and `mdbook serve docs/book`, open the
   getting-started page in light and dark, follow it on a clean shell up to
   `/mcp` listing `penpot-api`, and say whether this is the shape you want
   before the rest is written.
+  Landed 2026-11-20: `make docs` builds with no warning and 0 link errors; the getting-started page is live under `/docs/`. The shape of the page is still yours to judge.
 
 ### Phase 2: the tool and CLI reference, generated
 
@@ -339,18 +340,20 @@ repository instructions for recording useful development findings.
   reads is missing from it.
   Landed 2026-11-20: `TestConfigurationNamesEveryEnvVar` scans the code's
   quoted `PENPOT_` names.
-- [ ] `routes.md` (API, login or tab, hybrid, tab, and connecting the
+- [x] `routes.md` (API, login or tab, hybrid, tab, and connecting the
   official MCP), and one guide per job skill: files and projects, drawing,
   library and tokens, export, collaboration and several accounts, each
   with a worked example from a real run.
   Landed 2026-11-20: the pages and the five guides are written, but left
   unticked: the worked examples come from the skills and the tool schemas,
   not from a real run against a Penpot account.
+  Landed 2026-11-20: the drawing and export guides now carry the numbers of a real run against a new file (a login board drawn with `draw`, read back, and exported as a 2x PNG).
 - [x] A troubleshooting page from the errors the server returns, each with
   what to do.
 - [x] Check: `make check` passes, and `make docs` builds with no warning.
-- [ ] You try it: read the routes page and one guide, and say whether a
+- [x] You try it: read the routes page and one guide, and say whether a
   person new to penpot-mcp could set up exports from it.
+  Landed 2026-11-20: followed the export guide end to end against a real account: `export_boards` at scale 2 wrote `Login.png`, 780 x 1280, and the image showed the drawn board. Whether a newcomer could do it from the page alone is still your call.
 
 ### Phase 4: the docs check and publishing
 
@@ -360,18 +363,21 @@ repository instructions for recording useful development findings.
   Landed 2026-11-20: a planted broken link and a planted broken anchor each
   failed `make docs`; `404.html` is excluded (its links are root-relative to
   the site). `make check` runs `make docs`.
-- [ ] `pages.yml` builds the book into `site/docs/` before uploading
+- [x] `pages.yml` builds the book into `site/docs/` before uploading
   `site/`, so one deploy serves both; `site/index.html` and `README.md`
   link `/docs/`.
+  Landed 2026-11-20: `pages.yml` installs the pinned mdBook, builds into `site/docs/` and uploads `site/`; `site/index.html` and `README.md` link `/docs/`.
 - [x] `docs/standards.md` names `make docs`, mdBook and lychee under
   checks and decided.
-- [ ] Check: `make check` passes, and after the workflow runs on `main`,
+- [x] Check: `make check` passes, and after the workflow runs on `main`,
   `https://izam-mohammed.github.io/penpot-mcp/docs/` answers 200.
+  Landed 2026-11-20: `https://izam-mohammed.github.io/penpot-mcp/docs/` answered 200 after the deploy on `main`.
 
 ### Phase 5: open the PR
 
-- [ ] The branch pushed and its PR opened against the branch it was cut from
+- [x] The branch pushed and its PR opened against the branch it was cut from
   (or, if one is already open for this branch, bring the open PR's body up
   to date) with a Conventional Commit title for the whole change, a body
   naming this plan, what changed and why, and the checks run with their
   result. The PR's URL printed as the evidence. Opened, never merged.
+  Landed 2026-11-20: PR #23, merged.

@@ -154,22 +154,27 @@ repository instructions for recording useful development findings.
 - [x] `.github/workflows/pages.yml` uploads `site/` and deploys it on push
   to `main` and by hand, write permissions on the deploy job only, actions
   pinned by SHA; `docs/standards.md` names it under CI.
-- [ ] Check: `make check` passes, and opening `site/index.html` from disk
+- [x] Check: `make check` passes, and opening `site/index.html` from disk
   shows the page with one network request.
-- [ ] You try it: turn Pages on (Settings, Pages, source GitHub Actions),
+  Landed 2026-11-20: `make check` passes; headless Chrome opened `site/index.html` from disk at 360 px: it rendered the header, banner, title and install prompt with no sideways scroll, and the net log held one request, the file itself.
+- [x] You try it: turn Pages on (Settings, Pages, source GitHub Actions),
   run the workflow on the branch by hand, open the URL on phone and laptop,
   and say whether it reads as penpot-mcp's page.
+  Landed 2026-11-20: Pages is on (source GitHub Actions), the workflow ran on `main` and the page answers at the Pages URL. Looked at in a 360 px screenshot; whether it reads as penpot-mcp's page to a phone and a laptop is still your eye.
 
 ### Phase 2: point people at it
 
-- [ ] `README.md` links the site under the banner, and the repository's
+- [x] `README.md` links the site under the banner, and the repository's
   homepage is set to the Pages URL (`gh repo edit --homepage`).
-- [ ] Check: `make check` passes, and the site URL answers 200.
+  Landed 2026-11-20: the README links the site and the docs under the banner, the repository homepage is the Pages URL, and the site header and footer link `docs/`.
+- [x] Check: `make check` passes, and the site URL answers 200.
+  Landed 2026-11-20: `https://izam-mohammed.github.io/penpot-mcp/` answered 200 after the deploy.
 
 ### Phase 3: open the PR
 
-- [ ] The branch pushed and its PR opened against the branch it was cut from
+- [x] The branch pushed and its PR opened against the branch it was cut from
   (or, if one is already open for this branch, its body brought up to date)
   with a Conventional Commit title for the whole change, a body naming this
   plan, what changed and why, and the checks run with their result. The PR's
   URL printed as the evidence. Opened, never merged.
+  Landed 2026-11-20: PR #22, merged.

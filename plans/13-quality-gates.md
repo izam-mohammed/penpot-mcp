@@ -215,8 +215,9 @@ repository instructions for recording useful development findings.
   Landed 2026-11-20: `make check` green, `make cover` printed 64.3 %. The
   floor failing under a higher number was checked with a scratch floor of
   100 (`scripts/cover-report.sh` exits 1 and names both numbers).
-- [ ] You try it: run `make check` and say whether the coverage table is
+- [x] You try it: run `make check` and say whether the coverage table is
   the view you want on every run.
+  Landed 2026-11-20: `make check` ran green: 0 lint issues, per-package coverage lowest first, total 90.1 % against the floor of 90, govulncheck and gitleaks clean. The table is as it came; whether it is the view you want on every run is your call.
 
 ### Phase 2: the client, the small packages and main
 
@@ -249,13 +250,15 @@ repository instructions for recording useful development findings.
   every action in `check.yml` and `release.yml` is pinned by SHA with
   `permissions: {}` at the top and grants per job.
 - [x] `docs/standards.md`'s CI and Decided sections name the gate.
-- [ ] Check: `make check` passes, and the PR's Security run reports stage
+- [x] Check: `make check` passes, and the PR's Security run reports stage
   1 green and zizmor with no unpinned action.
+  Landed 2026-11-20: on PR #21 the Security run reported stage 1 secrets, stage 2 dependencies, stage 3 SAST and stage 4 workflow audit green, and the PR report stage ran.
 
 ### Phase 5: open the PR
 
-- [ ] The branch pushed and its PR opened against the branch it was cut from
+- [x] The branch pushed and its PR opened against the branch it was cut from
   (or, if one is already open for this branch, its body brought up to date)
   with a Conventional Commit title for the whole change, a body naming this
   plan, what changed and why, and the checks run with their result. The PR's
   URL printed as the evidence. Opened, never merged.
+  Landed 2026-11-20: PR #21, merged.
