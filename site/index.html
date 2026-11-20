@@ -56,6 +56,19 @@
   th { color: var(--tertiary); font-weight: 500; }
   td:first-child { color: var(--secondary); }
   footer { padding: 22px 0 26px; color: var(--tertiary); font-size: 13px; }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 26px; }
+  .btn { display: inline-block; padding: 11px 22px; border-radius: 10px; font-weight: 600; font-size: 14.5px; text-decoration: none; border: 1px solid var(--rule); color: var(--text); background: var(--tile); }
+  .btn.primary { background: var(--accent-deep); border-color: var(--accent-deep); box-shadow: 0 6px 24px rgba(109, 63, 216, 0.45); }
+  .btn:hover { filter: brightness(1.15); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin-top: 34px; }
+  .stat { background: var(--tile); border: 1px solid var(--rule); border-radius: 12px; padding: 16px 8px; }
+  .stat b { display: block; font-size: clamp(22px, 5vw, 30px); letter-spacing: -0.02em; color: #06d6a0; }
+  .stat span { color: var(--tertiary); font-size: 12.5px; }
+  .diff { width: 100%; height: auto; margin-top: 18px; border-radius: 14px; display: block; }
+  .final { width: 100%; margin-top: 56px; padding: 32px 20px; border-radius: 16px; border: 1px solid var(--accent-deep); background: radial-gradient(30rem 14rem at 50% 0, rgba(139, 92, 246, 0.25), transparent 70%), var(--tile); }
+  .final h2 { margin-top: 0; font-size: 22px; }
+  .final pre { text-align: center; }
+  @media (max-width: 520px) { .stats { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -195,8 +208,24 @@
 
     <p class="meta">macos, linux, windows · amd64 and arm64 · mit</p>
 
-    <h2>install</h2>
-    <p class="sub">three steps: the binary, a token, one command for your agent</p>
+    <div class="cta">
+      <a class="btn primary" href="#install">install in one line</a>
+      <a class="btn" href="https://github.com/izam-mohammed/penpot-mcp">star on github</a>
+    </div>
+    <pre>curl -fsSL https://raw.githubusercontent.com/izam-mohammed/penpot-mcp/main/scripts/install.sh | sh</pre>
+
+    <div class="stats">
+      <div class="stat"><b>0 tabs</b><span>official needs 1, always open</span></div>
+      <div class="stat"><b>any file</b><span>official: the one open file</span></div>
+      <div class="stat"><b>87 tools</b><span>hosted official: 4</span></div>
+    </div>
+
+    <h2>stop babysittin' a browser tab</h2>
+    <p class="sub">the official penpot mcp goes through a plugin in an open, awake tab, onto one file at a time. when the tab sleeps, the call dies. this one skips the tab.</p>
+    <img class="diff" src="difference.svg" alt="official penpot mcp: one browser tab that must stay open and awake, one file at a time. penpot-mcp: no tab, many files and accounts. 0 tabs vs 1, many files vs 1 at a time, 87 tools vs 4" width="1200" height="560">
+
+    <h2 id="install">install</h2>
+    <p class="sub">three steps: the binary, a token, one command for your agent. also: <code>go install github.com/izam-mohammed/penpot-mcp/cmd/penpot-mcp@latest</code>.</p>
 
     <h3>1. get the binary</h3>
     <pre>brew install --cask izam-mohammed/tap/penpot-mcp</pre>
@@ -255,6 +284,16 @@ mine and i'm keeping it. thanks king.</pre>
         <tr><td>share links, webhooks, several accounts</td><td>no</td><td>yes</td></tr>
       </tbody>
     </table>
+    <div class="final">
+      <h2>one tab less. forever.</h2>
+      <p class="sub">paste it, add a token, draw your first screen.</p>
+      <pre>brew install --cask izam-mohammed/tap/penpot-mcp</pre>
+      <div class="cta">
+        <a class="btn primary" href="#install">install</a>
+        <a class="btn" href="https://github.com/izam-mohammed/penpot-mcp">star on github</a>
+        <a class="btn" href="docs/">read the docs</a>
+      </div>
+    </div>
   </main>
 
   <footer>
