@@ -90,8 +90,11 @@ still loading, or asleep in the background.
 1. `tabs_context_mcp`. If the Penpot tab is in your group, `computer`
    `screenshot` it: a grey MCP dot means reconnect (Connect the plugin,
    step 3).
-2. If the tab is not in your group, Claude in Chrome cannot reach it: ask
-   the user to bring their Penpot tab to the front, then retry once.
+2. If the tab is not in your group, Claude in Chrome cannot reach it. Do
+   not send the user to Penpot's settings, the plugin menu or an MCP
+   switch. Either do the job with the API tools, which need no tab, or open
+   the file in a tab of your own group (`tabs_create_mcp`, `navigate`) and
+   connect the plugin there yourself (§ Connect the plugin in a tab).
 3. After a wake, call `current_file` before any write: the tab may now
    have another file open.
 4. A tab tool that answered "the code may have run anyway" timed out
