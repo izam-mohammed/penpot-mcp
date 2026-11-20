@@ -40,16 +40,8 @@
   h1 { font-size: clamp(40px, 9vw, 60px); line-height: 1.05; letter-spacing: -0.03em; margin-top: 34px; font-weight: 700; }
   h2 { font-size: 18px; margin-top: 52px; font-weight: 600; }
   .pitch { color: var(--secondary); font-size: 16px; margin-top: 14px; max-width: 32rem; }
-  .download {
-    margin-top: 28px; display: inline-flex; align-items: center; gap: 10px;
-    padding: 13px 22px; border-radius: 12px;
-    background: var(--accent-deep);
-    color: #fff; font-weight: 600; font-size: 15px; text-decoration: none;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 10px 30px rgba(139,92,246,0.35);
-  }
-  .download:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 14px 36px rgba(139,92,246,0.45); }
-  .download:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
-  .download svg { width: 15px; height: 15px; }
+  h3 { font-size: 14px; margin-top: 26px; font-weight: 600; color: var(--text); }
+  .sub a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
   .meta { color: var(--tertiary); font-size: 12.5px; margin-top: 16px; }
   .sub { color: var(--secondary); font-size: 13.5px; margin-top: 12px; max-width: 32rem; }
   pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
@@ -201,24 +193,55 @@
     <h1>penpot-mcp</h1>
     <p class="pitch">talks to penpot's api directly, no tab to babysit ~ every team, project and file your token can reach, and it still calls the official mcp for the few things only a tab can do</p>
 
-    <a class="download" href="https://github.com/izam-mohammed/penpot-mcp/releases/latest">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10.5l5 5 5-5"/><path d="M5 20h14"/></svg>
-      Latest release
-    </a>
     <p class="meta">macos, linux, windows · amd64 and arm64 · mit</p>
 
     <h2>install</h2>
-    <p class="sub">paste this into claude code, codex or whatever you use to roam around</p>
+    <p class="sub">three steps: the binary, a token, one command for your agent</p>
+
+    <h3>1. get the binary</h3>
+    <pre>brew install --cask izam-mohammed/tap/penpot-mcp</pre>
+    <p class="sub">no brew? take your os from the <a href="https://github.com/izam-mohammed/penpot-mcp/releases/latest">latest release</a> and put it on your path.</p>
+
+    <h3>2. make a token</h3>
+    <p class="sub">in penpot: your account &gt; integrations &gt; personal access tokens. it is shown once, so copy it.</p>
+
+    <h3>3. add it to your agent</h3>
+    <p class="sub"><b>claude code</b></p>
+    <pre>claude mcp add penpot -s user \
+  -e PENPOT_ACCESS_TOKEN=&lt;your token&gt; \
+  -- "$(command -v penpot-mcp)"
+penpot-mcp skills install</pre>
+    <p class="sub"><b>codex</b></p>
+    <pre>codex mcp add penpot \
+  --env PENPOT_ACCESS_TOKEN=&lt;your token&gt; \
+  -- "$(command -v penpot-mcp)"
+penpot-mcp skills install --agent codex</pre>
+    <p class="sub"><b>gemini cli</b></p>
+    <pre>gemini mcp add -s user \
+  -e PENPOT_ACCESS_TOKEN=&lt;your token&gt; \
+  penpot "$(command -v penpot-mcp)"</pre>
+    <p class="sub"><b>cursor, windsurf, cline and anything else that reads an <code>mcpServers</code> json</b></p>
+    <pre>{
+  "mcpServers": {
+    "penpot": {
+      "command": "penpot-mcp",
+      "env": { "PENPOT_ACCESS_TOKEN": "&lt;your token&gt;" }
+    }
+  }
+}</pre>
+    <p class="sub">cursor reads <code>~/.cursor/mcp.json</code>; for the others, paste it into the mcp settings. restart the agent, then ask it to list your penpot projects.</p>
+
+    <p class="sub">only claude code and codex have a skills folder the binary knows. for another agent, <code>penpot-mcp skills install --dir &lt;its skills folder&gt;</code>.</p>
+
+    <h3>or let your agent do it</h3>
     <pre>yo bro, install penpot-mcp for me from
 https://github.com/izam-mohammed/penpot-mcp. use
 `brew install --cask izam-mohammed/tap/penpot-mcp`, or if brew isn't
 around, grab the release binary for my os. then run
 `penpot-mcp skills install` (add `--agent codex` if you're codex) so you
-know how to drive it, and hand me the exact `claude mcp add` command to
-run with my penpot access token. don't ask me for the token, it's mine
-and i'm keeping it. thanks king.</pre>
-    <p class="sub">or by hand</p>
-    <pre>brew install --cask izam-mohammed/tap/penpot-mcp</pre>
+know how to drive it, and hand me the exact command to add the server to
+my agent, for my penpot access token. don't ask me for the token, it's
+mine and i'm keeping it. thanks king.</pre>
 
     <h2>how it's different</h2>
     <table>
