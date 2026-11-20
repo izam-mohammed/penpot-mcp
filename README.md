@@ -46,28 +46,83 @@ run with my penpot access token. don't ask me for the token, it's mine
 and i'm keeping it. thanks king.
 ```
 
+### pick a way in
+
+| how | command |
+| --- | --- |
+| brew | `brew install --cask izam-mohammed/tap/penpot-mcp` |
+| go install | `go install github.com/izam-mohammed/penpot-mcp/cmd/penpot-mcp@latest` |
+| curl script | `curl -fsSL https://raw.githubusercontent.com/izam-mohammed/penpot-mcp/main/scripts/install.sh \| sh` |
+| docker | `docker build -t penpot-mcp https://github.com/izam-mohammed/penpot-mcp.git` |
+| binary | [releases](https://github.com/izam-mohammed/penpot-mcp/releases), macos, linux, windows, amd64 and arm64 |
+
+the curl script checks the download against `checksums.txt` and drops the
+binary in `~/.local/bin` (`PENPOT_MCP_INSTALL_DIR` changes that,
+`PENPOT_MCP_VERSION` pins a release). it doesn't do windows ~ grab the zip.
+the docker image runs over stdio, so the mcp config below uses
+`docker run -i --rm`.
+
 ### by hand
 
-1. install it:
-
-   ```sh
-   brew install --cask izam-mohammed/tap/penpot-mcp
-   ```
-
-   no brew? grab a binary from
-   [releases](https://github.com/izam-mohammed/penpot-mcp/releases)
-   (macos, linux, windows; amd64 and arm64) and put it on your path.
+1. install it with any row above.
 
 2. make a token in penpot: *your account > integrations > personal access
    tokens*. it's shown once, so copy it.
 
-3. add it to claude code:
+3. tell your agent about it. swap `<your token>` for the real one.
+
+   claude code:
 
    ```sh
    claude mcp add penpot -s user \
      -e PENPOT_ACCESS_TOKEN=<your token> \
      -- "$(command -v penpot-mcp)"
    ```
+
+   cursor, in `.cursor/mcp.json`:
+
+   ```json
+   {
+     "mcpServers": {
+       "penpot": {
+         "command": "penpot-mcp",
+         "env": { "PENPOT_ACCESS_TOKEN": "<your token>" }
+       }
+     }
+   }
+   ```
+
+   vs code, in `.vscode/mcp.json`:
+
+   ```json
+   {
+     "servers": {
+       "penpot": {
+         "type": "stdio",
+         "command": "penpot-mcp",
+         "env": { "PENPOT_ACCESS_TOKEN": "<your token>" }
+       }
+     }
+   }
+   ```
+
+   claude desktop, in `claude_desktop_config.json`:
+
+   ```json
+   {
+     "mcpServers": {
+       "penpot": {
+         "command": "penpot-mcp",
+         "env": { "PENPOT_ACCESS_TOKEN": "<your token>" }
+       }
+     }
+   }
+   ```
+
+   using docker? swap the command in any of them for
+   `"command": "docker", "args": ["run", "-i", "--rm", "-e", "PENPOT_ACCESS_TOKEN", "penpot-mcp"]`.
+   a gui app might not see your shell's path, so give `command` the full path
+   from `command -v penpot-mcp` if it can't find it.
 
 4. give your agent the manual:
 
