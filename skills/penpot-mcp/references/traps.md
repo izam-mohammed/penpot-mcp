@@ -17,3 +17,4 @@ What the backend API does that an agent does not expect. Source:
 | Groups and bools | their box comes from their children | the server sends `reg-objects` so Penpot computes it |
 | Exports | the exporter takes a login session, not the access token | `export_shape` uses `PENPOT_EMAIL` and `PENPOT_PASSWORD`; without them (a Google or SSO account has no password) it renders in the connected tab, with the shape's page open there |
 | Token in the browser | the token dialog shows it once | the user copies it; never you |
+| Text width estimates | without a tab, `draw` sizes text from the font's metrics; measured 2026-11-20 against Penpot's own layout, every estimate was 1 px wider (44 against 43) | harmless for drawing; allow 1 px when laying other shapes out from the reply's boxes, or `reflow` with a tab |

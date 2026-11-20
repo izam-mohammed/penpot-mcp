@@ -20,7 +20,7 @@ type drawNode struct {
 	Type        string  `json:"type" jsonschema:"board, rect, ellipse, text, path, image, group or bool"`
 	Name        string  `json:"name,omitempty" jsonschema:"layer name; required except for text and image"`
 	Height      float64 `json:"height,omitempty" jsonschema:"height in pixels; not used for text, path, group or bool"`
-	Fill        string  `json:"fill,omitempty" jsonschema:"fill colour as #RRGGBB"`
+	Fill        string  `json:"fill,omitempty" jsonschema:"fill colour as #RRGGBB; on a text it is the text colour when color is empty"`
 	Radius      float64 `json:"radius,omitempty" jsonschema:"corner radius (boards, rects, images)"`
 	Clip        bool    `json:"clip,omitempty" jsonschema:"boards only: clip children to the board"`
 	Rotation    float64 `json:"rotation,omitempty" jsonschema:"degrees clockwise about the centre (rects, ellipses, text, images)"`
@@ -530,7 +530,7 @@ func buildText(ctx context.Context, d Deps, b *node, box penpot.Box) {
 		FontID: face.FontID, FontFamily: face.Family, FontVariantID: face.VariantID,
 		FontWeight: face.Weight, FontStyle: face.Style,
 		FontSize: size, LineHeight: lh, LetterSpacing: n.LetterSpacing,
-		Color: orDefault(n.Color, "#000000"), Align: n.Align,
+		Color: orDefault(orDefault(n.Color, n.Fill), "#000000"), Align: n.Align, // fill too: agents send it
 	}
 	b.obj = penpot.TextObject(box, n.Text, style, grow)
 }
