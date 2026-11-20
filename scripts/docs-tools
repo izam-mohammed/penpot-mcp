@@ -29,16 +29,20 @@ fetch() { # name url sha256
 		{ echo "docs-tools: checksum mismatch for $1, nothing installed" >&2; exit 1; }
 	mkdir "$work/$1"
 	tar -xzf "$work/$1.tgz" -C "$work/$1"
+	# mdbook ships the binary at the top, lychee inside a folder: find it
+	found="$(find "$work/$1" -type f -name "$1" | head -n 1)"
+	[ -n "$found" ] || { echo "docs-tools: no $1 binary in the archive" >&2; exit 1; }
+	mv "$found" "$work/$1.bin"
 }
 
 have() { command -v "$1" >/dev/null 2>&1 && "$1" --version | grep -q "$2"; }
 
 if ! have mdbook "$MDBOOK"; then
 	fetch mdbook "https://github.com/rust-lang/mdBook/releases/download/v$MDBOOK/mdbook-v$MDBOOK-x86_64-unknown-linux-gnu.tar.gz" "$MDBOOK_SHA256"
-	install -m 0755 "$work/mdbook/mdbook" "$bin/mdbook"
+	install -m 0755 "$work/mdbook.bin" "$bin/mdbook"
 fi
 if ! have lychee "$LYCHEE"; then
 	fetch lychee "https://github.com/lycheeverse/lychee/releases/download/lychee-v$LYCHEE/lychee-x86_64-unknown-linux-gnu.tar.gz" "$LYCHEE_SHA256"
-	install -m 0755 "$work/lychee/lychee" "$bin/lychee"
+	install -m 0755 "$work/lychee.bin" "$bin/lychee"
 fi
 echo "docs-tools: mdbook $MDBOOK and lychee $LYCHEE in $bin"
