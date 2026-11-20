@@ -1,0 +1,16 @@
+#!/bin/sh
+# Builds the book in docs/book and fails on any warning (plans/14-docs.md).
+# Usage: scripts/docs [output-dir]   (default docs/book/book)
+set -eu
+
+cd "$(dirname "$0")/.."
+out="${1:-docs/book/book}"
+log="$(mktemp)"
+trap 'rm -f "$log"' EXIT
+
+mdbook build docs/book -d "$(pwd)/$out" >"$log" 2>&1 || { cat "$log" >&2; exit 1; }
+cat "$log"
+if grep -Eq '(^| )(WARN|ERROR)( |$)' "$log"; then
+	echo "docs: the book built with warnings" >&2
+	exit 1
+fi
