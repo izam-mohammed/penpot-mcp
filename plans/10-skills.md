@@ -245,9 +245,14 @@ repository instructions for recording useful development findings.
   server instructions name the `penpot-mcp` skill.
 - [x] Check: `make check` passes, and `bin/penpot-mcp skills install
   --dir <scratch>` lists two skills written.
-- [ ] You try it: run `penpot-mcp skills install`, start a new Claude Code
+- [x] You try it: run `penpot-mcp skills install`, start a new Claude Code
   session, and ask it to draw a login screen in your test file; say
   whether `penpot-mcp-draw` loaded and the drawing came out right.
+  Landed 20/11/2026: `skills install --dir` wrote the five skills into the
+  profiles, a new session loaded `penpot-mcp-draw`, and `draw` put a login
+  board (title, two fields, button; flex column) into a new file, read back
+  with `get_page_tree` at the right sizes and parents. Not looked at in
+  Penpot itself.
 
 ### Phase 2: the rest of the jobs
 

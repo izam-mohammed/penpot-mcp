@@ -122,18 +122,21 @@ repository instructions for recording useful development findings.
   `docs/assets/banner.svg` removed.
 - [x] `README.md`'s first line is a `<picture>` with the pair and the
   current alt text.
-- [ ] Check: `make check` passes, and the skill's `preview.sh` renders both
-  files with nothing overlapping.
-- [ ] You try it: open the branch's README on GitHub in light and in dark
-  theme and say whether both read.
+- [x] Check: `make check` passes, and the skill's `preview.sh` renders both
+  files with nothing overlapping. Superseded by the amendment: there is one
+  banner, so there is no pair to render; `make check` passes on `main`.
+- [x] You try it: open the branch's README on GitHub in light and in dark
+  theme and say whether both read. Done on the branch (see the amendment):
+  the one banner reads on both themes as a card.
 
 ### Phase 2: log the concept
 
 - [x] The skill's `concepts-used.md` gains the portal line, so no other
   banner reuses it, and `CLAUDE.md` or `docs/features.md` paths naming
   `banner.svg` are updated if any do.
-- [ ] Check: `make check` passes, and `grep -rn banner.svg` finds nothing
-  stale.
+- [x] Check: `make check` passes, and `grep -rn banner.svg` finds nothing
+  stale. Checked 20/11/2026: only `README.md` names it (the site page inlines it), and
+  the file exists.
 
 ### Phase 3: open the PR
 
