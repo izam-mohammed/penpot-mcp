@@ -43,13 +43,28 @@ func main() {
 	}
 }
 
+// mainFlags declares the flags of `penpot-mcp` itself; the CLI page of the
+// book is written from them (docs_test.go).
+func mainFlags(fs *flag.FlagSet) (httpAddr *string, showVersion *bool) {
+	httpAddr = fs.String("http", "", "serve MCP over streamable HTTP on host:port, such as 127.0.0.1:8787, instead of stdio")
+	showVersion = fs.Bool("version", false, "print the version and exit")
+	return httpAddr, showVersion
+}
+
+// skillsFlags declares the flags of `penpot-mcp skills install`.
+func skillsFlags(fs *flag.FlagSet) (agent, dir *string, force *bool) {
+	agent = fs.String("agent", "claude", "where to install: claude (Claude Code) or codex")
+	dir = fs.String("dir", "", "install into this skills directory instead")
+	force = fs.Bool("force", false, "replace skill directories penpot-mcp did not write, symlinks included")
+	return agent, dir, force
+}
+
 func run(args []string, stdout io.Writer) error {
 	if len(args) > 0 && args[0] == "skills" {
 		return runSkills(args[1:], stdout)
 	}
 	fs := flag.NewFlagSet("penpot-mcp", flag.ContinueOnError)
-	httpAddr := fs.String("http", "", "serve MCP over streamable HTTP on host:port, such as 127.0.0.1:8787, instead of stdio")
-	showVersion := fs.Bool("version", false, "print the version and exit")
+	httpAddr, showVersion := mainFlags(fs)
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -167,9 +182,7 @@ func runSkills(args []string, stdout io.Writer) error {
 		return errors.New("usage: penpot-mcp skills install [--agent claude|codex] [--dir PATH] [--force]")
 	}
 	fs := flag.NewFlagSet("skills install", flag.ContinueOnError)
-	agent := fs.String("agent", "claude", "where to install: claude (Claude Code) or codex")
-	dir := fs.String("dir", "", "install into this skills directory instead")
-	force := fs.Bool("force", false, "replace skill directories penpot-mcp did not write, symlinks included")
+	agent, dir, force := skillsFlags(fs)
 	if err := fs.Parse(args[1:]); err != nil {
 		return err
 	}

@@ -8,7 +8,10 @@ Skills: `skills/penpot-mcp*/`, embedded in the binary and installed with
 `penpot-mcp skills install`. A tool added or renamed means regenerating
 `skills/penpot-mcp/references/tools.md` (`go test ./internal/tools -run
 TestSkillListsEveryTool -update`) and naming it in the job skill it
-belongs to; `go test ./skills` fails until both are done.
+belongs to; `go test ./skills` fails until both are done. It also means
+the book's pages: pick its group in `docGroups`
+(`internal/tools/docs_test.go`) and run `go test ./internal/tools -run
+TestDocsListEveryTool -update`.
 
 Standards: docs/standards.md
 References: `docs/penpot-api-reference.md`, `docs/existing-mcp-reference.md`,
