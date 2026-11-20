@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    uses: izam-mohammed/.github/.github/workflows/security-scan.yml@c114cba32a5368840d3a90facf48c5d03eb2af1e # main
+    uses: izam-mohammed/.github/.github/workflows/security-scan.yml@b0add75acb9391555da00d7df77945c14436197d # main
     with:
       ecosystem: go
       go-version: '1.26'
