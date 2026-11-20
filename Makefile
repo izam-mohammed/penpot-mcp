@@ -4,10 +4,10 @@ GOLANGCI_LINT := $(GOBIN)/golangci-lint
 GOVULNCHECK := $(GOBIN)/govulncheck
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 
-.PHONY: check fmt lint build test cover vuln secrets tools live live-mcp install-skill
+.PHONY: check fmt lint build test cover vuln secrets docs tools live live-mcp install-skill
 
 ## check: everything a change must pass (docs/standards.md)
-check: fmt lint build cover vuln secrets
+check: fmt lint build cover vuln secrets docs
 
 fmt:
 	$(GOLANGCI_LINT) fmt --diff
@@ -32,10 +32,16 @@ vuln:
 secrets:
 	gitleaks git --no-banner --redact
 
+## docs: build the book in docs/book, failing on a warning or a broken link
+docs:
+	@PATH="$(GOBIN):$$PATH"; command -v mdbook >/dev/null || { echo "mdbook is not installed; run make tools"; exit 2; }; \
+	PATH="$(GOBIN):$$PATH" sh scripts/docs
+
 ## tools: install the pinned check tools
 tools:
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
 	go install golang.org/x/vuln/cmd/govulncheck@latest
+	sh scripts/docs-tools
 
 ## live: draw into the "penpot-mcp test" file with a real token (not in CI)
 live:

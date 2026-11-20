@@ -12,3 +12,6 @@ dist/
 .env.local
 .secrets/
 *.pem
+
+# the built book
+docs/book/book/

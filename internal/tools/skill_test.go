@@ -8,6 +8,8 @@ import (
 	"sort"
 	"strings"
 	"testing"
+
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 var update = flag.Bool("update", false, "rewrite skills/penpot-mcp/references/tools.md from the registered tools")
@@ -30,9 +32,9 @@ func firstSentence(s string) string {
 	return s
 }
 
-// renderToolsDoc lists every tool the server registers with a tab
-// connected, marking which ones need the tab.
-func renderToolsDoc(t *testing.T) string {
+// registeredTools lists every tool the server registers with a tab
+// connected, sorted by name, with the route each one takes.
+func registeredTools(t *testing.T) ([]*mcp.Tool, map[string]string) {
 	t.Helper()
 	plain, _ := session(t)
 	apiTools, err := plain.ListTools(context.Background(), nil)
@@ -50,16 +52,7 @@ func renderToolsDoc(t *testing.T) string {
 		t.Fatal(err)
 	}
 	sort.Slice(all.Tools, func(i, j int) bool { return all.Tools[i].Name < all.Tools[j].Name })
-	var b strings.Builder
-	b.WriteString("# penpot-mcp tools\n\n")
-	b.WriteString("Generated from the server by `go test ./internal/tools -run TestSkillListsEveryTool -update`;\n")
-	b.WriteString("`TestSkillListsEveryTool` fails when this file and the server differ.\n\n")
-	b.WriteString("Route: **API** needs only the access token; **login or tab** also needs\n")
-	b.WriteString("`PENPOT_EMAIL` and `PENPOT_PASSWORD`, or else a connected tab with the\n")
-	b.WriteString("shape's page open; **hybrid** runs on the API and adds a\n")
-	b.WriteString("step in the tab when one is connected; **tab** needs `PENPOT_MCP_URL` and a\n")
-	b.WriteString("connected Penpot tab with the file open.\n\n")
-	b.WriteString("| Tool | Route | Does |\n| --- | --- | --- |\n")
+	routes := map[string]string{}
 	for _, tool := range all.Tools {
 		route := "API"
 		switch {
@@ -70,6 +63,28 @@ func renderToolsDoc(t *testing.T) string {
 		case exporterTools[tool.Name]:
 			route = "login or tab"
 		}
+		routes[tool.Name] = route
+	}
+	return all.Tools, routes
+}
+
+// renderToolsDoc lists every tool the server registers with a tab
+// connected, marking which ones need the tab.
+func renderToolsDoc(t *testing.T) string {
+	t.Helper()
+	all, routes := registeredTools(t)
+	var b strings.Builder
+	b.WriteString("# penpot-mcp tools\n\n")
+	b.WriteString("Generated from the server by `go test ./internal/tools -run TestSkillListsEveryTool -update`;\n")
+	b.WriteString("`TestSkillListsEveryTool` fails when this file and the server differ.\n\n")
+	b.WriteString("Route: **API** needs only the access token; **login or tab** also needs\n")
+	b.WriteString("`PENPOT_EMAIL` and `PENPOT_PASSWORD`, or else a connected tab with the\n")
+	b.WriteString("shape's page open; **hybrid** runs on the API and adds a\n")
+	b.WriteString("step in the tab when one is connected; **tab** needs `PENPOT_MCP_URL` and a\n")
+	b.WriteString("connected Penpot tab with the file open.\n\n")
+	b.WriteString("| Tool | Route | Does |\n| --- | --- | --- |\n")
+	for _, tool := range all {
+		route := routes[tool.Name]
 		desc := strings.ReplaceAll(firstSentence(tool.Description), "|", "\\|")
 		fmt.Fprintf(&b, "| `%s` | %s | %s |\n", tool.Name, route, desc)
 	}

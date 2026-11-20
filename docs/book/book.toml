@@ -1,0 +1,16 @@
+[book]
+title = "penpot-mcp"
+description = "An MCP server that drives Penpot through its backend API, no browser tab needed."
+language = "en"
+src = "src"
+
+[build]
+build-dir = "book"
+create-missing = false
+
+[output.html]
+git-repository-url = "https://github.com/izam-mohammed/penpot-mcp"
+edit-url-template = "https://github.com/izam-mohammed/penpot-mcp/edit/main/docs/book/{path}"
+site-url = "/penpot-mcp/docs/"
+default-theme = "light"
+preferred-dark-theme = "navy"

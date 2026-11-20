@@ -1,0 +1,48 @@
+#!/bin/sh
+# Installs the pinned docs tools (mdbook, lychee) into the Go bin directory.
+# Each download is a release archive checked against a SHA-256 written here;
+# a mismatch stops the install. Only linux amd64 is pinned: elsewhere the
+# script says how to install the same version by hand.
+set -eu
+
+MDBOOK=0.5.2
+MDBOOK_SHA256=084e4342ba564db270108763e404a7d1f309d932651a22484e93c0dc1a071f6d
+LYCHEE=0.24.2
+LYCHEE_SHA256=1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a
+
+bin="${GOBIN:-$(go env GOPATH)/bin}"
+mkdir -p "$bin"
+
+if [ "$(uname -s)-$(uname -m)" != "Linux-x86_64" ]; then
+	echo "docs-tools: no pinned checksum for $(uname -s) $(uname -m)." >&2
+	echo "install mdbook $MDBOOK and lychee $LYCHEE yourself, for example:" >&2
+	echo "  cargo install --locked mdbook@$MDBOOK lychee@$LYCHEE" >&2
+	exit 1
+fi
+
+work="$(mktemp -d)"
+trap 'rm -rf "$work"' EXIT
+
+fetch() { # name url sha256
+	curl -fsSL --retry 3 -o "$work/$1.tgz" "$2"
+	echo "$3  $work/$1.tgz" | sha256sum -c - >/dev/null ||
+		{ echo "docs-tools: checksum mismatch for $1, nothing installed" >&2; exit 1; }
+	mkdir "$work/$1"
+	tar -xzf "$work/$1.tgz" -C "$work/$1"
+	# mdbook ships the binary at the top, lychee inside a folder: find it
+	found="$(find "$work/$1" -type f -name "$1" | head -n 1)"
+	[ -n "$found" ] || { echo "docs-tools: no $1 binary in the archive" >&2; exit 1; }
+	mv "$found" "$work/$1.bin"
+}
+
+have() { command -v "$1" >/dev/null 2>&1 && "$1" --version | grep -q "$2"; }
+
+if ! have mdbook "$MDBOOK"; then
+	fetch mdbook "https://github.com/rust-lang/mdBook/releases/download/v$MDBOOK/mdbook-v$MDBOOK-x86_64-unknown-linux-gnu.tar.gz" "$MDBOOK_SHA256"
+	install -m 0755 "$work/mdbook.bin" "$bin/mdbook"
+fi
+if ! have lychee "$LYCHEE"; then
+	fetch lychee "https://github.com/lycheeverse/lychee/releases/download/lychee-v$LYCHEE/lychee-x86_64-unknown-linux-gnu.tar.gz" "$LYCHEE_SHA256"
+	install -m 0755 "$work/lychee.bin" "$bin/lychee"
+fi
+echo "docs-tools: mdbook $MDBOOK and lychee $LYCHEE in $bin"

@@ -283,16 +283,28 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut: the book builds locally (needs you: try it)
 
-- [ ] `docs/book/` with `book.toml` (`create-missing = false`),
+- [x] `docs/book/` with `book.toml` (`create-missing = false`),
   `SUMMARY.md`, an introduction and `getting-started.md` (install, the
   token, `claude mcp add`, `skills install`, the first `draw`), from the
   README's install steps.
-- [ ] `make docs` builds the book with a pinned `mdbook`, failing on any
+  Landed 2026-11-20: getting started and the guides are in the README's
+  lowercase voice; configuration, routes, troubleshooting and the reference
+  are plain.
+- [x] `make docs` builds the book with a pinned `mdbook`, failing on any
   warning, and `make tools` installs it by version and checksum; the
   built size of `getting-started.html` and its assets recorded in the
   phase's commit message as the baseline.
-- [ ] Check: `make check` passes, and `make docs` writes
+  Landed 2026-11-20: pinned in `scripts/docs-tools` (mdbook 0.5.2, lychee
+  0.24.2, SHA-256 of the linux amd64 archive; other platforms are told how to
+  install the same version). Baseline in the commit message:
+  `getting-started.html` 26718 bytes, the whole book 985278 bytes. The
+  installer's download path was not run here (mdbook and lychee were already
+  installed at those versions); the two checksums are those of the archives
+  fetched and hashed here.
+- [x] Check: `make check` passes, and `make docs` writes
   `docs/book/book/index.html`.
+  Landed 2026-11-20: `make check` passes (format, lint, build, tests,
+  govulncheck, gitleaks, docs) and `docs/book/book/index.html` exists.
 - [ ] You try it: run `make docs` and `mdbook serve docs/book`, open the
   getting-started page in light and dark, follow it on a clean shell up to
   `/mcp` listing `penpot-api`, and say whether this is the shape you want
@@ -300,43 +312,58 @@ repository instructions for recording useful development findings.
 
 ### Phase 2: the tool and CLI reference, generated
 
-- [ ] `TestDocsListEveryTool` (expected in `internal/tools/docs_test.go`)
+- [x] `TestDocsListEveryTool` (expected in `internal/tools/docs_test.go`)
   writes `docs/book/src/reference/tools/<group>.md` from the registered
   tools with `-update`, each tool with its description, route and a
   parameter table from its input schema, and fails when a page differs;
   `SUMMARY.md` lists the groups.
-- [ ] A test in `cmd/penpot-mcp/` writes `reference/cli.md` from the main
+  Landed 2026-11-20: six pages (files, drawing, library, export,
+  collaboration, advanced); a tool on no page fails the test.
+- [x] A test in `cmd/penpot-mcp/` writes `reference/cli.md` from the main
   and `skills install` flag sets, and fails when it differs.
-- [ ] `CLAUDE.md` says a tool added or renamed also means
+  Landed 2026-11-20: `TestCLIDoc`; the flag sets moved into `mainFlags` and
+  `skillsFlags` in `main.go` so the test and `run` share them.
+- [x] `CLAUDE.md` says a tool added or renamed also means
   `go test ./internal/tools -run TestDocsListEveryTool -update`.
-- [ ] Check: `make check` passes, and a renamed tool in a scratch copy
+- [x] Check: `make check` passes, and a renamed tool in a scratch copy
   fails `go test ./internal/tools` until `-update` is run; the search
   index size recorded in the commit message.
+  Landed 2026-11-20: renaming `pin_project` in a scratch edit failed
+  `TestDocsListEveryTool` until the page was regenerated, then reverted.
+  Search index with all 87 tools: 361219 bytes (`searchindex-*.js`).
 
 ### Phase 3: configuration, routes and guides
 
-- [ ] `configuration.md` with every env var, profiles, self-hosted Penpot
+- [x] `configuration.md` with every env var, profiles, self-hosted Penpot
   and HTTP mode, held by a test that fails when a `PENPOT_` name the code
   reads is missing from it.
+  Landed 2026-11-20: `TestConfigurationNamesEveryEnvVar` scans the code's
+  quoted `PENPOT_` names.
 - [ ] `routes.md` (API, login or tab, hybrid, tab, and connecting the
   official MCP), and one guide per job skill: files and projects, drawing,
   library and tokens, export, collaboration and several accounts, each
   with a worked example from a real run.
-- [ ] A troubleshooting page from the errors the server returns, each with
+  Landed 2026-11-20: the pages and the five guides are written, but left
+  unticked: the worked examples come from the skills and the tool schemas,
+  not from a real run against a Penpot account.
+- [x] A troubleshooting page from the errors the server returns, each with
   what to do.
-- [ ] Check: `make check` passes, and `make docs` builds with no warning.
+- [x] Check: `make check` passes, and `make docs` builds with no warning.
 - [ ] You try it: read the routes page and one guide, and say whether a
   person new to penpot-mcp could set up exports from it.
 
 ### Phase 4: the docs check and publishing
 
-- [ ] `make docs` also runs a pinned lychee `--offline` on the built book,
+- [x] `make docs` also runs a pinned lychee `--offline` on the built book,
   and `make check` runs `make docs`; a planted broken link and a planted
   broken anchor each fail it.
+  Landed 2026-11-20: a planted broken link and a planted broken anchor each
+  failed `make docs`; `404.html` is excluded (its links are root-relative to
+  the site). `make check` runs `make docs`.
 - [ ] `pages.yml` builds the book into `site/docs/` before uploading
   `site/`, so one deploy serves both; `site/index.html` and `README.md`
   link `/docs/`.
-- [ ] `docs/standards.md` names `make docs`, mdBook and lychee under
+- [x] `docs/standards.md` names `make docs`, mdBook and lychee under
   checks and decided.
 - [ ] Check: `make check` passes, and after the workflow runs on `main`,
   `https://izam-mohammed.github.io/penpot-mcp/docs/` answers 200.
