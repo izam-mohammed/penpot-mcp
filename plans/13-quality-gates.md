@@ -206,38 +206,49 @@ repository instructions for recording useful development findings.
 
 ### Phase 1: the rough cut: a floor that never drops (needs you: try it)
 
-- [ ] `make cover` prints the per-package table lowest first and fails
+- [x] `make cover` prints the per-package table lowest first and fails
   under `scripts/coverage-floor` (64), and `make check` runs it in place
   of `test` (expected in `Makefile`), pinned by the floor failing when set
   to 100 in a scratch copy.
-- [ ] `docs/standards.md` gains the coverage row, the floor and the target.
-- [ ] Check: `make check` passes, and `make cover` prints 64 % or more.
+- [x] `docs/standards.md` gains the coverage row, the floor and the target.
+- [x] Check: `make check` passes, and `make cover` prints 64 % or more.
+  Landed 2026-11-20: `make check` green, `make cover` printed 64.3 %. The
+  floor failing under a higher number was checked with a scratch floor of
+  100 (`scripts/cover-report.sh` exits 1 and names both numbers).
 - [ ] You try it: run `make check` and say whether the coverage table is
   the view you want on every run.
 
 ### Phase 2: the client, the small packages and main
 
-- [ ] `internal/penpot`, `internal/httpserve`, `internal/transit`,
+- [x] `internal/penpot`, `internal/httpserve`, `internal/transit`,
   `internal/mcproute` and `internal/fonts` reach 90 % each against the
   fakes, and `cmd/penpot-mcp`'s `run` is tested with fake args (expected
   in `cmd/penpot-mcp/main_test.go`); `scripts/coverage-floor` raised to
   the new total, rounded down.
-- [ ] Check: `make check` passes at the new floor.
+- [x] Check: `make check` passes at the new floor (72).
+  Landed 2026-11-20: total 72.9 %; `internal/penpot` 92.8, `httpserve` 100,
+  `transit` 94.4, `mcproute` 94.0, `fonts` 98.1, `cmd/penpot-mcp` 85.1
+  (`run` now takes its args and writer, so the test calls it directly).
 
 ### Phase 3: the tools
 
-- [ ] `internal/tools` handlers tested against the fakes until the total
+- [x] `internal/tools` handlers tested against the fakes until the total
   is at least 90 %, lowest files first, and `scripts/coverage-floor` set
   to 90.
-- [ ] Check: `make check` passes at 90.
+  Landed 2026-11-20: total 90.1 %, `internal/tools` 86 % on its own. The
+  fake backend gained export, import, teams and project replies and a page
+  override; `TestEveryIDParameterIsChecked` walks every tool's schema.
+- [x] Check: `make check` passes at 90.
+  Landed 2026-11-20: `make check` green at floor 90, total 90.1 %. The
+  margin is thin: raise the floor toward 95 as tests are added.
 
 ### Phase 4: the shared gate and pinned workflows
 
-- [ ] `.github/workflows/security.yml` calls the shared gate with
+- [x] `.github/workflows/security.yml` calls the shared gate with
   `ecosystem: go`, `go-version: '1.26'`, pinned to its commit SHA, and
   every action in `check.yml` and `release.yml` is pinned by SHA with
   `permissions: {}` at the top and grants per job.
-- [ ] `docs/standards.md`'s CI and Decided sections name the gate.
+- [x] `docs/standards.md`'s CI and Decided sections name the gate.
 - [ ] Check: `make check` passes, and the PR's Security run reports stage
   1 green and zizmor with no unpinned action.
 

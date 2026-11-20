@@ -44,6 +44,7 @@ type backend struct {
 	lib     string        // extra get-file data fields, such as `,"colors":{...}`
 	root    string        // the server's working directory, for palette files
 	block   chan struct{} // when set, update-file waits for it
+	page    string        // when set, get-page replies with this body
 }
 
 func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
@@ -52,6 +53,10 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 		b.calls = append(b.calls, "openapi.json")
 		b.mu.Unlock()
 		_, _ = w.Write(openAPIFixture)
+		return
+	}
+	if r.URL.Path == "/assets/by-id/1" {
+		_, _ = w.Write([]byte("PK-fake-penpot-archive"))
 		return
 	}
 	command := strings.TrimPrefix(r.URL.Path, "/api/main/methods/")
@@ -103,7 +108,7 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	lib := b.lib
+	lib, pageBody := b.lib, b.page
 	var order, index []string
 	for _, p := range b.pages {
 		order = append(order, `"`+p[0]+`"`)
@@ -121,6 +126,10 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 			"permissions":{"canEdit":true,"canRead":true},
 			"data":{"pages":[` + strings.Join(order, ",") + `],"pagesIndex":{` + strings.Join(index, ",") + `}` + lib + `}}`))
 	case "get-page":
+		if pageBody != "" {
+			_, _ = w.Write([]byte(pageBody))
+			return
+		}
 		_, _ = w.Write([]byte(`{"id":"` + pageID + `","name":"Page 1","objects":{
 			"00000000-0000-0000-0000-000000000000":{"id":"00000000-0000-0000-0000-000000000000","name":"Root Frame","type":"frame","shapes":["` + boardID + `"]},
 			"` + boardID + `":{"id":"` + boardID + `","name":"Login","type":"frame","parentId":"00000000-0000-0000-0000-000000000000","frameId":"00000000-0000-0000-0000-000000000000","x":0,"y":0,"width":400,"height":300,"shapes":["` + rectID + `"]},
@@ -174,6 +183,18 @@ func (b *backend) serve(w http.ResponseWriter, r *http.Request) {
 	case "rename-project", "move-project", "update-project-pin", "delete-project", "delete-file", "move-files",
 		"restore-deleted-team-files", "set-file-shared", "link-file-to-library", "unlink-file-from-library":
 		w.WriteHeader(http.StatusNoContent)
+	case "get-teams":
+		_, _ = w.Write([]byte(`[{"id":"` + teamID + `","name":"Team","isDefault":true}]`))
+	case "get-projects":
+		_, _ = w.Write([]byte(`[{"id":"` + draftsID + `","name":"Drafts","teamId":"` + teamID + `","isDefault":true}]`))
+	case "get-project-files":
+		_, _ = w.Write([]byte(`[{"id":"` + fileID + `","name":"test file","projectId":"` + draftsID + `"}]`))
+	case "export-binfile":
+		w.Header().Set("Content-Type", "text/event-stream")
+		_, _ = w.Write([]byte("event: progress\ndata: {}\n\nevent: end\ndata: \"~rhttp://" + r.Host + "/assets/by-id/1\"\n\n"))
+	case "import-binfile":
+		w.Header().Set("Content-Type", "text/event-stream")
+		_, _ = w.Write([]byte("event: end\ndata: [\"~uf0000000-0000-4000-8000-000000000009\"]\n\n"))
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		_, _ = w.Write([]byte(`{"type":"not-found","code":"object-not-found"}`))

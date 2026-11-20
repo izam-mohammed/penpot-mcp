@@ -1,6 +1,8 @@
 .DS_Store
 node_modules/
 bin/
+coverage.out
+coverage.log
 dist/
 
 # local secrets stay out of git

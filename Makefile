@@ -4,10 +4,10 @@ GOLANGCI_LINT := $(GOBIN)/golangci-lint
 GOVULNCHECK := $(GOBIN)/govulncheck
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 
-.PHONY: check fmt lint build test vuln secrets tools live live-mcp install-skill
+.PHONY: check fmt lint build test cover vuln secrets tools live live-mcp install-skill
 
 ## check: everything a change must pass (docs/standards.md)
-check: fmt lint build test vuln secrets
+check: fmt lint build cover vuln secrets
 
 fmt:
 	$(GOLANGCI_LINT) fmt --diff
@@ -20,6 +20,11 @@ build:
 
 test:
 	go test -race ./...
+
+## cover: tests with the race detector, per-package table lowest first, fail under scripts/coverage-floor
+cover:
+	@go test -race -coverprofile=coverage.out ./... >coverage.log 2>&1 || { cat coverage.log; exit 1; }
+	@sh scripts/cover-report.sh coverage.log coverage.out scripts/coverage-floor
 
 vuln:
 	$(GOVULNCHECK) ./...
