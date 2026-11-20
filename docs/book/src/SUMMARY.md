@@ -4,6 +4,14 @@
 
 - [Getting started](getting-started.md)
 - [Configuration](configuration.md)
+- [Routes](routes.md)
+- [Guides]()
+  - [Files and projects](guides/files.md)
+  - [Drawing whole screens](guides/drawing.md)
+  - [Library and tokens](guides/library.md)
+  - [Export](guides/export.md)
+  - [Collaboration and accounts](guides/collaboration.md)
+- [Troubleshooting](troubleshooting.md)
 
 # Reference
 
