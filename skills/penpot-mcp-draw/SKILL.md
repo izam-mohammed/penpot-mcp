@@ -1,7 +1,7 @@
 ---
 name: penpot-mcp-draw
 description: "Draw and edit in Penpot with the penpot-mcp server (the `penpot` MCP tools), no browser tab needed: whole screens in one `draw` call (boards, rects, ellipses, text sized with real font metrics, SVG paths, images, groups, bools, flex and grid layouts), single shapes, edits, moves, reparenting, deletes, and checking what landed by reading the page tree or looking in Claude in Chrome. With a Penpot tab connected, also reflow, HTML, SVG and CSS markup, SVG import and component variants."
-when_to_use: "draw a screen in penpot, mock up a ui in penpot, add a board in penpot, draw a login screen, penpot text box, penpot flex layout, edit or move penpot shapes, delete penpot shapes, restyle a board, check a penpot drawing, penpot reflow, generate css from penpot, import svg into penpot, mcp__penpot__draw"
+when_to_use: "draw a screen in penpot, mock up a ui in penpot, add a board in penpot, draw a login screen, penpot text box, penpot flex layout, edit or move penpot shapes, delete penpot shapes, restyle a board, check a penpot drawing, penpot reflow, generate css from penpot, import svg into penpot, mcp__penpot__draw, no Penpot tab is connected, draw without a tab"
 ---
 
 # Draw with penpot-mcp
@@ -98,7 +98,7 @@ connected
 
 | Tool | Does |
 | --- | --- |
-| `current_file` | which file and page the tab has open; check it first |
+| `current_file` | which file and page the tab has open; call it before the other tab tools, never as a health check (to test the connection use `whoami` or `list_files`) |
 | `reflow` | Penpot lays out flex and grid boards and sizes text now |
 | `generate_markup`, `generate_style`, `generate_font_faces` | HTML, SVG and CSS from shapes |
 | `import_svg` | SVG markup into editable shapes, with Penpot's own parser |
