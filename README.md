@@ -11,6 +11,11 @@
 <img src="https://img.shields.io/github/go-mod/go-version/izam-mohammed/penpot-mcp" alt="go version">
 </p>
 
+<p align="center"><img src="docs/assets/difference.svg" alt="official penpot mcp: one browser tab that must stay open and awake, one file at a time. penpot-mcp: no tab, many files and accounts. 0 tabs vs 1, many files vs 1 at a time, 87 tools vs 4" width="100%"></p>
+
+<p align="center"><b>stop babysittin' a browser tab.</b><br>
+<a href="#install">install in one line</a> · <a href="https://github.com/izam-mohammed/penpot-mcp/releases/latest">grab a binary</a> · <a href="https://github.com/izam-mohammed/penpot-mcp">star it if it saves you a tab</a></p>
+
 the [official penpot mcp](https://github.com/penpot/penpot/tree/develop/mcp) wants a browser tab
 open, a plugin awake and the right file in front of it. i got tired of
 babysittin' it, so this one talks to penpot's api directly ~ and still calls
