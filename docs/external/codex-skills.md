@@ -38,5 +38,5 @@ followed when scanning.
 ## Gotchas
 
 - The page does not mention `$CODEX_HOME/skills`; do not rely on it.
-- Tool names differ per client (`mcp__penpot-api__draw` in Claude Code), so
+- Tool names differ per client (`mcp__penpot__draw` in Claude Code), so
   the skills name tools by their bare MCP name (`draw`).

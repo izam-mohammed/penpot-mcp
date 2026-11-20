@@ -1,12 +1,12 @@
 ---
 name: penpot-mcp-export
-description: "Get designs out of Penpot with the penpot-mcp server (the `penpot-api` MCP tools): render one board or shape, or every top-level board of a page, to PNG, JPEG, WEBP, SVG or PDF straight into the repository, then cite the images from plans, docs or a README; download a whole file as .penpot and import one back. Covers which login or tab board exports need, and where the files land."
+description: "Get designs out of Penpot with the penpot-mcp server (the `penpot` MCP tools): render one board or shape, or every top-level board of a page, to PNG, JPEG, WEBP, SVG or PDF straight into the repository, then cite the images from plans, docs or a README; download a whole file as .penpot and import one back. Covers which login or tab board exports need, and where the files land."
 when_to_use: "export a penpot board, download penpot designs, penpot to png, penpot svg export, penpot pdf, save the designs into the repo, export screens for the plan, back up a penpot file, download a .penpot file, import a .penpot file, exports need PENPOT_EMAIL"
 ---
 
 # Exports with penpot-mcp
 
-Needs the `penpot-api` tools; if they are missing, load the `penpot-mcp`
+Needs the `penpot` tools; if they are missing, load the `penpot-mcp`
 skill first. Every path is inside the directory the server was started in
 (the user's project); paths outside it are refused.
 

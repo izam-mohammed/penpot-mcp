@@ -1,12 +1,12 @@
 ---
 name: penpot-mcp-collab
-description: "Work with people in Penpot through the penpot-mcp server (the `penpot-api` MCP tools): read, start, reply to and resolve comment threads; make and delete view share links; set up team webhooks; save, list and restore file versions before and after big edits; see who has a file open; and drive several Penpot accounts from one server with profiles."
+description: "Work with people in Penpot through the penpot-mcp server (the `penpot` MCP tools): read, start, reply to and resolve comment threads; make and delete view share links; set up team webhooks; save, list and restore file versions before and after big edits; see who has a file open; and drive several Penpot accounts from one server with profiles."
 when_to_use: "penpot comments, reply to penpot comments, resolve penpot feedback, penpot share link, share a penpot file, penpot webhook, save a penpot version, restore a penpot version, undo a penpot change, penpot snapshot, several penpot accounts, PENPOT_PROFILES, who is in the penpot file"
 ---
 
 # People and history with penpot-mcp
 
-Needs the `penpot-api` tools; if they are missing, load the `penpot-mcp`
+Needs the `penpot` tools; if they are missing, load the `penpot-mcp`
 skill first.
 
 ## 1. Comments

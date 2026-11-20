@@ -1,12 +1,12 @@
 ---
 name: penpot-mcp-draw
-description: "Draw and edit in Penpot with the penpot-mcp server (the `penpot-api` MCP tools), no browser tab needed: whole screens in one `draw` call (boards, rects, ellipses, text sized with real font metrics, SVG paths, images, groups, bools, flex and grid layouts), single shapes, edits, moves, reparenting, deletes, and checking what landed by reading the page tree or looking in Claude in Chrome. With a Penpot tab connected, also reflow, HTML, SVG and CSS markup, SVG import and component variants."
-when_to_use: "draw a screen in penpot, mock up a ui in penpot, add a board in penpot, draw a login screen, penpot text box, penpot flex layout, edit or move penpot shapes, delete penpot shapes, restyle a board, check a penpot drawing, penpot reflow, generate css from penpot, import svg into penpot, mcp__penpot-api__draw"
+description: "Draw and edit in Penpot with the penpot-mcp server (the `penpot` MCP tools), no browser tab needed: whole screens in one `draw` call (boards, rects, ellipses, text sized with real font metrics, SVG paths, images, groups, bools, flex and grid layouts), single shapes, edits, moves, reparenting, deletes, and checking what landed by reading the page tree or looking in Claude in Chrome. With a Penpot tab connected, also reflow, HTML, SVG and CSS markup, SVG import and component variants."
+when_to_use: "draw a screen in penpot, mock up a ui in penpot, add a board in penpot, draw a login screen, penpot text box, penpot flex layout, edit or move penpot shapes, delete penpot shapes, restyle a board, check a penpot drawing, penpot reflow, generate css from penpot, import svg into penpot, mcp__penpot__draw"
 ---
 
 # Draw with penpot-mcp
 
-Needs the `penpot-api` tools; if they are missing, load the `penpot-mcp`
+Needs the `penpot` tools; if they are missing, load the `penpot-mcp`
 skill first. Find the file and page with `list_projects`, `list_files`,
 `list_pages`, then read the page with `get_page_tree` before drawing.
 

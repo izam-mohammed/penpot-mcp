@@ -38,7 +38,7 @@ and i'm keeping it. thanks king.
 3. add it to claude code:
 
    ```sh
-   claude mcp add penpot-api -s user \
+   claude mcp add penpot -s user \
      -e PENPOT_ACCESS_TOKEN=<your token> \
      -- "$(command -v penpot-mcp)"
    ```
@@ -50,7 +50,7 @@ and i'm keeping it. thanks king.
    penpot-mcp skills install --agent codex  # codex
    ```
 
-5. restart claude code. `/mcp` should list `penpot-api`, `/skills` the
+5. restart claude code. `/mcp` should list `penpot`, `/skills` the
    `penpot-mcp` ones.
 
 ## skills
